@@ -81,9 +81,10 @@ export {
 } from "./messages.js";
 export { latest, trustFirst, everything, disagreements } from "./policies.js";
 export { SharedStore, JsonlStore } from "./shared-store.js";
-export { SqliteStore } from "./sqlite-store.js";
+export { SqliteStore, betterSqliteAvailable } from "./sqlite-store.js";
 export { NodeSqliteStore, nodeSqliteAvailable } from "./node-sqlite-store.js";
 export {
+  availableDriver,
   createBackend,
   backendFromEnv,
   backendForPath,

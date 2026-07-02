@@ -18,7 +18,7 @@ import { closeSync, existsSync, openSync, readSync } from "node:fs";
 import type { Delta } from "@rhizomes/rhizomatic";
 import type { ChorusAgent } from "./agent.js";
 import { JsonlStore } from "./shared-store.js";
-import { SqliteStore } from "./sqlite-store.js";
+import { SqliteStore, betterSqliteAvailable } from "./sqlite-store.js";
 import { NodeSqliteStore, nodeSqliteAvailable } from "./node-sqlite-store.js";
 
 export interface StoreBackend {
@@ -74,10 +74,31 @@ export type BackendKind = "jsonl" | "sqlite" | "node-sqlite";
 
 const BACKENDS: readonly BackendKind[] = ["jsonl", "sqlite", "node-sqlite"];
 
-// The default when nothing is pinned: the built-in driver if this Node has it, else JSONL.
-// Deliberately NOT better-sqlite3 — the default must never depend on a native module's presence.
+// The sqlite-family driver this process can actually construct, preferring the builtin. Both
+// drivers share one file format, so this is a driver choice, never a data question.
+function sqliteFamilyDriver(): BackendKind | undefined {
+  if (nodeSqliteAvailable()) return "node-sqlite";
+  if (betterSqliteAvailable()) return "sqlite";
+  return undefined;
+}
+
+// The default when nothing is pinned: a production-shaped SQLite store whenever ANY sqlite
+// driver exists (the builtin preferred; better-sqlite3 — an optional dep — as fallback), and
+// JSONL only as the last resort. JSONL is the legible dev tier, not a production default — but
+// it is the one backend that can never be missing, so a default `npm i -g` can never be broken.
 export function defaultBackendKind(): BackendKind {
-  return nodeSqliteAvailable() ? "node-sqlite" : "jsonl";
+  return sqliteFamilyDriver() ?? "jsonl";
+}
+
+// Substitute a constructible driver for a recorded/requested kind, within the shared-format
+// family: a "node-sqlite" store opens via better-sqlite3 where the builtin is missing, and a
+// "sqlite" store opens via the builtin where the native addon is missing. If NEITHER sqlite
+// driver exists, return the kind unchanged — the constructor's error names the way out.
+export function availableDriver(kind: BackendKind): BackendKind {
+  if (kind === "jsonl") return "jsonl";
+  if (kind === "sqlite" && betterSqliteAvailable()) return "sqlite";
+  if (kind === "node-sqlite" && nodeSqliteAvailable()) return "node-sqlite";
+  return sqliteFamilyDriver() ?? kind;
 }
 
 export function backendFromEnv(env: NodeJS.ProcessEnv = process.env): BackendKind {
@@ -105,9 +126,7 @@ function sniffExistingKind(path: string): BackendKind | undefined {
     const n = readSync(fd, head, 0, 16, 0);
     if (n === 0) return undefined; // empty file → fresh-path rules apply
     return head.toString("latin1", 0, n) === SQLITE_HEADER
-      ? nodeSqliteAvailable()
-        ? "node-sqlite"
-        : "sqlite"
+      ? availableDriver("node-sqlite")
       : "jsonl";
   } finally {
     closeSync(fd);
@@ -126,7 +145,7 @@ export function backendForPath(path: string, env: NodeJS.ProcessEnv = process.en
   const lower = path.toLowerCase();
   if (lower.endsWith(".jsonl")) return "jsonl";
   if (lower.endsWith(".sqlite") || lower.endsWith(".db")) {
-    return nodeSqliteAvailable() ? "node-sqlite" : "sqlite";
+    return availableDriver("node-sqlite");
   }
   return defaultBackendKind();
 }

@@ -6,9 +6,10 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterAll, describe, expect, it } from "vitest";
 import { JsonlStore } from "../src/shared-store.js";
-import { SqliteStore } from "../src/sqlite-store.js";
+import { SqliteStore, betterSqliteAvailable } from "../src/sqlite-store.js";
 import { NodeSqliteStore, nodeSqliteAvailable } from "../src/node-sqlite-store.js";
 import {
+  availableDriver,
   backendForPath,
   backendFromEnv,
   createBackend,
@@ -36,10 +37,23 @@ afterAll(() => {
 
 describe("chorus persistence tier: selection + migration", () => {
   it("backendFromEnv defaults by availability, honors every kind, is case-insensitive, rejects junk", () => {
-    // The unset-env default is availability-aware: the built-in driver where it exists, else the
-    // dependency-free JSONL tier. Never better-sqlite3 — a default must not hinge on a native dep.
-    expect(defaultBackendKind()).toBe(nodeSqliteAvailable() ? "node-sqlite" : "jsonl");
+    // The unset-env default prefers a SQLite driver — the builtin first, better-sqlite3 (an
+    // optional dep) next — and falls to the legible JSONL tier only when neither exists. JSONL
+    // is the dev tier, not a production default; it is also the one backend that can't be
+    // missing, so a default install can never break.
+    expect(defaultBackendKind()).toBe(
+      nodeSqliteAvailable() ? "node-sqlite" : betterSqliteAvailable() ? "sqlite" : "jsonl",
+    );
     expect(backendFromEnv({})).toBe(defaultBackendKind());
+    // Driver substitution stays inside the shared-format family and is identity when the
+    // requested driver exists.
+    expect(availableDriver("jsonl")).toBe("jsonl");
+    expect(availableDriver("sqlite")).toBe(
+      betterSqliteAvailable() ? "sqlite" : nodeSqliteAvailable() ? "node-sqlite" : "sqlite",
+    );
+    expect(availableDriver("node-sqlite")).toBe(
+      nodeSqliteAvailable() ? "node-sqlite" : betterSqliteAvailable() ? "sqlite" : "node-sqlite",
+    );
     expect(backendFromEnv({ CHORUS_STORE_BACKEND: "jsonl" })).toBe("jsonl");
     expect(backendFromEnv({ CHORUS_STORE_BACKEND: "sqlite" })).toBe("sqlite");
     expect(backendFromEnv({ CHORUS_STORE_BACKEND: "SQLite" })).toBe("sqlite");
