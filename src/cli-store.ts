@@ -14,15 +14,20 @@ import { StoreRegistry, type StoreTier } from "./stores.js";
 const TIERS: readonly StoreTier[] = ["private", "federated"];
 const KINDS: readonly BackendKind[] = ["jsonl", "sqlite", "node-sqlite"];
 
-interface StoreIo {
+export interface StoreIo {
   readonly out: (line: string) => void;
   readonly home?: string;
 }
 
 // The CLI registry requires a real identity: silently signing a registry under the shared dev
 // default would mint stores anyone could forge. The legacy npm-script surface keeps its default;
-// the `chorus` command is honest instead.
-function openRegistry(io: StoreIo): { registry: StoreRegistry; home: string } {
+// the `chorus` command is honest instead. (Shared by every registry-backed subcommand — serve
+// imports it too.)
+export function openRegistry(io: StoreIo): {
+  registry: StoreRegistry;
+  home: string;
+  seed: string;
+} {
   const home = io.home ?? chorusHome();
   const seed = resolveMasterSeed(process.env, home);
   if (seed === undefined) {
@@ -30,7 +35,7 @@ function openRegistry(io: StoreIo): { registry: StoreRegistry; home: string } {
       `no master seed found — run \`chorus init\` first (or set CHORUS_MASTER_SEED).`,
     );
   }
-  return { registry: new StoreRegistry(storesRoot(home), seed), home };
+  return { registry: new StoreRegistry(storesRoot(home), seed), home, seed };
 }
 
 const tierOf = (raw: string | undefined): StoreTier | undefined => {
