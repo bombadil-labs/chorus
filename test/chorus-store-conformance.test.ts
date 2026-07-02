@@ -13,6 +13,7 @@ import { afterAll, describe, expect, it } from "vitest";
 import type { Delta } from "@rhizomes/rhizomatic";
 import { JsonlStore } from "../src/shared-store.js";
 import { SqliteStore } from "../src/sqlite-store.js";
+import { NodeSqliteStore, nodeSqliteAvailable } from "../src/node-sqlite-store.js";
 import type { StoreBackend } from "../src/store-tier.js";
 import { callTool, createSession, type SessionContext } from "../src/mcp-server.js";
 
@@ -159,3 +160,56 @@ export function runStoreConformance(backend: Backend): void {
 
 runStoreConformance({ label: "jsonl", make: (path) => new JsonlStore(path) });
 runStoreConformance({ label: "sqlite", make: (path) => new SqliteStore(path) });
+
+// The third witness runs wherever Node ships node:sqlite (>= 22.13). Where it doesn't, skip
+// LOUDLY — a silently thinner suite would read as coverage it isn't. CI runs Nodes that have it.
+if (nodeSqliteAvailable()) {
+  runStoreConformance({ label: "node-sqlite", make: (path) => new NodeSqliteStore(path) });
+
+  // The two SQLite drivers share one on-disk format — prove it in both directions: a store
+  // written by better-sqlite3 reads identically through node:sqlite, and vice versa.
+  describe("Store conformance — sqlite/node-sqlite driver interop", () => {
+    it("each driver reads the other's file byte-for-byte (same delta set)", () => {
+      const dir = mkdtempSync(join(tmpdir(), "chorus-conf-interop-"));
+      const opened: StoreBackend[] = [];
+      try {
+        const clock = (() => {
+          let t = 1000;
+          return () => (t += 10);
+        })();
+        const s = createSession({ masterSeedHex: MASTER, sessionId: "interop", clock });
+        callTool(s, "begin-session", { model: "claude-fable-5" });
+        callTool(s, "remember", { about: "user:mike", attribute: "theme", value: "dark" });
+        callTool(s, "remember", { about: "svc:api", attribute: "owner", value: "team-a" });
+        const all = [...s.agent.peer.reactor.arrivalLog()];
+
+        const viaNative = join(dir, "written-by-native.sqlite");
+        const w1 = new SqliteStore(viaNative);
+        opened.push(w1);
+        expect(w1.appendDeltas(all)).toBe(all.length);
+        const r1 = new NodeSqliteStore(viaNative);
+        opened.push(r1);
+        expect(new Set(r1.deltasSince(new Set()).map((d) => d.id))).toEqual(
+          new Set(all.map((d) => d.id)),
+        );
+
+        const viaBuiltin = join(dir, "written-by-builtin.sqlite");
+        const w2 = new NodeSqliteStore(viaBuiltin);
+        opened.push(w2);
+        expect(w2.appendDeltas(all)).toBe(all.length);
+        const r2 = new SqliteStore(viaBuiltin);
+        opened.push(r2);
+        expect(new Set(r2.deltasSince(new Set()).map((d) => d.id))).toEqual(
+          new Set(all.map((d) => d.id)),
+        );
+      } finally {
+        for (const o of opened) o.close?.();
+        rmSync(dir, { recursive: true, force: true });
+      }
+    });
+  });
+} else {
+  describe.skip(`Store conformance — node-sqlite (node:sqlite unavailable on ${process.version}; CI witnesses it)`, () => {
+    it("needs Node >= 22.13", () => {});
+  });
+}

@@ -18,7 +18,13 @@
 
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";
 import { randomBytes } from "node:crypto";
-import { createBackend, type StoreBackend } from "./store-tier.js";
+import {
+  backendForPath,
+  createBackend,
+  resolveEnvStore,
+  type BackendKind,
+  type StoreBackend,
+} from "./store-tier.js";
 import { createSession, handleRequest, type SessionContext } from "./mcp-server.js";
 
 interface HttpSession {
@@ -33,6 +39,7 @@ interface HttpSession {
 export interface HttpServerOptions {
   readonly masterSeedHex: string;
   readonly storePath: string;
+  readonly storeBackend?: BackendKind; // default: resolved from env / availability
   readonly token: string; // the secret path segment / bearer token
   readonly port?: number; // 0 = ephemeral
   readonly host?: string; // default 127.0.0.1 — TLS terminates in front of us
@@ -127,7 +134,10 @@ export function startHttpServer(opts: HttpServerOptions): Promise<HttpServerHand
         masterSeedHex: opts.masterSeedHex,
         sessionId: `${now()}-http-${mintedId.slice(0, 8)}`,
       });
-      const store = createBackend(opts.storePath);
+      const store = createBackend(
+        opts.storePath,
+        opts.storeBackend ?? backendForPath(opts.storePath),
+      );
       store.refresh(ctx.agent);
       session = { ctx, store, lastSeen: now() };
       sessions.set(mintedId, session);
@@ -208,9 +218,11 @@ if (
   }
   const masterSeedHex =
     process.env["CHORUS_MASTER_SEED"] ?? process.env["CHORUS_SEED_HEX"] ?? "0f".repeat(32);
+  const envStore = resolveEnvStore();
   void startHttpServer({
     masterSeedHex,
-    storePath: process.env["CHORUS_STORE"] ?? "chorus-memory.jsonl",
+    storePath: envStore.path,
+    storeBackend: envStore.kind,
     token,
     port: Number(process.env["CHORUS_HTTP_PORT"] ?? 4821),
     ...(process.env["CHORUS_HTTP_HOST"] === undefined

@@ -82,9 +82,13 @@ export {
 export { latest, trustFirst, everything, disagreements } from "./policies.js";
 export { SharedStore, JsonlStore } from "./shared-store.js";
 export { SqliteStore } from "./sqlite-store.js";
+export { NodeSqliteStore, nodeSqliteAvailable } from "./node-sqlite-store.js";
 export {
   createBackend,
   backendFromEnv,
+  backendForPath,
+  defaultBackendKind,
+  resolveEnvStore,
   type StoreBackend,
   type BackendKind,
 } from "./store-tier.js";

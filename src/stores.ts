@@ -48,6 +48,9 @@ const MANIFEST = "store.json";
 const BACKEND_FILE: Record<BackendKind, string> = {
   jsonl: "memory.jsonl",
   sqlite: "memory.sqlite",
+  // Same file as `sqlite` on purpose: the two drivers share one format, so flipping a manifest
+  // between them is a driver choice, never a data migration.
+  "node-sqlite": "memory.sqlite",
 };
 
 // A named, keyed store: its identity plus the persistence backend it wraps. Constructed through a
