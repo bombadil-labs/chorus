@@ -9,7 +9,7 @@ import { createRequire } from "node:module";
 import { flagValue, parseFlags, redactSecrets, rejectUnknownFlags } from "./cli-args.js";
 import { chorusHome, configPath, initChorusHome } from "./config.js";
 import { storeCommand } from "./cli-store.js";
-import { serveCommand } from "./cli-serve.js";
+import { consoleCommand, serveCommand } from "./cli-serve.js";
 
 interface CommandSpec {
   readonly summary: string; // one line for `chorus help`
@@ -100,8 +100,24 @@ const COMMANDS: Record<string, CommandSpec> = {
     },
   },
   console: {
-    summary: "the web console over the store(s)",
-    slice: "task 6",
+    summary: "the web console over a store — the human's seat at the table",
+    async run(args): Promise<number> {
+      const { flags, rest } = parseFlags(args);
+      rejectUnknownFlags(flags, new Set(["store", "port", "home"]), "console");
+      if (rest.length > 0)
+        throw new Error(`console takes no positional arguments (got "${rest[0]}")`);
+      const storeName = flagValue(flags, "store");
+      if (storeName === undefined) {
+        throw new Error("console needs a --store <name> (see `chorus store ls`)");
+      }
+      const port = flagValue(flags, "port");
+      if (port !== undefined && !/^\d+$/.test(port)) throw new Error("--port must be a number");
+      const home = flagValue(flags, "home");
+      return consoleCommand(
+        { store: storeName, ...(port === undefined ? {} : { port: Number(port) }) },
+        { out: console.log, ...(home === undefined ? {} : { home }) },
+      );
+    },
   },
   recall: { summary: "resolve an entity under the current trust policy", slice: "task 7" },
   remember: { summary: "assert a belief from the command line", slice: "task 7" },
