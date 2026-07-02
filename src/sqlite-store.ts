@@ -97,9 +97,12 @@ export class SqliteStore implements StoreBackend {
     );
 
     // The write path runs as one IMMEDIATE transaction: acquire the write lock up front so the
-    // inserts + their pointer-index rows commit atomically, and concurrent writers wait.
+    // inserts + their pointer-index rows commit atomically, and concurrent writers wait. The txn
+    // returns the ids it stored; the caller marks them in onDisk only AFTER the commit — a
+    // rollback undoes the rows but not a Set mutation, and ids marked durable-but-rolled-back
+    // would make every future persist() skip those deltas (silent data loss on retry).
     this.appendTxn = this.db.transaction((deltas: readonly Delta[]) => {
-      let count = 0;
+      const stored: string[] = [];
       for (const d of deltas) {
         const info = this.insertDelta.run({
           id: d.id,
@@ -108,11 +111,10 @@ export class SqliteStore implements StoreBackend {
         });
         if (info.changes > 0) {
           this.indexPointers(d);
-          this.onDisk.add(d.id);
-          count += 1;
+          stored.push(d.id);
         }
       }
-      return count;
+      return stored;
     });
   }
 
@@ -153,7 +155,9 @@ export class SqliteStore implements StoreBackend {
       fresh.push(d);
     }
     if (fresh.length === 0) return 0;
-    return this.appendTxn.immediate(fresh) as number;
+    const stored = this.appendTxn.immediate(fresh) as string[];
+    for (const id of stored) this.onDisk.add(id);
+    return stored.length;
   }
 
   deltasSince(knownIds: ReadonlySet<string>): Delta[] {

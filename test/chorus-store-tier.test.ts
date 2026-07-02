@@ -1,15 +1,19 @@
 // The pluggable tier from the caller's side: env-driven backend selection, the factory, the
 // JSONL → SQLite migration (lossless by digest), and an MCP-boot smoke through each backend.
 
-import { mkdtempSync, rmSync } from "node:fs";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterAll, describe, expect, it } from "vitest";
 import { JsonlStore } from "../src/shared-store.js";
 import { SqliteStore } from "../src/sqlite-store.js";
+import { NodeSqliteStore, nodeSqliteAvailable } from "../src/node-sqlite-store.js";
 import {
+  backendForPath,
   backendFromEnv,
   createBackend,
+  defaultBackendKind,
+  resolveEnvStore,
   type StoreBackend,
   type BackendKind,
 } from "../src/store-tier.js";
@@ -31,11 +35,15 @@ afterAll(() => {
 });
 
 describe("chorus persistence tier: selection + migration", () => {
-  it("backendFromEnv defaults to jsonl, honors sqlite, is case-insensitive, rejects junk", () => {
-    expect(backendFromEnv({})).toBe("jsonl");
+  it("backendFromEnv defaults by availability, honors every kind, is case-insensitive, rejects junk", () => {
+    // The unset-env default is availability-aware: the built-in driver where it exists, else the
+    // dependency-free JSONL tier. Never better-sqlite3 — a default must not hinge on a native dep.
+    expect(defaultBackendKind()).toBe(nodeSqliteAvailable() ? "node-sqlite" : "jsonl");
+    expect(backendFromEnv({})).toBe(defaultBackendKind());
     expect(backendFromEnv({ CHORUS_STORE_BACKEND: "jsonl" })).toBe("jsonl");
     expect(backendFromEnv({ CHORUS_STORE_BACKEND: "sqlite" })).toBe("sqlite");
     expect(backendFromEnv({ CHORUS_STORE_BACKEND: "SQLite" })).toBe("sqlite");
+    expect(backendFromEnv({ CHORUS_STORE_BACKEND: "node-sqlite" })).toBe("node-sqlite");
     expect(() => backendFromEnv({ CHORUS_STORE_BACKEND: "postgres" })).toThrow(
       /not a known backend/,
     );
@@ -44,6 +52,73 @@ describe("chorus persistence tier: selection + migration", () => {
   it("the factory builds the backend the selection names", () => {
     expect(track(createBackend(join(dir, "f.jsonl"), "jsonl"))).toBeInstanceOf(JsonlStore);
     expect(track(createBackend(join(dir, "f.sqlite"), "sqlite"))).toBeInstanceOf(SqliteStore);
+    if (nodeSqliteAvailable()) {
+      expect(track(createBackend(join(dir, "f.node.sqlite"), "node-sqlite"))).toBeInstanceOf(
+        NodeSqliteStore,
+      );
+    } else {
+      // On a pre-22.13 Node the kind exists but construction fails loudly, naming the way out.
+      expect(() => createBackend(join(dir, "f.node.sqlite"), "node-sqlite")).toThrow(/node:sqlite/);
+    }
+  });
+
+  it("resolveEnvStore binds path and kind together, with legacy-jsonl continuity", () => {
+    const never = () => false;
+    const always = () => true;
+    // Explicit env pins both halves, regardless of what exists on disk.
+    expect(
+      resolveEnvStore({ CHORUS_STORE: "x.sqlite", CHORUS_STORE_BACKEND: "sqlite" }, never),
+    ).toEqual({ path: "x.sqlite", kind: "sqlite" });
+    // A .jsonl path pins the jsonl driver — path-based continuity for the pre-registry surface.
+    expect(resolveEnvStore({ CHORUS_STORE: "mine.jsonl" }, never)).toEqual({
+      path: "mine.jsonl",
+      kind: "jsonl",
+    });
+    // No env at all: the default pair is coherent (extension matches driver)…
+    const bare = resolveEnvStore({}, never);
+    expect(bare.kind).toBe(defaultBackendKind());
+    expect(bare.path).toBe(bare.kind === "jsonl" ? "chorus-memory.jsonl" : "chorus-memory.sqlite");
+    // …and an existing legacy chorus-memory.jsonl keeps winning even where node-sqlite is the
+    // default, so a Node upgrade never strands history behind a fresh store.
+    expect(resolveEnvStore({}, always)).toEqual({ path: "chorus-memory.jsonl", kind: "jsonl" });
+    // A pinned SQLite kind + an existing legacy file must NOT pair the legacy JSONL path with
+    // the sqlite driver — the pin gets the sqlite default path instead (the incoherent pair
+    // this function exists to prevent).
+    expect(resolveEnvStore({ CHORUS_STORE_BACKEND: "node-sqlite" }, always)).toEqual({
+      path: "chorus-memory.sqlite",
+      kind: "node-sqlite",
+    });
+    expect(resolveEnvStore({ CHORUS_STORE_BACKEND: "jsonl" }, never)).toEqual({
+      path: "chorus-memory.jsonl",
+      kind: "jsonl",
+    });
+  });
+
+  it("backendForPath detects existing stores by content, never by name", () => {
+    // JSONL content at a sqlite-looking name: the old unconditional-jsonl default wrote JSONL
+    // to ANY path — “any version of Chorus must read any store it ever wrote.”
+    const jsonlAtOddName = join(dir, "history.db");
+    writeFileSync(jsonlAtOddName, '{"v":1}\n');
+    expect(backendForPath(jsonlAtOddName, {})).toBe("jsonl");
+    // A real SQLite file at a jsonl-looking name goes to a sqlite driver — the JSONL reader
+    // would silently treat the binary as garbage lines and then append text into the database.
+    const sqliteAtOddName = join(dir, "memory.log");
+    track(createBackend(sqliteAtOddName, "sqlite"));
+    expect(backendForPath(sqliteAtOddName, {})).toBe(
+      nodeSqliteAvailable() ? "node-sqlite" : "sqlite",
+    );
+    // Fresh paths go by extension (case-insensitive), then the availability default.
+    expect(backendForPath(join(dir, "fresh.jsonl"), {})).toBe("jsonl");
+    expect(backendForPath(join(dir, "FRESH.JSONL"), {})).toBe("jsonl");
+    expect(backendForPath(join(dir, "fresh.sqlite"), {})).toBe(
+      nodeSqliteAvailable() ? "node-sqlite" : "sqlite",
+    );
+    expect(backendForPath(join(dir, "fresh.anything"), {})).toBe(defaultBackendKind());
+    // An explicit env pin beats even the content sniff — explicit intent wins, loudly.
+    expect(backendForPath(jsonlAtOddName, { CHORUS_STORE_BACKEND: "sqlite" })).toBe("sqlite");
+    // And bare createBackend(path) routes through this resolution: an existing JSONL store can
+    // never be handed to the wrong driver by the default parameter.
+    expect(track(createBackend(jsonlAtOddName))).toBeInstanceOf(JsonlStore);
   });
 
   it("migrates a JSONL log into SQLite losslessly: identical digest, beliefs intact", () => {
@@ -84,7 +159,12 @@ describe("chorus persistence tier: selection + migration", () => {
 
   // DoD #5: the server path boots on either backend; remember in one process, recall in a fresh
   // one over the same durable store — the resume every real client depends on.
-  for (const backend of ["jsonl", "sqlite"] as BackendKind[]) {
+  const bootable: BackendKind[] = [
+    "jsonl",
+    "sqlite",
+    ...(nodeSqliteAvailable() ? (["node-sqlite"] as const) : []),
+  ];
+  for (const backend of bootable) {
     it(`MCP boot smoke — remember → (fresh boot) → recall on ${backend}`, () => {
       const path = join(dir, `boot.${backend}`);
       const s1 = createSession({ masterSeedHex: MASTER, sessionId: "p1", clock: clockFrom(1000) });

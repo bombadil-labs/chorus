@@ -14,10 +14,12 @@
 // calls a "store" — a named, keyed, federating instance — is `Store` (stores.ts), which wraps a
 // `StoreBackend`. Interface renamed from `Store` → `StoreBackend` so the domain word is free.
 
+import { closeSync, existsSync, openSync, readSync } from "node:fs";
 import type { Delta } from "@rhizomes/rhizomatic";
 import type { ChorusAgent } from "./agent.js";
 import { JsonlStore } from "./shared-store.js";
 import { SqliteStore } from "./sqlite-store.js";
+import { NodeSqliteStore, nodeSqliteAvailable } from "./node-sqlite-store.js";
 
 export interface StoreBackend {
   // --- the delta-level primitive: durable append + read-since-watermark ---------------------
@@ -62,27 +64,111 @@ export interface StoreBackend {
 
 // --- backend selection ------------------------------------------------------------------------
 
-// JSONL is the default tier — legible, git-diffable, the one every collaborator can read.
-// SQLite is opt-in via CHORUS_STORE_BACKEND for concurrency + indexed reads.
-export type BackendKind = "jsonl" | "sqlite";
+// Three witnesses to one contract. `node-sqlite` (Node's built-in SQLite, v22.13+) is the default
+// wherever it exists: zero install surface, same file format + WAL semantics as `sqlite`
+// (better-sqlite3), which stays as the opt-in throughput tier. `jsonl` is the legible,
+// git-diffable dev tier — and the fallback default on Nodes that predate node:sqlite, so nothing
+// here ever fails at import or install time. `node-sqlite` and `sqlite` open each other's files
+// interchangeably; the choice is a driver, not a format.
+export type BackendKind = "jsonl" | "sqlite" | "node-sqlite";
 
-const BACKENDS: readonly BackendKind[] = ["jsonl", "sqlite"];
+const BACKENDS: readonly BackendKind[] = ["jsonl", "sqlite", "node-sqlite"];
+
+// The default when nothing is pinned: the built-in driver if this Node has it, else JSONL.
+// Deliberately NOT better-sqlite3 — the default must never depend on a native module's presence.
+export function defaultBackendKind(): BackendKind {
+  return nodeSqliteAvailable() ? "node-sqlite" : "jsonl";
+}
 
 export function backendFromEnv(env: NodeJS.ProcessEnv = process.env): BackendKind {
-  const raw = (env["CHORUS_STORE_BACKEND"] ?? "jsonl").toLowerCase();
+  const raw = (env["CHORUS_STORE_BACKEND"] ?? defaultBackendKind()).toLowerCase();
   if ((BACKENDS as readonly string[]).includes(raw)) return raw as BackendKind;
   throw new Error(
     `CHORUS_STORE_BACKEND="${raw}" is not a known backend (expected: ${BACKENDS.join(" | ")})`,
   );
 }
 
+// Every SQLite database file begins with these 16 bytes; everything Chorus ever wrote that
+// doesn't is the JSONL log. Reading the header is the ONLY honest continuity signal on the
+// path-based surface — filenames lie (the old unconditional-jsonl default wrote JSONL to any
+// name), and "any version of Chorus must read any store it ever wrote" (CLAUDE.md).
+const SQLITE_HEADER = "SQLite format 3\u0000";
+function sniffExistingKind(path: string): BackendKind | undefined {
+  let fd: number;
+  try {
+    fd = openSync(path, "r");
+  } catch {
+    return undefined; // absent or unreadable → fresh-path rules apply
+  }
+  try {
+    const head = Buffer.alloc(16);
+    const n = readSync(fd, head, 0, 16, 0);
+    if (n === 0) return undefined; // empty file → fresh-path rules apply
+    return head.toString("latin1", 0, n) === SQLITE_HEADER
+      ? nodeSqliteAvailable()
+        ? "node-sqlite"
+        : "sqlite"
+      : "jsonl";
+  } finally {
+    closeSync(fd);
+  }
+}
+
+// The kind for a bare path on the PATH-BASED surface (env vars, HTTP/console options — anywhere
+// without a registry manifest to pin the kind). In order: an explicit CHORUS_STORE_BACKEND always
+// wins; an EXISTING file is detected by content (SQLite header vs JSONL text — never by name);
+// a fresh path goes by extension, then the availability-aware default. Registry stores never come
+// through here — their manifest records the kind at creation.
+export function backendForPath(path: string, env: NodeJS.ProcessEnv = process.env): BackendKind {
+  if (env["CHORUS_STORE_BACKEND"] !== undefined) return backendFromEnv(env);
+  const sniffed = sniffExistingKind(path);
+  if (sniffed !== undefined) return sniffed;
+  const lower = path.toLowerCase();
+  if (lower.endsWith(".jsonl")) return "jsonl";
+  if (lower.endsWith(".sqlite") || lower.endsWith(".db")) {
+    return nodeSqliteAvailable() ? "node-sqlite" : "sqlite";
+  }
+  return defaultBackendKind();
+}
+
+// Resolve the pre-registry env surface (mcp-server / mcp-http: CHORUS_STORE +
+// CHORUS_STORE_BACKEND) to a concrete (path, kind) pair — TOGETHER, because path continuity
+// without kind continuity would hand a JSONL file to the SQLite driver. For the default path, an
+// existing chorus-memory.jsonl from the era when JSONL was the unconditional default keeps
+// winning, so a Node upgrade (which flips the default to node-sqlite) never silently starts a
+// fresh store beside your history.
+export function resolveEnvStore(
+  env: NodeJS.ProcessEnv = process.env,
+  fileExists: (p: string) => boolean = existsSync,
+): { path: string; kind: BackendKind } {
+  const pinned = env["CHORUS_STORE_BACKEND"] !== undefined ? backendFromEnv(env) : undefined;
+  const legacy = "chorus-memory.jsonl";
+  // The legacy-file continuity check applies ONLY when no backend is pinned: an explicit pin to
+  // a sqlite kind must get the sqlite default path, never the legacy JSONL file under the pinned
+  // sqlite driver (the exact incoherent pair this function exists to prevent).
+  const path =
+    env["CHORUS_STORE"] ??
+    ((pinned ?? defaultBackendKind()) === "jsonl" || (pinned === undefined && fileExists(legacy))
+      ? legacy
+      : "chorus-memory.sqlite");
+  return { path, kind: pinned ?? backendForPath(path, env) };
+}
+
 // Construct the durable persistence backend for a path. Callers depend on the `StoreBackend`
-// interface, never on a concrete backend — the seam the whole tier exists to provide.
-export function createBackend(path: string, kind: BackendKind = backendFromEnv()): StoreBackend {
+// interface, never on a concrete backend — the seam the whole tier exists to provide. The
+// default kind resolves through `backendForPath` (env pin → content sniff → extension →
+// availability default), so a bare `createBackend(path)` can never hand an existing store to
+// the wrong driver.
+export function createBackend(
+  path: string,
+  kind: BackendKind = backendForPath(path),
+): StoreBackend {
   switch (kind) {
     case "jsonl":
       return new JsonlStore(path);
     case "sqlite":
       return new SqliteStore(path);
+    case "node-sqlite":
+      return new NodeSqliteStore(path);
   }
 }
