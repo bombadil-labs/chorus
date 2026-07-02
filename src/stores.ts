@@ -134,7 +134,15 @@ export class StoreRegistry {
         backend: opts.backend ?? backendFromEnv(),
         createdAt: this.clock(),
       };
-      writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+      // Exclusive create: a concurrent open() of the same new name must not silently clobber a
+      // manifest whose tier/backend differ — the loser re-reads and adopts the winner's record
+      // (same wx-then-converge pattern as the config seed).
+      try {
+        writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, { flag: "wx" });
+      } catch (err) {
+        if ((err as NodeJS.ErrnoException).code !== "EEXIST") throw err;
+        return this.open(name, opts);
+      }
     }
 
     // The manifest records the kind chosen at creation; the DRIVER is a runtime substitution
@@ -162,20 +170,30 @@ export class StoreRegistry {
     opts: { tier?: StoreTier; backend?: BackendKind } = {},
   ): AdoptResult {
     const store = this.open(name, opts);
+    try {
+      // Read BOTH full sets first (deltasSince(∅) is cursor-independent, so already-used handles
+      // are fine). "Lossless" is the exact claim that nothing on either side is lost: the result
+      // must fingerprint as precisely the UNION of what the store held and what the source
+      // holds. For the canonical case — adopting into a fresh store — that is exactly
+      // "identical to the source"; adopting beside existing data verifies the union instead of
+      // writing first and then throwing over a mismatch it caused itself.
+      const existing = store.backend.deltasSince(new Set());
+      const all = source.deltasSince(new Set());
+      const expected = DeltaSet.from([...existing, ...all]).digest();
+      const added = store.backend.appendDeltas(all);
 
-    // Read the source's FULL set (deltasSince(∅) is cursor-independent, so an already-used source
-    // handle is fine) and fingerprint it before copying.
-    const all = source.deltasSince(new Set());
-    const before = DeltaSet.from(all).digest();
-    const added = store.backend.appendDeltas(all);
-
-    // Verify losslessly: the store's full set must fingerprint identically. DeltaSet.digest is a
-    // pure function of the (content-addressed) ids, so this is the exact "no delta lost, none
-    // altered" claim — not an approximation.
-    const after = DeltaSet.from(store.backend.deltasSince(new Set())).digest();
-    if (after !== before) {
-      throw new Error(`adopting "${name}" changed the delta set: ${before} -> ${after}`);
+      // DeltaSet.digest is a pure function of the (content-addressed) ids, so this is the exact
+      // "no delta lost, none altered" claim — not an approximation.
+      const after = DeltaSet.from(store.backend.deltasSince(new Set())).digest();
+      if (after !== expected) {
+        throw new Error(
+          `adopting "${name}" changed the delta set: expected ${expected}, got ${after}`,
+        );
+      }
+      return { store, deltas: added, digest: after };
+    } catch (err) {
+      store.close(); // the handle must not outlive a failed adoption
+      throw err;
     }
-    return { store, deltas: added, digest: after };
   }
 }

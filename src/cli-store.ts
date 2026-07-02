@@ -4,7 +4,9 @@
 // import that will eventually carry the live pre-registry store into the registry — the source
 // is only ever READ.
 
+import { existsSync, statSync } from "node:fs";
 import { DeltaSet } from "@rhizomes/rhizomatic";
+import { flagValue, rejectUnknownFlags } from "./cli-args.js";
 import { chorusHome, resolveMasterSeed, storesRoot } from "./config.js";
 import { backendForPath, createBackend, type BackendKind } from "./store-tier.js";
 import { StoreRegistry, type StoreTier } from "./stores.js";
@@ -51,16 +53,19 @@ export function storeCommand(
 ): number {
   switch (sub) {
     case "create": {
+      rejectUnknownFlags(flags, new Set(["tier", "backend", "home"]), "store create");
       const name = positionals[0];
       if (name === undefined)
         throw new Error("usage: chorus store create <name> [--tier …] [--backend …]");
       const { registry } = openRegistry(io);
       const existed = registry.list().some((m) => m.name === name);
       const store = registry.open(name, {
-        ...(tierOf(flags.get("tier")) === undefined ? {} : { tier: tierOf(flags.get("tier"))! }),
-        ...(kindOf(flags.get("backend")) === undefined
+        ...(tierOf(flagValue(flags, "tier")) === undefined
           ? {}
-          : { backend: kindOf(flags.get("backend"))! }),
+          : { tier: tierOf(flagValue(flags, "tier"))! }),
+        ...(kindOf(flagValue(flags, "backend")) === undefined
+          ? {}
+          : { backend: kindOf(flagValue(flags, "backend"))! }),
       });
       try {
         io.out(
@@ -75,6 +80,7 @@ export function storeCommand(
     }
 
     case "ls": {
+      rejectUnknownFlags(flags, new Set(["json", "home"]), "store ls");
       const { registry } = openRegistry(io);
       const manifests = registry.list();
       if (flags.has("json")) {
@@ -92,6 +98,7 @@ export function storeCommand(
     }
 
     case "show": {
+      rejectUnknownFlags(flags, new Set(["json", "home"]), "store show");
       const name = positionals[0];
       if (name === undefined) throw new Error("usage: chorus store show <name> [--json]");
       const { registry } = openRegistry(io);
@@ -123,25 +130,38 @@ export function storeCommand(
     }
 
     case "adopt": {
+      rejectUnknownFlags(flags, new Set(["tier", "backend", "home"]), "store adopt");
       const [name, sourcePath] = positionals;
       if (name === undefined || sourcePath === undefined) {
         throw new Error("usage: chorus store adopt <name> <source-path> [--tier …] [--backend …]");
       }
       const { registry } = openRegistry(io);
+      // A missing or empty source is an ERROR, never a silent no-op success — and constructing a
+      // backend over a missing path would CREATE a file at the typo. An empty file is refused
+      // too: content detection can't classify it, and a sqlite driver would write schema into
+      // it, breaking the read-only promise below.
+      if (!existsSync(sourcePath)) {
+        throw new Error(`source ${sourcePath} does not exist — nothing to adopt.`);
+      }
+      if (statSync(sourcePath).size === 0) {
+        throw new Error(`source ${sourcePath} is empty — nothing to adopt.`);
+      }
       // The source's kind is detected by CONTENT (the same sniff every path-based surface uses),
       // and it is only ever read — adoption is non-destructive by construction, and the digest
       // check proves losslessness rather than promising it.
       const source = createBackend(sourcePath, backendForPath(sourcePath, {}));
       try {
         const result = registry.adopt(name, source, {
-          ...(tierOf(flags.get("tier")) === undefined ? {} : { tier: tierOf(flags.get("tier"))! }),
-          ...(kindOf(flags.get("backend")) === undefined
+          ...(tierOf(flagValue(flags, "tier")) === undefined
             ? {}
-            : { backend: kindOf(flags.get("backend"))! }),
+            : { tier: tierOf(flagValue(flags, "tier"))! }),
+          ...(kindOf(flagValue(flags, "backend")) === undefined
+            ? {}
+            : { backend: kindOf(flagValue(flags, "backend"))! }),
         });
         try {
           io.out(`adopted ${sourcePath} into "${name}": ${result.deltas} new delta(s)`);
-          io.out(`digest verified identical: ${result.digest}`);
+          io.out(`digest verified lossless: ${result.digest}`);
           io.out(`the source file was only read — it is unchanged.`);
         } finally {
           result.store.close();

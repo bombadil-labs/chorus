@@ -2,7 +2,7 @@
 // CHORUS_HOMEs. Adoption is proven non-destructive by bytes, not by promise.
 
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
@@ -22,7 +22,15 @@ const home = join(root, "home");
 const runCli = (...args: string[]) => {
   const r = spawnSync(process.execPath, [tsxCli, cliPath, ...args], {
     encoding: "utf8",
-    env: { ...process.env, CHORUS_HOME: home, CHORUS_MASTER_SEED: "", CHORUS_SEED_HEX: "" },
+    // Set-but-empty = absent for all chorus env vars — neutralizes ambient dev-machine exports
+    // without deleting keys.
+    env: {
+      ...process.env,
+      CHORUS_HOME: home,
+      CHORUS_MASTER_SEED: "",
+      CHORUS_SEED_HEX: "",
+      CHORUS_STORE_BACKEND: "",
+    },
   });
   return { code: r.status, out: r.stdout, err: r.stderr };
 };
@@ -81,7 +89,7 @@ describe("chorus store: registry subcommands through the real CLI", () => {
     const adopt = runCli("store", "adopt", "personal", sourcePath, "--tier", "private");
     expect(adopt.code).toBe(0);
     expect(adopt.out).toMatch(/adopted .* into "personal": \d+ new delta\(s\)/);
-    expect(adopt.out).toMatch(/digest verified identical/);
+    expect(adopt.out).toMatch(/digest verified lossless/);
     // Non-destructive is a byte-level claim, not a sentiment.
     expect(readFileSync(sourcePath, "utf8")).toBe(sourceBytes);
 
@@ -103,5 +111,40 @@ describe("chorus store: registry subcommands through the real CLI", () => {
     const r = runCli("store", "frobnicate");
     expect(r.code).toBe(1);
     expect(r.err).toMatch(/create \| ls \| show \| adopt/);
+  });
+
+  it("a typo'd flag is an error, never a silently-applied default", () => {
+    const r = runCli("store", "create", "typo-test", "--teir", "private");
+    expect(r.code).toBe(1);
+    expect(r.err).toMatch(/unknown flag --teir/);
+    // The store was NOT created with the wrong tier behind the user's back.
+    expect(runCli("store", "show", "typo-test").code).toBe(1);
+  });
+
+  it("a bare value-taking flag errors instead of silently retargeting", () => {
+    const r = runCli("init", "--home");
+    expect(r.code).toBe(1);
+    expect(r.err).toMatch(/--home needs a value/);
+  });
+
+  it("boolean --json never swallows a following positional", () => {
+    const r = runCli("store", "show", "--json", "media");
+    expect(r.code).toBe(0);
+    expect((JSON.parse(r.out) as { name: string }).name).toBe("media");
+  });
+
+  it("adopting a missing or empty source is an error, never a false success", () => {
+    const missing = runCli("store", "adopt", "oops", join(root, "no-such-file.jsonl"));
+    expect(missing.code).toBe(1);
+    expect(missing.err).toMatch(/does not exist/);
+    // No file was created at the typo'd path.
+    expect(existsSync(join(root, "no-such-file.jsonl"))).toBe(false);
+
+    const emptyPath = join(root, "empty.store");
+    writeFileSync(emptyPath, "");
+    const empty = runCli("store", "adopt", "oops", emptyPath);
+    expect(empty.code).toBe(1);
+    expect(empty.err).toMatch(/is empty/);
+    expect(readFileSync(emptyPath, "utf8")).toBe(""); // still untouched
   });
 });

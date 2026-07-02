@@ -103,7 +103,9 @@ export function availableDriver(kind: BackendKind): BackendKind {
 }
 
 export function backendFromEnv(env: NodeJS.ProcessEnv = process.env): BackendKind {
-  const raw = (env["CHORUS_STORE_BACKEND"] ?? defaultBackendKind()).toLowerCase();
+  // Set-but-empty counts as absent, consistent with the seed vars: a lingering
+  // `export CHORUS_STORE_BACKEND=` must not become an error (or an accidental pin).
+  const raw = (env["CHORUS_STORE_BACKEND"] || defaultBackendKind()).toLowerCase();
   if ((BACKENDS as readonly string[]).includes(raw)) return raw as BackendKind;
   throw new Error(
     `CHORUS_STORE_BACKEND="${raw}" is not a known backend (expected: ${BACKENDS.join(" | ")})`,
@@ -140,7 +142,7 @@ function sniffExistingKind(path: string): BackendKind | undefined {
 // a fresh path goes by extension, then the availability-aware default. Registry stores never come
 // through here — their manifest records the kind at creation.
 export function backendForPath(path: string, env: NodeJS.ProcessEnv = process.env): BackendKind {
-  if (env["CHORUS_STORE_BACKEND"] !== undefined) return backendFromEnv(env);
+  if (env["CHORUS_STORE_BACKEND"]) return backendFromEnv(env); // set-but-empty = absent
   const sniffed = sniffExistingKind(path);
   if (sniffed !== undefined) return sniffed;
   const lower = path.toLowerCase();
@@ -161,7 +163,7 @@ export function resolveEnvStore(
   env: NodeJS.ProcessEnv = process.env,
   fileExists: (p: string) => boolean = existsSync,
 ): { path: string; kind: BackendKind } {
-  const pinned = env["CHORUS_STORE_BACKEND"] !== undefined ? backendFromEnv(env) : undefined;
+  const pinned = env["CHORUS_STORE_BACKEND"] ? backendFromEnv(env) : undefined;
   const legacy = "chorus-memory.jsonl";
   const sqliteDefault = "chorus-memory.sqlite";
   // Default-path rules: a pin picks its own default path (never the other format's file — the
