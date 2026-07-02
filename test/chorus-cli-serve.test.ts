@@ -25,9 +25,24 @@ const env = {
 };
 
 const procs: ChildProcess[] = [];
-afterAll(() => {
-  for (const p of procs) p.kill();
-  rmSync(root, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
+afterAll(async () => {
+  // Wait for every spawned server to actually EXIT before removing its temp home — on Windows a
+  // freshly-killed child still holds its sqlite handles for a beat, and rmSync gets EPERM.
+  await Promise.all(
+    procs.map(
+      (p) =>
+        new Promise<void>((resolve) => {
+          if (p.exitCode !== null) return resolve();
+          const timer = setTimeout(resolve, 5_000);
+          p.once("exit", () => {
+            clearTimeout(timer);
+            resolve();
+          });
+          p.kill();
+        }),
+    ),
+  );
+  rmSync(root, { recursive: true, force: true, maxRetries: 10, retryDelay: 200 });
 });
 
 const runCli = (...args: string[]) => {
