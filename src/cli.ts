@@ -7,6 +7,7 @@
 import { realpathSync } from "node:fs";
 import { createRequire } from "node:module";
 import { chorusHome, configPath, initChorusHome } from "./config.js";
+import { storeCommand } from "./cli-store.js";
 
 interface CommandSpec {
   readonly summary: string; // one line for `chorus help`
@@ -19,7 +20,9 @@ interface CommandSpec {
 const redactSecrets = (s: string): string =>
   s.replace(/[0-9a-fA-F]{64}/g, "[redacted 64-hex value]");
 
-// Tiny flag reader for the hand-rolled parser: `--name value` and `--name=value` + positionals.
+// Tiny flag reader for the hand-rolled parser: `--name value`, `--name=value`, and bare
+// `--name` (boolean presence, stored as "") + positionals. A value-taking flag left bare ends
+// up "" and fails its own validation loudly downstream.
 function parseFlags(args: readonly string[]): { flags: Map<string, string>; rest: string[] } {
   const flags = new Map<string, string>();
   const rest: string[] = [];
@@ -33,7 +36,8 @@ function parseFlags(args: readonly string[]): { flags: Map<string, string>; rest
       }
       const value = args[i + 1];
       if (value === undefined || value.startsWith("--")) {
-        throw new Error(`--${a.slice(2)} needs a value`);
+        flags.set(a.slice(2), "");
+        continue;
       }
       flags.set(a.slice(2), value);
       i += 1;
@@ -82,7 +86,14 @@ const COMMANDS: Record<string, CommandSpec> = {
   },
   store: {
     summary: "create | ls | show | adopt — manage named stores in the registry",
-    slice: "task 4",
+    run(args): number {
+      const { flags, rest } = parseFlags(args);
+      const [sub, ...positionals] = rest;
+      return storeCommand(sub, positionals, flags, {
+        out: console.log,
+        ...(flags.get("home") === undefined ? {} : { home: flags.get("home")! }),
+      });
+    },
   },
   serve: {
     summary: "serve one or more stores over MCP (--stdio | --http), the always-on node",

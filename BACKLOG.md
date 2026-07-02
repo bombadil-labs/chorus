@@ -43,8 +43,8 @@ _(task 1 moved to Done)_
 
 _(task 2 moved to Done)_
 
-- [ ] **3. `chorus init`** — create `~/.chorus`, mint/import master seed, write config. Never
-      print the seed.
+_(task 3 moved to Done)_
+
 - [ ] **4. `chorus store create|ls|show|adopt`** — over the existing `StoreRegistry`. No
       destructive delete (grow-only ethos: deregister only).
 - [ ] **5. `chorus serve`** — `--store <name>` (repeatable), `--stdio | --http --port --token`.
@@ -80,6 +80,8 @@ _(task 2 moved to Done)_
       horizons against what the spikes taught; mine the next tranche.
 
 ### Done
+
+- [x] **3. `chorus init`** (2026-07-02, PR #6 — journal: "The identity slice"). Non-destructive home setup (CHORUS_HOME override; the real ~/.chorus holds the LIVE store), exclusive-create config with 0600 where honored, conflicting imports refused, corrupt/unreadable configs are errors never "absent". Review closed two SEED-LEAK paths (positional typo + --seed= form — every CLI stderr path now redacts 64-hex tokens), a TOCTOU clobber, and wired resolveMasterSeed into all three entry points so the printed identity is the one sessions actually sign with.
 
 - [x] **2. CLI packaging** (2026-07-02, PR #5 — journal: "The packaging slice"). `chorus` bin +
       `build`/`prepare` + `files`/`exports` mirroring the format package; **better-sqlite3 demoted

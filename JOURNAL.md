@@ -103,3 +103,25 @@ gate-breaker on exactly the machines the change supports — grep for constructo
 imports. (3) The interface said `valueKey: string`; both witnesses took `Primitive`. Concrete
 classes in tests had been hiding an interface lie — typed seams only verify what actually flows
 through them.
+
+---
+
+## 2026-07-02 (night) — The identity slice
+
+**Task 3 done (PR #6): `chorus init`.** The home directory, the seed, the config — all
+non-destructive by construction, because the real ~/.chorus on this machine holds the live store.
+The interesting work was, again, what the review forced: **the seed could leak through error
+messages** — `chorus init <seed>` (the natural typo) echoed the positional back to stderr, and
+the GNU `--seed=` form fell through to an echoing parse error. Every CLI error path now routes
+through a redactor that masks any 64-hex token, and tests pin all three leak shapes. Also closed:
+a TOCTOU where two concurrent inits could print two identities while only one seed survived
+(exclusive create + converge-on-winner), and the catch-all that would have treated an UNREADABLE
+config as absent and minted a new seed over a standing identity.
+
+**Learned.** Secrets discipline is mostly about ERROR paths — the happy path never prints the
+seed, but errors echo their inputs by default, and inputs are where secrets travel. Redact at the
+output boundary, not at each call site. Also: shipping resolveMasterSeed without wiring it in
+would have made init a lie ("you are X" while servers signed as the dev default) — reviewers
+catch what a feature IMPLIES, not just what it does. And a shell lesson at my own expense:
+never build docs through inline heredoc-node with backticks — command substitution eats them;
+use a script file.
