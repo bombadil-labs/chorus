@@ -32,6 +32,7 @@ import {
 } from "./identity.js";
 import { ackPointers, inbox, messagePointers, type MessageAddress } from "./messages.js";
 import { createBackend, resolveEnvStore } from "./store-tier.js";
+import { resolveMasterSeed } from "./config.js";
 import { loadPack, savePack } from "./store.js";
 
 interface RpcRequest {
@@ -1067,8 +1068,8 @@ if (
   process.argv[1] !== undefined &&
   process.argv[1].replace(/\\/g, "/").endsWith("src/mcp-server.ts")
 ) {
-  const masterSeedHex =
-    process.env["CHORUS_MASTER_SEED"] ?? process.env["CHORUS_SEED_HEX"] ?? "0f".repeat(32);
+  // Env wins, then the config `chorus init` wrote, then the shared dev default.
+  const masterSeedHex = resolveMasterSeed() ?? "0f".repeat(32);
   const sessionId =
     process.env["CHORUS_SESSION_ID"] ?? `${Date.now()}-${randomBytes(4).toString("hex")}`;
   const ctx = createSession({ masterSeedHex, sessionId });

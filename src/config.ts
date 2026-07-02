@@ -37,8 +37,12 @@ export function loadConfig(home: string): ChorusConfig | undefined {
   let raw: string;
   try {
     raw = readFileSync(configPath(home), "utf8");
-  } catch {
-    return undefined;
+  } catch (err) {
+    // ONLY absence means "no config". A config that exists but can't be read (EACCES, EIO,
+    // EMFILE…) must never be treated as absent — the fresh-init path would mint a new seed
+    // over an identity that has history.
+    if ((err as NodeJS.ErrnoException).code === "ENOENT") return undefined;
+    throw err;
   }
   let parsed: unknown;
   try {
@@ -95,16 +99,30 @@ export function initChorusHome(opts: {
     createdAt: (opts.clock ?? Date.now)(),
   };
   mkdirSync(storesRoot(opts.home), { recursive: true }); // creates the home too
-  // Owner-only where the platform honors modes (POSIX); Windows falls back to default ACLs.
-  writeFileSync(configPath(opts.home), `${JSON.stringify(config, null, 2)}\n`, { mode: 0o600 });
+  // Exclusive create ("wx"): a concurrent init cannot silently clobber a seed written between
+  // our check and our write — the loser re-reads and takes the idempotent path instead of
+  // printing an identity whose seed no longer exists. Owner-only mode where the platform
+  // honors it (POSIX); Windows falls back to default ACLs.
+  try {
+    writeFileSync(configPath(opts.home), `${JSON.stringify(config, null, 2)}\n`, {
+      mode: 0o600,
+      flag: "wx",
+    });
+  } catch (err) {
+    if ((err as NodeJS.ErrnoException).code !== "EEXIST") throw err;
+    return initChorusHome(opts); // someone else won the race — converge on their identity
+  }
   return { created: true, home: opts.home, userAuthor: userAuthorOf(config.masterSeed) };
 }
 
 // The master seed every other command resolves: explicit env wins (the pre-CLI wiring keeps
-// working), else the config written by `chorus init`.
+// working, and legacy env seeds of any non-empty shape stay valid), else the config written by
+// `chorus init`. A SET-BUT-EMPTY env var counts as absent — a lingering `export CHORUS_SEED_HEX=`
+// must not beat a real config.
 export function resolveMasterSeed(
   env: NodeJS.ProcessEnv = process.env,
   home: string = chorusHome(env),
 ): string | undefined {
-  return env["CHORUS_MASTER_SEED"] ?? env["CHORUS_SEED_HEX"] ?? loadConfig(home)?.masterSeed;
+  const fromEnv = env["CHORUS_MASTER_SEED"] || env["CHORUS_SEED_HEX"];
+  return fromEnv || loadConfig(home)?.masterSeed;
 }

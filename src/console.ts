@@ -12,6 +12,7 @@ import { recallUnified, sameAsClass, search, topics } from "./discovery.js";
 import { identityAt, identityIntroductions, userSeed, type AuthorIdentity } from "./identity.js";
 import { ackPointers, inbox } from "./messages.js";
 import { createBackend, resolveEnvStore, type BackendKind } from "./store-tier.js";
+import { resolveMasterSeed } from "./config.js";
 import { ROLE_TRUST_AUTHOR, ROLE_TRUST_REASON, ROLE_TRUST_VERDICT } from "./vocab.js";
 
 export interface ConsoleOptions {
@@ -270,8 +271,8 @@ if (
   const opts: ConsoleOptions = {
     storePath: envStore.path,
     storeBackend: envStore.kind,
-    masterSeedHex:
-      process.env["CHORUS_MASTER_SEED"] ?? process.env["CHORUS_SEED_HEX"] ?? "0f".repeat(32),
+    // Env wins, then the config `chorus init` wrote, then the shared dev default.
+    masterSeedHex: resolveMasterSeed() ?? "0f".repeat(32),
     port: Number(process.env["CHORUS_CONSOLE_PORT"] ?? 4820),
   };
   void startConsole(opts).then((h) => console.log(`chorus console → ${h.url}`));

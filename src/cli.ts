@@ -6,7 +6,7 @@
 
 import { realpathSync } from "node:fs";
 import { createRequire } from "node:module";
-import { chorusHome, initChorusHome } from "./config.js";
+import { chorusHome, configPath, initChorusHome } from "./config.js";
 
 interface CommandSpec {
   readonly summary: string; // one line for `chorus help`
@@ -14,16 +14,26 @@ interface CommandSpec {
   run?(args: readonly string[]): Promise<number> | number;
 }
 
-// Tiny flag reader for the hand-rolled parser: `--name value` pairs + positionals.
+// Anything that could be a secret never reaches an output stream verbatim: every error/echo
+// path routes through this. 64 hex chars is exactly a master seed's shape.
+const redactSecrets = (s: string): string =>
+  s.replace(/[0-9a-fA-F]{64}/g, "[redacted 64-hex value]");
+
+// Tiny flag reader for the hand-rolled parser: `--name value` and `--name=value` + positionals.
 function parseFlags(args: readonly string[]): { flags: Map<string, string>; rest: string[] } {
   const flags = new Map<string, string>();
   const rest: string[] = [];
   for (let i = 0; i < args.length; i++) {
     const a = args[i]!;
     if (a.startsWith("--")) {
+      const eq = a.indexOf("=");
+      if (eq !== -1) {
+        flags.set(a.slice(2, eq), a.slice(eq + 1));
+        continue;
+      }
       const value = args[i + 1];
       if (value === undefined || value.startsWith("--")) {
-        throw new Error(`${a} needs a value`);
+        throw new Error(`--${a.slice(2)} needs a value`);
       }
       flags.set(a.slice(2), value);
       i += 1;
@@ -39,7 +49,13 @@ const COMMANDS: Record<string, CommandSpec> = {
     summary: "create ~/.chorus, mint or import the master seed, write config",
     run(args): number {
       const { flags, rest } = parseFlags(args);
-      if (rest.length > 0) throw new Error(`init takes no positional arguments (got "${rest[0]}")`);
+      if (rest.length > 0) {
+        // Deliberately does NOT echo the value: `chorus init <seed>` is the natural typo for
+        // `--seed <seed>`, and a seed must never reach an output stream.
+        throw new Error(
+          `init takes no positional arguments (importing a seed is \`chorus init --seed <hex>\`)`,
+        );
+      }
       for (const name of flags.keys()) {
         if (name !== "seed" && name !== "home") throw new Error(`init: unknown flag --${name}`);
       }
@@ -52,9 +68,14 @@ const COMMANDS: Record<string, CommandSpec> = {
       if (result.created) {
         console.log(`initialized ${result.home}`);
         console.log(`you are ${result.userAuthor}`);
-        console.log(`the master seed is in ${result.home}/config.json — keep it private.`);
+        console.log(`the master seed is in ${configPath(result.home)} — keep it private.`);
       } else {
         console.log(`already initialized at ${result.home} (you are ${result.userAuthor})`);
+      }
+      if (flags.get("home") !== undefined && flags.get("home") !== chorusHome()) {
+        console.log(
+          `note: other commands find this home only via CHORUS_HOME=${result.home} — set it.`,
+        );
       }
       return 0;
     },
@@ -116,7 +137,7 @@ export async function main(argv: readonly string[]): Promise<number> {
   }
   const spec = COMMANDS[cmd];
   if (spec === undefined) {
-    console.error(`chorus: unknown command "${cmd}" — try \`chorus help\``);
+    console.error(redactSecrets(`chorus: unknown command "${cmd}" — try \`chorus help\``));
     return 1;
   }
   if (spec.run === undefined) {
@@ -153,7 +174,7 @@ if (isDirectRun()) {
       process.exitCode = code;
     },
     (err: unknown) => {
-      console.error(err instanceof Error ? err.message : String(err));
+      console.error(redactSecrets(err instanceof Error ? err.message : String(err)));
       process.exitCode = 1;
     },
   );

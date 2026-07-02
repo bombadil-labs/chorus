@@ -84,6 +84,34 @@ describe("chorus init: non-destructive home setup", () => {
     expect(resolveMasterSeed({}, home)).toBe(SEED);
     expect(resolveMasterSeed({ CHORUS_MASTER_SEED: "ef".repeat(32) }, home)).toBe("ef".repeat(32));
     expect(resolveMasterSeed({}, freshHome())).toBeUndefined();
+    // A SET-BUT-EMPTY env var counts as absent — a lingering `export CHORUS_SEED_HEX=` in a
+    // shell profile must not beat a real config.
+    expect(resolveMasterSeed({ CHORUS_SEED_HEX: "" }, home)).toBe(SEED);
+    expect(resolveMasterSeed({ CHORUS_MASTER_SEED: "", CHORUS_SEED_HEX: "" }, home)).toBe(SEED);
+  });
+
+  it("the GNU-style --seed=<hex> form imports too", () => {
+    const home = freshHome();
+    expect(runCli(home, "init", `--seed=${SEED}`).code).toBe(0);
+    expect(loadConfig(home)!.masterSeed).toBe(SEED);
+  });
+
+  it("the natural typo `chorus init <seed>` fails WITHOUT echoing the value", () => {
+    const home = freshHome();
+    const r = runCli(home, "init", SEED);
+    expect(r.code).toBe(1);
+    expect(r.out).not.toContain(SEED);
+    expect(r.err).not.toContain(SEED);
+    expect(r.err).toMatch(/--seed/); // the message teaches the correct form instead
+    expect(loadConfig(home)).toBeUndefined(); // and nothing was created
+  });
+
+  it("a seed-shaped value can never reach an output stream, even as a bogus command", () => {
+    const home = freshHome();
+    const r = runCli(home, SEED); // `chorus <seed>` — unknown-command path
+    expect(r.code).toBe(1);
+    expect(r.out).not.toContain(SEED);
+    expect(r.err).not.toContain(SEED);
   });
 
   it("the CLI prints the home and the PUBLIC author — and never the seed", () => {
