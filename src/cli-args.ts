@@ -60,6 +60,18 @@ export function flagValue(flags: ReadonlyMap<string, string>, name: string): str
   return v;
 }
 
+// A --port value as a real port: digits only AND in range, so Node's internal RangeError never
+// speaks for the CLI.
+export function portValue(flags: ReadonlyMap<string, string>, name = "port"): number | undefined {
+  const raw = flagValue(flags, name);
+  if (raw === undefined) return undefined;
+  const n = Number(raw);
+  if (!/^\d+$/.test(raw) || n > 65535) {
+    throw new Error(`--${name} must be a port number (0–65535)`);
+  }
+  return n;
+}
+
 // Reject typo'd flags: a swallowed `--teir private` must never silently become a default.
 export function rejectUnknownFlags(
   flags: ReadonlyMap<string, string>,

@@ -7,7 +7,7 @@ import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { afterAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const cliPath = resolve(here, "../src/cli.ts");
@@ -55,9 +55,13 @@ const runCli = (...args: string[]) => {
 };
 
 describe("chorus console: the human's seat, end to end", () => {
-  it("validates loudly: missing/unknown store", () => {
+  // Setup in beforeAll, not inside a test — every it() must survive isolation (-t / .only).
+  beforeAll(() => {
     runCli("init");
     runCli("store", "create", "personal");
+  });
+
+  it("validates loudly: missing/unknown store", () => {
     expect(runCli("console").err).toMatch(/--store/);
     expect(runCli("console", "--store", "nope").err).toMatch(/no store named "nope"/);
   });
@@ -119,7 +123,9 @@ describe("chorus console: the human's seat, end to end", () => {
       const t = setTimeout(() => reject(new Error(`console never came up:\n${out}`)), 30_000);
       consoleProc.stdout!.on("data", (c: Buffer) => {
         out += c.toString();
-        const m = /(http:\/\/[^\s]+)/.exec(out);
+        // Require a terminator after the URL — a pipe chunk can split mid-URL, and matching the
+        // fragment would fetch a truncated port.
+        const m = /(http:\/\/\S+)\s/.exec(out);
         if (m) {
           clearTimeout(t);
           resolvePromise(m[1]!);
