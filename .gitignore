@@ -1,0 +1,19 @@
+# Node / TypeScript
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+.eslintcache
+
+# Chorus memory stores — NEVER commit a memory
+chorus-memory.jsonl
+chorus-memory.pack
+*.jsonl.lock/
+.chorus/
+
+# Private working docs — never publish
+*.private.md
+
+# Editor / OS
+.DS_Store
+*.log
