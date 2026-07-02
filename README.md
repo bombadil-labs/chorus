@@ -272,6 +272,15 @@ Native Claude memory = an always-loaded index + free-text files. The Chorus equi
   (standing trust edits rehydrate into every future session's lens), and **append-only
   revision** (`revise` keeps the old fact queryable forever).
 
+## Skills: ephemeral apps over the store
+
+Because GraphQL is synthesized on demand, a whole domain app is just conventions + a UI + the
+Chorus wiring — no bespoke backend. [skills/](skills/README.md) holds a set of Claude Skills built
+that way: **chorus-skill-designer** (the meta-skill that reifies the pattern and ships a template),
+plus media-log, decision-journal, and synchronicity-journal as working examples. Each runs through
+Claude or standalone against a Chorus HTTP node; `node skills/build-skills.mjs` packages them into
+installable `.skill` zips.
+
 ## Naming (why there is no DNS here)
 
 Canonical ids for domain objects are a _judgment problem_, not an infrastructure problem.

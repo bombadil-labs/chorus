@@ -32,6 +32,9 @@ monorepo. The work below is **standalone-ization + the CLI + cutover**, not a re
       npm page, or drop them.
 - [x] Trim/rewrite `README.md` for a standalone-repo front page (it's currently the monorepo's chorus
       doc — good content, some stale paths).
+- [x] Migrate `skills/` (the Chorus app-skills: `chorus-skill-designer` + examples) from the
+      rhizomatic repo — they consume Chorus's surface, so they live with the product. The rhizomatic
+      copy gets deleted alongside `apps/chorus` in Phase 2.
 
 ## Phase 1 — The CLI (the alpha centerpiece)
 

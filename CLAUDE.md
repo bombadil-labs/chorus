@@ -61,7 +61,9 @@ replacement, **not yet cut over.** Until the CLI-served node is ready and Myk ha
   console.ts** — session identity (interval-bound), inter-agent mail, decide/replay, trust dynamics,
   the embedding librarian, discovery/sameAs, the briefing lens, the web console.
 
-`test/` — vitest suites (the app-layer green gate). `tools/` — helper scripts.
+`test/` — vitest suites (the app-layer green gate). `tools/` — helper scripts. `skills/` — Claude
+Skills that turn Chorus into domain apps (the `chorus-skill-designer` meta-skill + examples); see
+[skills/README.md](skills/README.md).
 
 ## The vision & the immediate goal
 

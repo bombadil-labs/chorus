@@ -9,4 +9,10 @@ export default tseslint.config(
   js.configs.recommended,
   ...tseslint.configs.recommended,
   eslintConfigPrettier,
+  // Plain-JS Node scripts (skills/build-skills.mjs): no-undef is live for them, unlike TS files,
+  // so declare the Node globals they use.
+  {
+    files: ["**/*.mjs"],
+    languageOptions: { globals: { process: "readonly", console: "readonly" } },
+  },
 );
