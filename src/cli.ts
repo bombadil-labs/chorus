@@ -9,6 +9,7 @@ import { createRequire } from "node:module";
 import { flagValue, parseFlags, redactSecrets, rejectUnknownFlags } from "./cli-args.js";
 import { chorusHome, configPath, initChorusHome } from "./config.js";
 import { storeCommand } from "./cli-store.js";
+import { serveCommand } from "./cli-serve.js";
 
 interface CommandSpec {
   readonly summary: string; // one line for `chorus help`
@@ -66,7 +67,37 @@ const COMMANDS: Record<string, CommandSpec> = {
   },
   serve: {
     summary: "serve one or more stores over MCP (--stdio | --http), the always-on node",
-    slice: "task 5",
+    async run(args): Promise<number> {
+      const { flags, lists, rest } = parseFlags(
+        args,
+        new Set(["stdio", "http"]),
+        new Set(["store"]),
+      );
+      rejectUnknownFlags(
+        flags,
+        new Set(["stdio", "http", "port", "host", "token", "home", "store"]),
+        "serve",
+        lists,
+      );
+      if (rest.length > 0)
+        throw new Error(`serve takes no positional arguments (got "${rest[0]}")`);
+      const port = flagValue(flags, "port");
+      const home = flagValue(flags, "home");
+      const token = flagValue(flags, "token");
+      const host = flagValue(flags, "host");
+      if (port !== undefined && !/^\d+$/.test(port)) throw new Error("--port must be a number");
+      return serveCommand(
+        {
+          stores: lists.get("store") ?? [],
+          stdio: flags.has("stdio"),
+          http: flags.has("http"),
+          ...(port === undefined ? {} : { port: Number(port) }),
+          ...(host === undefined ? {} : { host }),
+          ...(token === undefined ? {} : { token }),
+        },
+        { out: console.log, ...(home === undefined ? {} : { home }) },
+      );
+    },
   },
   console: {
     summary: "the web console over the store(s)",

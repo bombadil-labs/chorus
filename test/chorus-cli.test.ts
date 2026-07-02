@@ -62,7 +62,7 @@ describe("chorus CLI: the packaging skeleton", () => {
   });
 
   it("a planned-but-unshipped command says which slice ships it, exit 1", () => {
-    const r = run("serve");
+    const r = run("console");
     expect(r.code).toBe(1);
     expect(r.err).toMatch(/not implemented yet/);
     expect(r.err).toMatch(/task \d/);

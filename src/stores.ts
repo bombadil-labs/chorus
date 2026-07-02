@@ -62,13 +62,25 @@ export class Store {
   readonly seedHex: string;
   readonly tier: StoreTier;
   readonly backend: StoreBackend;
+  // Where the backend file lives — the thing a serving process needs to open per-session
+  // backends of its own (one backend per agent; see mcp-http.ts).
+  readonly backendPath: string;
+  // The manifest-recorded kind (the driver actually used may substitute within the family).
+  readonly backendKind: BackendKind;
 
-  constructor(opts: { manifest: StoreManifest; seedHex: string; backend: StoreBackend }) {
+  constructor(opts: {
+    manifest: StoreManifest;
+    seedHex: string;
+    backend: StoreBackend;
+    backendPath: string;
+  }) {
     this.name = opts.manifest.name;
     this.id = opts.manifest.id;
     this.tier = opts.manifest.tier;
     this.seedHex = opts.seedHex;
     this.backend = opts.backend;
+    this.backendPath = opts.backendPath;
+    this.backendKind = opts.manifest.backend;
   }
 
   close(): void {
@@ -150,11 +162,9 @@ export class StoreRegistry {
     // better-sqlite3 on a Node that predates the builtin, and vice versa where the native addon
     // is missing. A store created anywhere opens everywhere — the manifest never strands data
     // behind a missing driver.
-    const backend = createBackend(
-      join(dir, BACKEND_FILE[manifest.backend]),
-      availableDriver(manifest.backend),
-    );
-    return new Store({ manifest, seedHex, backend });
+    const backendPath = join(dir, BACKEND_FILE[manifest.backend]);
+    const backend = createBackend(backendPath, availableDriver(manifest.backend));
+    return new Store({ manifest, seedHex, backend, backendPath });
   }
 
   // Adopt an existing store's deltas into a named registry store, NON-DESTRUCTIVELY and LOSSLESSLY.
