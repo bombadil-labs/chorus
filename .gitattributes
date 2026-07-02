@@ -1,0 +1,2 @@
+# Prettier enforces LF; make git agree on every platform (Windows checkout included).
+* text=auto eol=lf
