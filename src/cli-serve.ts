@@ -9,6 +9,7 @@ import { availableDriver } from "./store-tier.js";
 import { createSession, serve } from "./mcp-server.js";
 import { openRegistry, type StoreIo } from "./cli-store.js";
 import { startHttpServer, type HttpStoreMount } from "./mcp-http.js";
+import { startConsole } from "./console.js";
 
 export interface ServeArgs {
   readonly stores: readonly string[]; // registry store names; at least one
@@ -90,5 +91,33 @@ export async function serveCommand(args: ServeArgs, io: StoreIo): Promise<number
   if (args.token === undefined) {
     io.out(`(token minted for this run — treat the URLs as credentials)`);
   }
+  return 0;
+}
+
+// `chorus console` (task 6): the human's web console over one registry store. Reuses the same
+// registry discovery as serve; the console holds its own backend for its lifetime.
+export interface ConsoleArgs {
+  readonly store: string;
+  readonly port?: number;
+}
+
+export async function consoleCommand(args: ConsoleArgs, io: StoreIo): Promise<number> {
+  const { registry, seed } = openRegistry(io);
+  if (!registry.list().some((m) => m.name === args.store)) {
+    throw new Error(
+      `no store named "${args.store}" — create it first: \`chorus store create ${args.store}\``,
+    );
+  }
+  const store = registry.open(args.store);
+  const storePath = store.backendPath;
+  const storeBackend = availableDriver(store.backendKind);
+  store.close(); // the console opens its own backend below
+  const handle = await startConsole({
+    storePath,
+    storeBackend,
+    masterSeedHex: seed,
+    port: args.port ?? 4820,
+  });
+  io.out(`chorus console over "${args.store}" → ${handle.url}`);
   return 0;
 }

@@ -42,7 +42,14 @@ afterAll(async () => {
         }),
     ),
   );
-  rmSync(root, { recursive: true, force: true, maxRetries: 10, retryDelay: 200 });
+  // Best-effort: a just-terminated child may hold its handles a beat longer than any retry
+  // budget on a loaded Windows runner. The OS owns tmpdir cleanup; a leftover dir is not a
+  // product signal and must not fail the suite.
+  try {
+    rmSync(root, { recursive: true, force: true, maxRetries: 10, retryDelay: 200 });
+  } catch {
+    /* leave it to the OS temp cleaner */
+  }
 });
 
 const runCli = (...args: string[]) => {
