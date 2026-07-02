@@ -1,0 +1,87 @@
+# Backlog — the autonomous loop's working queue
+
+**What this is:** the ordered task queue for the autonomous loop, and the protocol that governs it.
+[ROADMAP.md](ROADMAP.md) stays the authoritative phase map; this is the loop's operational view of
+it — finer-grained, reorderable, and annotated with what's been learned. [VISION.md](VISION.md) is
+where new tasks come from when this runs dry. [JOURNAL.md](JOURNAL.md) is the record.
+
+## The protocol
+
+Standing instruction from Myk (2026-07-02), formalized:
+
+1. **Take the top open task.** Before starting, re-read it against everything learned since it was
+   written. If work or insight since then compels a change — rescope, reorder, split, or kill it —
+   make that change _and document why_ (a line in the task, a journal entry if substantial).
+2. **Work it to done.** Feature branch; green gate (`npm run check`) before every commit;
+   adversarial self-review before merge (run `/code-review` or an independent review agent on the
+   diff — findings get fixed or explicitly dispositioned, and breaking changes to store formats or
+   tool surfaces are show-stoppers); merge without waiting for approval; delete the branch.
+3. **Record it.** Journal entry (what/why/learned). Tick the task. If the work changed how future
+   work should happen, update [CLAUDE.md](CLAUDE.md); if it changed where things are going, update
+   [VISION.md](VISION.md).
+4. **Repeat.** When the backlog runs dry: take stock of everything achieved, re-read VISION.md,
+   revise it against actual progress, and mine it for the next tranche of tasks. This is a
+   never-ending process of becoming, not a checklist with an end.
+5. **Sometimes the right task is retrospective** — "what chaos has accumulated, and what
+   integration does it want that wasn't obvious in advance?" Schedule one deliberately every
+   several tasks (they're seeded below as ♻ tasks).
+
+**Hard limits (never crossed without Myk, regardless of loop momentum):**
+
+- The live store `~/.chorus/memory.sqlite` and the serving node `../rhizomatic/apps/chorus`:
+  **do not touch**. Cutover (ROADMAP Phase 2) is Myk-gated end to end.
+- No `npm publish`, no repo-visibility changes, no force-push/history rewrite.
+- Substrate changes belong in the `rhizomatic` repo — a PR there is a conversation with Myk, not a
+  loop task.
+- Anything irreversible or outward-facing beyond this repo's GitHub: stop and ask.
+
+## The queue
+
+### Now — persistence + CLI (ROADMAP Phases 1)
+
+- [ ] **1. `node-sqlite` backend** — third `StoreBackend` witness on Node's built-in
+      `DatabaseSync`; same SQLite format as the better-sqlite3 tier; verified by the existing
+      conformance suite; `engines: ^22.13.0 || >=24`; CI matrix gains Node 24. Default backend
+      switches to it; `jsonl` stays the legible dev tier; `better-sqlite3` demoted to opt-in
+      (decision record: 2026-07-02 landscape research — zero install surface + sync API + same
+      on-disk format).
+- [ ] **2. CLI packaging** — `src/cli.ts` (small arg parser), `bin: {chorus}`, `build` (tsc →
+      dist) + `prepare`, `files`/`.npmignore` mirroring `@rhizomes/rhizomatic`. With task 1 done,
+      the default install carries **no native dep at all** (supersedes the roadmap's
+      "default jsonl so `npm i -g` is painless" — that constraint dissolved).
+- [ ] **3. `chorus init`** — create `~/.chorus`, mint/import master seed, write config. Never
+      print the seed.
+- [ ] **4. `chorus store create|ls|show|adopt`** — over the existing `StoreRegistry`. No
+      destructive delete (grow-only ethos: deregister only).
+- [ ] **5. `chorus serve`** — `--store <name>` (repeatable), `--stdio | --http --port --token`.
+      The node that replaces `start-chorus-node.cmd`.
+- [ ] **6. `chorus console [--port]`** — the web console over the store(s).
+- [ ] **7. Direct data ops** — `chorus recall|remember|search|explain|decide|replay|gql --store …`.
+- [ ] ♻ **8. Retro/integration pass #1** — what did tasks 1–7 accumulate that wants integrating?
+      (Known candidates: env-var vs CLI-flag config story; error-message voice; CLAUDE.md
+      "Commands" section rewrite around the CLI.)
+- [ ] **9. `chorus migrate` + `chorus upgrade`** — jsonl→sqlite command over the existing
+      migrator; self-update + update-notifier.
+- [ ] **10. Compatibility guarantees** — format-version marker in store manifests,
+      auto-migrate-on-open (lossless, digest-checked), contract/golden tests pinning CLI behavior + MCP tool schemas so breaking changes fail CI.
+- [ ] **11. Cutover rehearsal (synthetic)** — full Phase 2 dress rehearsal against a synthetic
+      store built for the purpose: adopt → serve --http → real MCP round-trip → digest
+      verification. Produces a written runbook for Myk's live cutover. **Does not touch the live
+      store.**
+
+### Next — horizon spikes (from VISION.md, interleaved after the CLI exists)
+
+- [ ] **12. Read-only pinned-lens GQL endpoint** (Horizon 1) — `chorus serve --gql-readonly`
+      pinned to `(policy, lens)`; the blog-feed primitive. Include a closure-audit dry-run mode.
+- [ ] **13. `sqlite-vec` opt-in index** (Horizon 3) — vector index in the node-sqlite backend via
+      `allowExtension`, graceful degradation when absent; `similar(text)` candidate read on the
+      store tier; wire librarian candidate generation to it.
+- [ ] **14. Schema-commons design doc + seed** (Horizon 2) — vocabulary-of-vocabularies as
+      claims; publish the four skills' `chorus.md` conventions into a `commons` store as the
+      worked example; teach `chorus-skill-designer` to consult it.
+- [ ] ♻ **15. Retro/integration pass #2 + VISION.md revision** — full stock-take; revise the
+      horizons against what the spikes taught; mine the next tranche.
+
+### Done
+
+_(moves here with a journal pointer)_

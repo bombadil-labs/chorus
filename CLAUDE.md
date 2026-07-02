@@ -88,6 +88,18 @@ Skills that turn Chorus into domain apps (the `chorus-skill-designer` meta-skill
   (format + lint + typecheck + test) is the gate.
 - **Match the surrounding idiom.** This code aspires to be re-readable; keep it that way.
 
+### The autonomous loop (standing authorization, 2026-07-02)
+
+Myk has authorized autonomous operation on this repo: work the queue in [BACKLOG.md](BACKLOG.md)
+task by task — re-evaluate each task against accumulated learnings before starting it, feature
+branch + green gate as always, **adversarial self-review in place of PR approval** (review the
+diff independently; fix or explicitly disposition findings; store-format or tool-surface breakage
+is a show-stopper), then merge. Journal every task in [JOURNAL.md](JOURNAL.md); when the backlog
+runs dry, revise [VISION.md](VISION.md) against actual progress and mine it for the next tranche;
+periodically run a retrospective/integration task instead of a feature task. Update this file
+whenever a learning changes how future work should happen. The hard limits in BACKLOG.md override
+loop momentum, always — the live store, publishing, and anything irreversible remain Myk-gated.
+
 ## Commands
 
 ```
@@ -106,6 +118,9 @@ eslint (flat config). Native dep: `better-sqlite3` (ships prebuilds; JSONL backe
 ## Pointers
 
 - [ROADMAP.md](ROADMAP.md) — the ordered burndown to an alpha `@rhizomes/chorus` CLI. **Start here.**
+- [BACKLOG.md](BACKLOG.md) — the autonomous loop's protocol + working queue (finer-grained than the
+  roadmap). [JOURNAL.md](JOURNAL.md) — the loop's record. [VISION.md](VISION.md) — the horizons
+  past the roadmap; revised whenever the backlog runs dry.
 - [CONSTELLATION.md](CONSTELLATION.md) — the multi-store / private / federating design + phases.
 - [PERSISTENCE.md](PERSISTENCE.md) — how the pluggable store tier came to be (history/rationale).
 - [README.md](README.md) — the product doc.
