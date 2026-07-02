@@ -1,0 +1,26 @@
+# The green gate, on every push and PR. `npm run check` = format:check + lint + typecheck + test —
+# the same single command the working agreement requires before every commit.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    strategy:
+      fail-fast: false
+      matrix:
+        # ubuntu is the gate; windows mirrors the primary dev machine (and proves the native
+        # better-sqlite3 prebuild story on both).
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run check
