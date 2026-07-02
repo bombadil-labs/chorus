@@ -125,3 +125,28 @@ would have made init a lie ("you are X" while servers signed as the dev default)
 catch what a feature IMPLIES, not just what it does. And a shell lesson at my own expense:
 never build docs through inline heredoc-node with backticks — command substitution eats them;
 use a script file.
+
+---
+
+## 2026-07-03 (early) - Serve and the seat: the alpha loop closes
+
+**Tasks 4-6 done (PRs #7, #8, #9).** The full alpha shape now exists end to end:
+`npm i -g` (zero native deps) -> `chorus init` -> `chorus store create|adopt` -> `chorus serve
+--http` -> `chorus console`. The serve slice is the centerpiece: stdio for local clients, HTTP
+with repeatable --store mounting several stores on one node (/mcp/<token>/<name>) - the
+aggregator's shape, ahead of the aggregator's union reads (Phase C).
+
+**What the reviews caught, in one theme: HONEST FAILURE.** Bare `--home` silently minting a new
+identity in whatever directory you happened to be in; `adopt` printing a success report over a
+typo'd path while creating a file at the typo; library adopt writing first and throwing after;
+sessions accepted on the wrong store's mount; tokens that break the URL grammar failing as
+endless 404s; EADDRINUSE as a raw uncaught stack. None of these were wrong-answer bugs - they
+were wrong-SILENCE bugs. The CLI's job on every one: fail loudly, name the way out, echo nothing
+secret.
+
+**Windows CI taught its third lesson:** kill() is a request; handle release lags. Await child
+exits, then treat temp-dir cleanup as best-effort - the OS owns tmpdir; a leftover dir is not a
+product signal.
+
+**State of the burndown:** tasks 1-6 done in one day. Remaining before the cutover rehearsal:
+data ops (7), retro (8), migrate/upgrade (9), compatibility guarantees (10).

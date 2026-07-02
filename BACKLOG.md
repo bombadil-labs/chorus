@@ -45,11 +45,8 @@ _(task 2 moved to Done)_
 
 _(task 3 moved to Done)_
 
-- [ ] **4. `chorus store create|ls|show|adopt`** — over the existing `StoreRegistry`. No
-      destructive delete (grow-only ethos: deregister only).
-- [ ] **5. `chorus serve`** — `--store <name>` (repeatable), `--stdio | --http --port --token`.
-      The node that replaces `start-chorus-node.cmd`.
-- [ ] **6. `chorus console [--port]`** — the web console over the store(s).
+_(tasks 4-6 moved to Done)_
+
 - [ ] **7. Direct data ops** — `chorus recall|remember|search|explain|decide|replay|gql --store …`.
 - [ ] ♻ **8. Retro/integration pass #1** — what did tasks 1–7 accumulate that wants integrating?
       (Known candidates: env-var vs CLI-flag config story; error-message voice; CLAUDE.md
@@ -80,6 +77,23 @@ _(task 3 moved to Done)_
       horizons against what the spikes taught; mine the next tranche.
 
 ### Done
+
+- [x] **6. `chorus console`** (2026-07-02, PR #9 - journal: Serve and the seat). The web
+      console over a registry store, same discovery as serve. Post-merge review fixes: listen
+      error handler (EADDRINUSE was an uncaught crash), ack/distrust POST handlers no longer
+      kill the process on non-JSON bodies, shared port-range validation.
+- [x] **5. `chorus serve`** (2026-07-02, PR #8 - journal: Serve and the seat). stdio + HTTP
+      with repeatable --store (multi-store mounts at /mcp/<token>/<name>; aggregator SHAPE,
+      union reads stay Phase C). Review hardened the network surface: sessions pinned to
+      their mount, token charset + constant-time comparison, store-name alphabet (closed a
+      path traversal via registry names), EADDRINUSE as a clean error, duplicate --store
+      rejected.
+- [x] **4. `chorus store create|ls|show|adopt`** (2026-07-02, PR #7 - journal: The registry
+      commands). Review forced honest failures everywhere: bare value flags error instead of
+      silently retargeting (bare --home was minting a seed in CWD), typo'd flags never become
+      silent defaults, adopt refuses missing/empty sources (was fabricating success over a
+      typo), and library adopt now verifies the UNION digest before writing (was write-then-
+      throw with a leaked handle).
 
 - [x] **3. `chorus init`** (2026-07-02, PR #6 — journal: "The identity slice"). Non-destructive home setup (CHORUS_HOME override; the real ~/.chorus holds the LIVE store), exclusive-create config with 0600 where honored, conflicting imports refused, corrupt/unreadable configs are errors never "absent". Review closed two SEED-LEAK paths (positional typo + --seed= form — every CLI stderr path now redacts 64-hex tokens), a TOCTOU clobber, and wired resolveMasterSeed into all three entry points so the printed identity is the one sessions actually sign with.
 

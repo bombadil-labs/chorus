@@ -101,37 +101,28 @@ export function startConsole(opts: ConsoleOptions): Promise<ConsoleHandle> {
         let body = "";
         req.on("data", (c: Buffer) => (body += c.toString()));
         req.on("end", () => {
-          const { id, note } = JSON.parse(body) as { id: string; note?: string };
-          // The ack is the human's: signed by YOUR key.
-          agent.recordAs(uSeed, { timestamp: Date.now(), pointers: ackPointers(id, note) });
-          store.persist(agent);
-          json(res, { acked: id });
+          // The 'end' callback runs AFTER handle()'s try/catch returned — an exception here
+          // (non-JSON body, persist failure) would be an uncaughtException killing the process.
+          try {
+            const { id, note } = JSON.parse(body) as { id: string; note?: string };
+            // The ack is the human's: signed by YOUR key.
+            agent.recordAs(uSeed, { timestamp: Date.now(), pointers: ackPointers(id, note) });
+            store.persist(agent);
+            json(res, { acked: id });
+          } catch (e) {
+            json(res, { error: e instanceof Error ? e.message : String(e) }, 400);
+          }
         });
         return;
       } else if (url.pathname === "/api/distrust" && req.method === "POST") {
         let body = "";
         req.on("data", (c: Buffer) => (body += c.toString()));
         req.on("end", () => {
-          const { author, reason } = JSON.parse(body) as { author: string; reason?: string };
-          // The console is the human: the edit is signed by YOUR key, visible to every session.
-          agent.recordAs(uSeed, {
-            timestamp: Date.now(),
-            pointers: [
-              { role: ROLE_TRUST_AUTHOR, target: { kind: "primitive", value: author } },
-              { role: ROLE_TRUST_VERDICT, target: { kind: "primitive", value: "distrusted" } },
-              ...(reason === undefined
-                ? []
-                : [
-                    {
-                      role: ROLE_TRUST_REASON,
-                      target: { kind: "primitive" as const, value: reason },
-                    },
-                  ]),
-            ],
-          });
-          agent.applyDistrust(author);
-          store.persist(agent);
-          json(res, { distrusted: author });
+          try {
+            handleDistrust(body, res);
+          } catch (e) {
+            json(res, { error: e instanceof Error ? e.message : String(e) }, 400);
+          }
         });
         return;
       } else {
@@ -142,8 +133,34 @@ export function startConsole(opts: ConsoleOptions): Promise<ConsoleHandle> {
     }
   };
 
-  return new Promise((resolvePromise) => {
+  const handleDistrust = (body: string, res: ServerResponse): void => {
+    const { author, reason } = JSON.parse(body) as { author: string; reason?: string };
+    // The console is the human: the edit is signed by YOUR key, visible to every session.
+    agent.recordAs(uSeed, {
+      timestamp: Date.now(),
+      pointers: [
+        { role: ROLE_TRUST_AUTHOR, target: { kind: "primitive", value: author } },
+        { role: ROLE_TRUST_VERDICT, target: { kind: "primitive", value: "distrusted" } },
+        ...(reason === undefined
+          ? []
+          : [
+              {
+                role: ROLE_TRUST_REASON,
+                target: { kind: "primitive" as const, value: reason },
+              },
+            ]),
+      ],
+    });
+    agent.applyDistrust(author);
+    store.persist(agent);
+    json(res, { distrusted: author });
+  };
+
+  return new Promise((resolvePromise, rejectPromise) => {
     const server = createServer(handle);
+    // Without this, a routine port collision (EADDRINUSE — the default console port) is an
+    // uncaught exception and this promise never settles.
+    server.on("error", rejectPromise);
     server.listen(opts.port ?? 4820, "127.0.0.1", () => {
       const address = server.address();
       const port = typeof address === "object" && address !== null ? address.port : 0;
