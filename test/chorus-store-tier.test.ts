@@ -6,9 +6,10 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterAll, describe, expect, it } from "vitest";
 import { JsonlStore } from "../src/shared-store.js";
-import { SqliteStore } from "../src/sqlite-store.js";
+import { SqliteStore, betterSqliteAvailable } from "../src/sqlite-store.js";
 import { NodeSqliteStore, nodeSqliteAvailable } from "../src/node-sqlite-store.js";
 import {
+  availableDriver,
   backendForPath,
   backendFromEnv,
   createBackend,
@@ -25,6 +26,9 @@ const clockFrom = (start: number) => {
   let t = start;
   return () => (t += 10);
 };
+// Whether ANY sqlite-family driver exists here (better-sqlite3 is optional; node:sqlite needs
+// Node >= 22.13). Suites that need one skip loudly rather than fail on a degraded install.
+const canSqlite = betterSqliteAvailable() || nodeSqliteAvailable();
 
 const dir = mkdtempSync(join(tmpdir(), "chorus-tier-"));
 const opened: StoreBackend[] = [];
@@ -36,10 +40,23 @@ afterAll(() => {
 
 describe("chorus persistence tier: selection + migration", () => {
   it("backendFromEnv defaults by availability, honors every kind, is case-insensitive, rejects junk", () => {
-    // The unset-env default is availability-aware: the built-in driver where it exists, else the
-    // dependency-free JSONL tier. Never better-sqlite3 — a default must not hinge on a native dep.
-    expect(defaultBackendKind()).toBe(nodeSqliteAvailable() ? "node-sqlite" : "jsonl");
+    // The unset-env default prefers a SQLite driver — the builtin first, better-sqlite3 (an
+    // optional dep) next — and falls to the legible JSONL tier only when neither exists. JSONL
+    // is the dev tier, not a production default; it is also the one backend that can't be
+    // missing, so a default install can never break.
+    expect(defaultBackendKind()).toBe(
+      nodeSqliteAvailable() ? "node-sqlite" : betterSqliteAvailable() ? "sqlite" : "jsonl",
+    );
     expect(backendFromEnv({})).toBe(defaultBackendKind());
+    // Driver substitution stays inside the shared-format family and is identity when the
+    // requested driver exists.
+    expect(availableDriver("jsonl")).toBe("jsonl");
+    expect(availableDriver("sqlite")).toBe(
+      betterSqliteAvailable() ? "sqlite" : nodeSqliteAvailable() ? "node-sqlite" : "sqlite",
+    );
+    expect(availableDriver("node-sqlite")).toBe(
+      nodeSqliteAvailable() ? "node-sqlite" : betterSqliteAvailable() ? "sqlite" : "node-sqlite",
+    );
     expect(backendFromEnv({ CHORUS_STORE_BACKEND: "jsonl" })).toBe("jsonl");
     expect(backendFromEnv({ CHORUS_STORE_BACKEND: "sqlite" })).toBe("sqlite");
     expect(backendFromEnv({ CHORUS_STORE_BACKEND: "SQLite" })).toBe("sqlite");
@@ -51,7 +68,11 @@ describe("chorus persistence tier: selection + migration", () => {
 
   it("the factory builds the backend the selection names", () => {
     expect(track(createBackend(join(dir, "f.jsonl"), "jsonl"))).toBeInstanceOf(JsonlStore);
-    expect(track(createBackend(join(dir, "f.sqlite"), "sqlite"))).toBeInstanceOf(SqliteStore);
+    if (betterSqliteAvailable()) {
+      expect(track(createBackend(join(dir, "f.sqlite"), "sqlite"))).toBeInstanceOf(SqliteStore);
+    } else {
+      expect(() => createBackend(join(dir, "f.sqlite"), "sqlite")).toThrow(/better-sqlite3/);
+    }
     if (nodeSqliteAvailable()) {
       expect(track(createBackend(join(dir, "f.node.sqlite"), "node-sqlite"))).toBeInstanceOf(
         NodeSqliteStore,
@@ -102,11 +123,11 @@ describe("chorus persistence tier: selection + migration", () => {
     expect(backendForPath(jsonlAtOddName, {})).toBe("jsonl");
     // A real SQLite file at a jsonl-looking name goes to a sqlite driver — the JSONL reader
     // would silently treat the binary as garbage lines and then append text into the database.
-    const sqliteAtOddName = join(dir, "memory.log");
-    track(createBackend(sqliteAtOddName, "sqlite"));
-    expect(backendForPath(sqliteAtOddName, {})).toBe(
-      nodeSqliteAvailable() ? "node-sqlite" : "sqlite",
-    );
+    if (canSqlite) {
+      const sqliteAtOddName = join(dir, "memory.log");
+      track(createBackend(sqliteAtOddName, availableDriver("sqlite")));
+      expect(backendForPath(sqliteAtOddName, {})).toBe(availableDriver("node-sqlite"));
+    }
     // Fresh paths go by extension (case-insensitive), then the availability default.
     expect(backendForPath(join(dir, "fresh.jsonl"), {})).toBe("jsonl");
     expect(backendForPath(join(dir, "FRESH.JSONL"), {})).toBe("jsonl");
@@ -121,47 +142,61 @@ describe("chorus persistence tier: selection + migration", () => {
     expect(track(createBackend(jsonlAtOddName))).toBeInstanceOf(JsonlStore);
   });
 
-  it("migrates a JSONL log into SQLite losslessly: identical digest, beliefs intact", () => {
-    const jsonlPath = join(dir, "memory.jsonl");
-    const sqlitePath = join(dir, "memory.sqlite");
+  it.skipIf(!canSqlite)(
+    "migrates a JSONL log into SQLite losslessly: identical digest, beliefs intact",
+    () => {
+      const jsonlPath = join(dir, "memory.jsonl");
+      const sqlitePath = join(dir, "memory.sqlite");
 
-    // Build a real world in JSONL: a belief, a revise, a retract — exercise negation chains.
-    const writer = createSession({ masterSeedHex: MASTER, sessionId: "w", clock: clockFrom(1000) });
-    const src = track(new JsonlStore(jsonlPath));
-    callTool(writer, "begin-session", { model: "claude-fable-5" });
-    callTool(writer, "remember", { about: "svc:api", attribute: "owner", value: "team-a" });
-    const r = callTool(writer, "remember", {
-      about: "svc:api",
-      attribute: "tier",
-      value: "bronze",
-    }) as { deltaId: string };
-    callTool(writer, "revise", { deltaId: r.deltaId, value: "gold", reason: "upgraded" });
-    src.persist(writer.agent);
-    const before = writer.agent.digest();
+      // Build a real world in JSONL: a belief, a revise, a retract — exercise negation chains.
+      const writer = createSession({
+        masterSeedHex: MASTER,
+        sessionId: "w",
+        clock: clockFrom(1000),
+      });
+      const src = track(new JsonlStore(jsonlPath));
+      callTool(writer, "begin-session", { model: "claude-fable-5" });
+      callTool(writer, "remember", { about: "svc:api", attribute: "owner", value: "team-a" });
+      const r = callTool(writer, "remember", {
+        about: "svc:api",
+        attribute: "tier",
+        value: "bronze",
+      }) as { deltaId: string };
+      callTool(writer, "revise", { deltaId: r.deltaId, value: "gold", reason: "upgraded" });
+      src.persist(writer.agent);
+      const before = writer.agent.digest();
 
-    const result = migrateJsonlToSqlite(jsonlPath, sqlitePath);
-    expect(result.digest).toBe(before); // the migration's own internal verification agrees…
+      const result = migrateJsonlToSqlite(jsonlPath, sqlitePath);
+      expect(result.digest).toBe(before); // the migration's own internal verification agrees…
 
-    // …and an independent reader over the SQLite store sees the identical world + live beliefs.
-    const reader = createSession({ masterSeedHex: MASTER, sessionId: "r", clock: clockFrom(5000) });
-    track(new SqliteStore(sqlitePath)).refresh(reader.agent);
-    expect(reader.agent.digest()).toBe(before);
-    expect(callTool(reader, "recall", { entity: "svc:api" })).toEqual({
-      owner: "team-a",
-      tier: "gold",
-    });
-  });
+      // …and an independent reader over the SQLite store sees the identical world + live beliefs.
+      const reader = createSession({
+        masterSeedHex: MASTER,
+        sessionId: "r",
+        clock: clockFrom(5000),
+      });
+      track(createBackend(sqlitePath, availableDriver("sqlite"))).refresh(reader.agent);
+      expect(reader.agent.digest()).toBe(before);
+      expect(callTool(reader, "recall", { entity: "svc:api" })).toEqual({
+        owner: "team-a",
+        tier: "gold",
+      });
+    },
+  );
 
-  it("an empty JSONL log migrates to an empty SQLite store (no spurious deltas)", () => {
-    const result = migrateJsonlToSqlite(join(dir, "absent.jsonl"), join(dir, "empty.sqlite"));
-    expect(result.deltas).toBe(0);
-  });
+  it.skipIf(!canSqlite)(
+    "an empty JSONL log migrates to an empty SQLite store (no spurious deltas)",
+    () => {
+      const result = migrateJsonlToSqlite(join(dir, "absent.jsonl"), join(dir, "empty.sqlite"));
+      expect(result.deltas).toBe(0);
+    },
+  );
 
   // DoD #5: the server path boots on either backend; remember in one process, recall in a fresh
   // one over the same durable store — the resume every real client depends on.
   const bootable: BackendKind[] = [
     "jsonl",
-    "sqlite",
+    ...(betterSqliteAvailable() ? (["sqlite"] as const) : []),
     ...(nodeSqliteAvailable() ? (["node-sqlite"] as const) : []),
   ];
   for (const backend of bootable) {

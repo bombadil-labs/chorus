@@ -12,7 +12,7 @@ import { join } from "node:path";
 import { afterAll, describe, expect, it } from "vitest";
 import type { Delta } from "@rhizomes/rhizomatic";
 import { JsonlStore } from "../src/shared-store.js";
-import { SqliteStore } from "../src/sqlite-store.js";
+import { SqliteStore, betterSqliteAvailable } from "../src/sqlite-store.js";
 import { NodeSqliteStore, nodeSqliteAvailable } from "../src/node-sqlite-store.js";
 import type { StoreBackend } from "../src/store-tier.js";
 import { callTool, createSession, type SessionContext } from "../src/mcp-server.js";
@@ -159,10 +159,18 @@ export function runStoreConformance(backend: Backend): void {
 }
 
 runStoreConformance({ label: "jsonl", make: (path) => new JsonlStore(path) });
-runStoreConformance({ label: "sqlite", make: (path) => new SqliteStore(path) });
 
-// The third witness runs wherever Node ships node:sqlite (>= 22.13). Where it doesn't, skip
-// LOUDLY — a silently thinner suite would read as coverage it isn't. CI runs Nodes that have it.
+// Each SQLite witness runs where its driver exists and skips LOUDLY where it doesn't — a
+// silently thinner suite would read as coverage it isn't. better-sqlite3 is an OPTIONAL dep
+// (a skipped native build is a supported install state), node:sqlite needs Node >= 22.13;
+// between the local machine and the CI matrix every witness runs somewhere.
+if (betterSqliteAvailable()) {
+  runStoreConformance({ label: "sqlite", make: (path) => new SqliteStore(path) });
+} else {
+  describe.skip("Store conformance — sqlite (optional better-sqlite3 not installed)", () => {
+    it("needs the optional better-sqlite3 dependency", () => {});
+  });
+}
 if (nodeSqliteAvailable()) {
   runStoreConformance({ label: "node-sqlite", make: (path) => new NodeSqliteStore(path) });
 } else {
@@ -174,56 +182,59 @@ if (nodeSqliteAvailable()) {
 // The two SQLite drivers share one on-disk format — prove it in BOTH directions with ONE body
 // (a copy-pasted mirror block invites asymmetric coverage): the full delta set AND the indexed
 // reads must agree when one driver reads the other's file.
-describe.skipIf(!nodeSqliteAvailable())("Store conformance — sqlite/node-sqlite interop", () => {
-  const directions: Array<{
-    label: string;
-    write: (p: string) => StoreBackend;
-    read: (p: string) => StoreBackend;
-  }> = [
-    {
-      label: "native writes, builtin reads",
-      write: (p) => new SqliteStore(p),
-      read: (p) => new NodeSqliteStore(p),
-    },
-    {
-      label: "builtin writes, native reads",
-      write: (p) => new NodeSqliteStore(p),
-      read: (p) => new SqliteStore(p),
-    },
-  ];
-  for (const dir of directions) {
-    it(`${dir.label}: identical delta set + identical indexed reads`, () => {
-      const tmp = mkdtempSync(join(tmpdir(), "chorus-conf-interop-"));
-      const opened: StoreBackend[] = [];
-      try {
-        const clock = (() => {
-          let t = 1000;
-          return () => (t += 10);
-        })();
-        const s = createSession({ masterSeedHex: MASTER, sessionId: "interop", clock });
-        callTool(s, "begin-session", { model: "claude-fable-5" });
-        callTool(s, "remember", { about: "user:mike", attribute: "theme", value: "dark" });
-        callTool(s, "remember", { about: "svc:api", attribute: "owner", value: "team-a" });
-        const all = [...s.agent.peer.reactor.arrivalLog()];
-        const ids = (deltas: readonly Delta[]) => new Set(deltas.map((d) => d.id));
+describe.skipIf(!nodeSqliteAvailable() || !betterSqliteAvailable())(
+  "Store conformance — sqlite/node-sqlite interop",
+  () => {
+    const directions: Array<{
+      label: string;
+      write: (p: string) => StoreBackend;
+      read: (p: string) => StoreBackend;
+    }> = [
+      {
+        label: "native writes, builtin reads",
+        write: (p) => new SqliteStore(p),
+        read: (p) => new NodeSqliteStore(p),
+      },
+      {
+        label: "builtin writes, native reads",
+        write: (p) => new NodeSqliteStore(p),
+        read: (p) => new SqliteStore(p),
+      },
+    ];
+    for (const dir of directions) {
+      it(`${dir.label}: identical delta set + identical indexed reads`, () => {
+        const tmp = mkdtempSync(join(tmpdir(), "chorus-conf-interop-"));
+        const opened: StoreBackend[] = [];
+        try {
+          const clock = (() => {
+            let t = 1000;
+            return () => (t += 10);
+          })();
+          const s = createSession({ masterSeedHex: MASTER, sessionId: "interop", clock });
+          callTool(s, "begin-session", { model: "claude-fable-5" });
+          callTool(s, "remember", { about: "user:mike", attribute: "theme", value: "dark" });
+          callTool(s, "remember", { about: "svc:api", attribute: "owner", value: "team-a" });
+          const all = [...s.agent.peer.reactor.arrivalLog()];
+          const ids = (deltas: readonly Delta[]) => new Set(deltas.map((d) => d.id));
 
-        const path = join(tmp, "interop.sqlite");
-        const writer = dir.write(path);
-        opened.push(writer);
-        expect(writer.appendDeltas(all)).toBe(all.length);
+          const path = join(tmp, "interop.sqlite");
+          const writer = dir.write(path);
+          opened.push(writer);
+          expect(writer.appendDeltas(all)).toBe(all.length);
 
-        const reader = dir.read(path);
-        opened.push(reader);
-        expect(ids(reader.deltasSince(new Set()))).toEqual(ids(all));
-        // The pointer indexes were written by one driver and queried by the other.
-        expect(ids(reader.deltasByTarget!("user:mike"))).toEqual(
-          ids(writer.deltasByTarget!("user:mike")),
-        );
-        expect(reader.deltasByTarget!("user:mike").length).toBeGreaterThan(0);
-      } finally {
-        for (const o of opened) o.close?.();
-        rmSync(tmp, { recursive: true, force: true });
-      }
-    });
-  }
-});
+          const reader = dir.read(path);
+          opened.push(reader);
+          expect(ids(reader.deltasSince(new Set()))).toEqual(ids(all));
+          // The pointer indexes were written by one driver and queried by the other.
+          expect(ids(reader.deltasByTarget!("user:mike"))).toEqual(
+            ids(writer.deltasByTarget!("user:mike")),
+          );
+          expect(reader.deltasByTarget!("user:mike").length).toBeGreaterThan(0);
+        } finally {
+          for (const o of opened) o.close?.();
+          rmSync(tmp, { recursive: true, force: true });
+        }
+      });
+    }
+  },
+);

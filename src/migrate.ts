@@ -8,7 +8,7 @@
 
 import { ChorusAgent } from "./agent.js";
 import { JsonlStore } from "./shared-store.js";
-import { SqliteStore } from "./sqlite-store.js";
+import { availableDriver, createBackend } from "./store-tier.js";
 
 // A throwaway keypair: the migration agent is a vessel for ingesting an existing delta set, it
 // authors nothing. The digest is a property of the SET, independent of this seed.
@@ -27,8 +27,9 @@ export function migrateJsonlToSqlite(jsonlPath: string, sqlitePath: string): Mig
   const before = loaded.digest();
   const all = loaded.peer.reactor.arrivalLog();
 
-  // Write them into a fresh SQLite store.
-  const dest = new SqliteStore(sqlitePath);
+  // Write them into a fresh SQLite store — whichever sqlite-family driver this machine has
+  // (they produce the identical file), so migration never requires the optional native addon.
+  const dest = createBackend(sqlitePath, availableDriver("sqlite"));
   try {
     const stored = dest.appendDeltas(all);
 
@@ -43,7 +44,7 @@ export function migrateJsonlToSqlite(jsonlPath: string, sqlitePath: string): Mig
     }
     return { deltas: stored, digest: after };
   } finally {
-    dest.close();
+    dest.close?.();
   }
 }
 

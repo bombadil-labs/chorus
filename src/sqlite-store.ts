@@ -10,7 +10,8 @@
 // claims JSON + signature are stored verbatim; the id is recomputed on read via `makeDelta`,
 // exactly as the JSONL refresh rehydrates, so the bytes are never trusted blindly.
 
-import Database from "better-sqlite3";
+import type Database from "better-sqlite3";
+import { createRequire } from "node:module";
 import { dirname } from "node:path";
 import { mkdirSync } from "node:fs";
 import {
@@ -24,6 +25,26 @@ import {
 } from "@rhizomes/rhizomatic";
 import type { ChorusAgent } from "./agent.js";
 import type { StoreBackend } from "./store-tier.js";
+
+// better-sqlite3 is an OPTIONAL dependency (a native addon must never be able to fail a default
+// `npm i -g`), so resolve it lazily and memoized, exactly like the node:sqlite probe: `null` =
+// probed and absent. Importing this module never throws; constructing on a machine without the
+// addon fails loudly with the way out.
+let probed: typeof Database | null | undefined;
+function betterSqliteModule(): typeof Database | undefined {
+  if (probed === undefined) {
+    try {
+      probed = createRequire(import.meta.url)("better-sqlite3") as typeof Database;
+    } catch {
+      probed = null;
+    }
+  }
+  return probed ?? undefined;
+}
+
+export function betterSqliteAvailable(): boolean {
+  return betterSqliteModule() !== undefined;
+}
 
 interface DeltaRow {
   readonly seq: number;
@@ -52,6 +73,15 @@ export class SqliteStore implements StoreBackend {
   private readonly appendTxn: Database.Transaction;
 
   constructor(readonly filePath: string) {
+    const Database = betterSqliteModule();
+    if (!Database) {
+      throw new Error(
+        `the "sqlite" backend needs the optional native dependency better-sqlite3, which is not ` +
+          `installed (its build may have been skipped). Use the "node-sqlite" backend (built ` +
+          `into Node >= 22.13), or install better-sqlite3. Use "jsonl" only for a NEW store — ` +
+          `never point the JSONL backend at an existing SQLite file.`,
+      );
+    }
     mkdirSync(dirname(filePath), { recursive: true });
     this.db = new Database(filePath);
     // WAL + a busy timeout makes concurrent processes wait their turn rather than fail; NORMAL

@@ -15,12 +15,12 @@ import { join } from "node:path";
 import { DeltaSet, authorForSeed } from "@rhizomes/rhizomatic";
 import { deriveSeed } from "./identity.js";
 import {
+  availableDriver,
   backendFromEnv,
   createBackend,
   type BackendKind,
   type StoreBackend,
 } from "./store-tier.js";
-import { nodeSqliteAvailable } from "./node-sqlite-store.js";
 
 // Two exposure postures (spec/12 §4). A `private` store publishes no lens — default-deny means it
 // never federates — and (Phase B) is encrypted at rest. A `federated` store MAY publish queries.
@@ -138,12 +138,14 @@ export class StoreRegistry {
     }
 
     // The manifest records the kind chosen at creation; the DRIVER is a runtime substitution
-    // within the shared-format family: a "node-sqlite" store opened on a Node that predates the
-    // builtin falls back to better-sqlite3 over the identical file. A store created anywhere
-    // opens everywhere — the manifest never strands data behind a missing driver.
-    const kind: BackendKind =
-      manifest.backend === "node-sqlite" && !nodeSqliteAvailable() ? "sqlite" : manifest.backend;
-    const backend = createBackend(join(dir, BACKEND_FILE[manifest.backend]), kind);
+    // within the shared-format family (availableDriver): a "node-sqlite" store opens via
+    // better-sqlite3 on a Node that predates the builtin, and vice versa where the native addon
+    // is missing. A store created anywhere opens everywhere — the manifest never strands data
+    // behind a missing driver.
+    const backend = createBackend(
+      join(dir, BACKEND_FILE[manifest.backend]),
+      availableDriver(manifest.backend),
+    );
     return new Store({ manifest, seedHex, backend });
   }
 

@@ -41,9 +41,11 @@ monorepo. The work below is **standalone-ization + the CLI + cutover**, not a re
 Build `src/cli.ts` (a small arg parser — no need for a heavy framework) and wire a `bin`. Ship it in
 slices, each green:
 
-- [ ] **Packaging:** add `"bin": { "chorus": "./dist/cli.js" }`, a `build` (tsc → `dist`) + `prepare`,
-      `files`/`.npmignore` (mirror how `@rhizomes/rhizomatic` was set up). Native `better-sqlite3`
-      means default the CLI to the **jsonl** backend so `npm i -g` is painless; sqlite opt-in.
+- [x] **Packaging:** `"bin": { "chorus": "./dist/cli.js" }`, `build` (tsc → `dist`) + `prepare`,
+      `files`/`exports` mirroring `@rhizomes/rhizomatic`. _(Superseded plan note: the original
+      "default jsonl so `npm i -g` is painless" dissolved — the default backend is now Node's
+      built-in `node:sqlite`, with `better-sqlite3` demoted to an **optional** dependency and
+      JSONL as the dev tier / last-resort fallback. Zero native deps in the default install.)_
 - [ ] **`chorus init`** — create `~/.chorus`, mint (or import) the master seed, write config. Never
       print the seed. (Seed handling: `~/.chorus/config` for v0; keychain is a hardening note.)
 - [ ] **`chorus store create|ls|show|adopt`** — over the `StoreRegistry` (stores.ts). `adopt` reuses
