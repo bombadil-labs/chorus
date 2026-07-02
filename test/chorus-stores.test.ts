@@ -168,6 +168,30 @@ describe("chorus stores: identity + registry", () => {
     expect(again.digest).toBe(legacyDigest);
   });
 
+  it("adopting beside EXISTING data verifies the union — nothing lost on either side", () => {
+    const root = join(dir, "adopt-union");
+    // The target store accumulates its own world first.
+    const target = track(registry(root).open("personal"));
+    const w1 = createSession({ masterSeedHex: MASTER, sessionId: "w1", clock: clockFrom(1000) });
+    callTool(w1, "remember", { about: "svc:api", attribute: "owner", value: "team-a" });
+    target.backend.persist(w1.agent);
+    const existingIds = new Set(target.backend.deltasSince(new Set()).map((d) => d.id));
+
+    // A separate legacy source with different content.
+    const legacy = new JsonlStore(join(dir, "union-source.jsonl"));
+    const w2 = createSession({ masterSeedHex: MASTER, sessionId: "w2", clock: clockFrom(5000) });
+    callTool(w2, "remember", { about: "person:myk", attribute: "editor", value: "emacs" });
+    legacy.persist(w2.agent);
+    const sourceIds = new Set(legacy.deltasSince(new Set()).map((d) => d.id));
+
+    const result = registry(root).adopt("personal", legacy);
+    track(result.store);
+    expect(result.deltas).toBe(sourceIds.size);
+    // Every delta from BOTH sides survives — lossless means the union, exactly.
+    const finalIds = new Set(result.store.backend.deltasSince(new Set()).map((d) => d.id));
+    expect(finalIds).toEqual(new Set([...existingIds, ...sourceIds]));
+  });
+
   it("a manifest is written once and reused (createdAt is stable across opens)", () => {
     const root = join(dir, "r6");
     track(registry(root).open("personal"));

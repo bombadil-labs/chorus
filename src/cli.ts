@@ -6,42 +6,14 @@
 
 import { realpathSync } from "node:fs";
 import { createRequire } from "node:module";
+import { flagValue, parseFlags, redactSecrets, rejectUnknownFlags } from "./cli-args.js";
 import { chorusHome, configPath, initChorusHome } from "./config.js";
+import { storeCommand } from "./cli-store.js";
 
 interface CommandSpec {
   readonly summary: string; // one line for `chorus help`
   readonly slice?: string; // which backlog slice ships it (stub until then)
   run?(args: readonly string[]): Promise<number> | number;
-}
-
-// Anything that could be a secret never reaches an output stream verbatim: every error/echo
-// path routes through this. 64 hex chars is exactly a master seed's shape.
-const redactSecrets = (s: string): string =>
-  s.replace(/[0-9a-fA-F]{64}/g, "[redacted 64-hex value]");
-
-// Tiny flag reader for the hand-rolled parser: `--name value` and `--name=value` + positionals.
-function parseFlags(args: readonly string[]): { flags: Map<string, string>; rest: string[] } {
-  const flags = new Map<string, string>();
-  const rest: string[] = [];
-  for (let i = 0; i < args.length; i++) {
-    const a = args[i]!;
-    if (a.startsWith("--")) {
-      const eq = a.indexOf("=");
-      if (eq !== -1) {
-        flags.set(a.slice(2, eq), a.slice(eq + 1));
-        continue;
-      }
-      const value = args[i + 1];
-      if (value === undefined || value.startsWith("--")) {
-        throw new Error(`--${a.slice(2)} needs a value`);
-      }
-      flags.set(a.slice(2), value);
-      i += 1;
-    } else {
-      rest.push(a);
-    }
-  }
-  return { flags, rest };
 }
 
 const COMMANDS: Record<string, CommandSpec> = {
@@ -56,13 +28,12 @@ const COMMANDS: Record<string, CommandSpec> = {
           `init takes no positional arguments (importing a seed is \`chorus init --seed <hex>\`)`,
         );
       }
-      for (const name of flags.keys()) {
-        if (name !== "seed" && name !== "home") throw new Error(`init: unknown flag --${name}`);
-      }
-      const home = flags.get("home") ?? chorusHome();
+      rejectUnknownFlags(flags, new Set(["seed", "home"]), "init");
+      const home = flagValue(flags, "home") ?? chorusHome();
+      const seedHex = flagValue(flags, "seed");
       const result = initChorusHome({
         home,
-        ...(flags.get("seed") === undefined ? {} : { seedHex: flags.get("seed")! }),
+        ...(seedHex === undefined ? {} : { seedHex }),
       });
       // The seed is NEVER printed — the public user author is the identity you can show around.
       if (result.created) {
@@ -72,7 +43,7 @@ const COMMANDS: Record<string, CommandSpec> = {
       } else {
         console.log(`already initialized at ${result.home} (you are ${result.userAuthor})`);
       }
-      if (flags.get("home") !== undefined && flags.get("home") !== chorusHome()) {
+      if (flagValue(flags, "home") !== undefined && flagValue(flags, "home") !== chorusHome()) {
         console.log(
           `note: other commands find this home only via CHORUS_HOME=${result.home} — set it.`,
         );
@@ -82,7 +53,16 @@ const COMMANDS: Record<string, CommandSpec> = {
   },
   store: {
     summary: "create | ls | show | adopt — manage named stores in the registry",
-    slice: "task 4",
+    run(args): number {
+      // `json` is boolean: it must never swallow a following positional (`show --json media`).
+      const { flags, rest } = parseFlags(args, new Set(["json"]));
+      const [sub, ...positionals] = rest;
+      const home = flagValue(flags, "home");
+      return storeCommand(sub, positionals, flags, {
+        out: console.log,
+        ...(home === undefined ? {} : { home }),
+      });
+    },
   },
   serve: {
     summary: "serve one or more stores over MCP (--stdio | --http), the always-on node",
