@@ -74,3 +74,32 @@ expectations against the matrix, which I hadn't). (2) When two backends must sha
 duplication is not neutral — it's a fork waiting to happen; shared-core refactor queued for the
 retro. (3) The review-before-merge protocol paid for itself on its first outing: three of the
 findings were the kind that surface weeks later as "my memory disappeared."
+
+---
+
+## 2026-07-02 (evening) — The packaging slice, and the symlink that would have shipped broken
+
+**Task 2 done (PR #5): the `chorus` bin exists.** Packaging mirrors the format package (`bin` +
+`build`/`prepare` + `files`/`exports`), and the real deliverable landed: **the default install
+carries zero native dependencies.** better-sqlite3 is an optionalDependency behind a lazy probe;
+`availableDriver` substitutes drivers bidirectionally within the shared file format, so a store
+created anywhere opens everywhere — a skipped native build is now a supported install state, not
+a broken one. The default backend prefers the builtin, then better-sqlite3, then jsonl (Myk's
+directive: JSONL is a dev tier, never a production default).
+
+**What the review caught this time.** The headline: on macOS/Linux, npm installs the bin as a
+SYMLINK named `chorus`, so my argv[1] suffix check never matched — the alpha's headline command
+(`npm i -g` → `chorus`) would have been a silent no-op on every POSIX machine, invisible to CI
+(which ran `node dist/cli.js` directly) and to the dev machine (Windows shims pass the real
+path). A realpath resolve plus a test that spawns through an actual symlink pins it now. Also:
+`process.exit` after `console.log` truncates piped output on async-pipe platforms (exitCode
+instead); migrate.ts was the one path still requiring the optional addon; and the degraded
+install needed loud skips in four suites, not collection-time crashes.
+
+**Learned.** (1) "Works in CI" and "works when installed" are different claims — the bin-shim
+shape (symlink, no suffix) existed in NEITHER, and only a test that reproduces the installed
+topology catches it. (2) When a dependency goes optional, every suite that assumes it becomes a
+gate-breaker on exactly the machines the change supports — grep for constructors, not just
+imports. (3) The interface said `valueKey: string`; both witnesses took `Primitive`. Concrete
+classes in tests had been hiding an interface lie — typed seams only verify what actually flows
+through them.

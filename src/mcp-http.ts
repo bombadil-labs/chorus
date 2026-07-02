@@ -26,6 +26,7 @@ import {
   type StoreBackend,
 } from "./store-tier.js";
 import { createSession, handleRequest, type SessionContext } from "./mcp-server.js";
+import { resolveMasterSeed } from "./config.js";
 
 interface HttpSession {
   readonly ctx: SessionContext;
@@ -216,8 +217,8 @@ if (
     );
     process.exit(1);
   }
-  const masterSeedHex =
-    process.env["CHORUS_MASTER_SEED"] ?? process.env["CHORUS_SEED_HEX"] ?? "0f".repeat(32);
+  // Env wins, then the config `chorus init` wrote, then the shared dev default.
+  const masterSeedHex = resolveMasterSeed() ?? "0f".repeat(32);
   const envStore = resolveEnvStore();
   void startHttpServer({
     masterSeedHex,

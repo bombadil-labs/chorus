@@ -102,6 +102,17 @@ export {
   type AdoptResult,
 } from "./stores.js";
 export { migrateJsonlToSqlite, type MigrationResult } from "./migrate.js";
+export {
+  chorusHome,
+  configPath,
+  storesRoot,
+  loadConfig,
+  initChorusHome,
+  resolveMasterSeed,
+  userAuthorOf,
+  type ChorusConfig,
+  type InitResult,
+} from "./config.js";
 export { backlinks, type Backlink } from "./store-reads.js";
 export { loadPack, restore, savePack } from "./store.js";
 export {

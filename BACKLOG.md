@@ -41,10 +41,8 @@ Standing instruction from Myk (2026-07-02), formalized:
 
 _(task 1 moved to Done)_
 
-- [ ] **2. CLI packaging** — `src/cli.ts` (small arg parser), `bin: {chorus}`, `build` (tsc →
-      dist) + `prepare`, `files`/`.npmignore` mirroring `@rhizomes/rhizomatic`. With task 1 done,
-      the default install carries **no native dep at all** (supersedes the roadmap's
-      "default jsonl so `npm i -g` is painless" — that constraint dissolved).
+_(task 2 moved to Done)_
+
 - [ ] **3. `chorus init`** — create `~/.chorus`, mint/import master seed, write config. Never
       print the seed.
 - [ ] **4. `chorus store create|ls|show|adopt`** — over the existing `StoreRegistry`. No
@@ -83,6 +81,15 @@ _(task 1 moved to Done)_
 
 ### Done
 
+- [x] **2. CLI packaging** (2026-07-02, PR #5 — journal: "The packaging slice"). `chorus` bin +
+      `build`/`prepare` + `files`/`exports` mirroring the format package; **better-sqlite3 demoted
+      to optionalDependencies** with a lazy probe (zero native deps in the default install);
+      `availableDriver` substitution made bidirectional; `defaultBackendKind` prefers any sqlite
+      driver, jsonl last (Myk: jsonl is dev, not production). Review caught the POSIX bin-symlink
+      silent no-op, async-pipe exit truncation, migrate.ts's hard native dep, a silent-amnesia
+      default-path gap, and misleading error advice — all fixed; every sqlite-needing suite now
+      skips loudly on degraded installs. **Rescoped:** engines is `>=22` (honest floor — jsonl
+      fallback works there), not the earlier `^22.13`; `private: true` stays until Phase 4.
 - [x] **1. `node-sqlite` backend** (2026-07-02, PR #4 — journal: "The third witness"). As
       specified, plus what the adversarial review forced: content-sniffing `backendForPath`
       (existing stores detected by their first 16 bytes, never by filename — the compatibility
