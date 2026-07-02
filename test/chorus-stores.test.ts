@@ -29,7 +29,8 @@ const registry = (root: string, master = MASTER) =>
 
 afterAll(() => {
   for (const s of opened) s.close();
-  rmSync(dir, { recursive: true, force: true });
+  // With sqlite-backed stores, Windows may briefly hold the file even after close — retry.
+  rmSync(dir, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
 });
 
 describe("chorus stores: identity + registry", () => {
@@ -75,7 +76,7 @@ describe("chorus stores: identity + registry", () => {
 
   it("tier is federated by default and can be declared private", () => {
     const reg = registry(join(dir, "r2"));
-    expect(reg.open("shared").tier).toBe("federated");
+    expect(track(reg.open("shared")).tier).toBe("federated");
     const vault = track(reg.open("vault", { tier: "private" }));
     expect(vault.tier).toBe("private");
   });
