@@ -113,6 +113,12 @@ describe("chorus store: registry subcommands through the real CLI", () => {
     expect(r.err).toMatch(/create \| ls \| show \| adopt/);
   });
 
+  it("store names are one safe alphabet: no traversal, no unroutable names", () => {
+    expect(runCli("store", "create", "../evil").err).toMatch(/invalid/);
+    expect(runCli("store", "create", "a/b").err).toMatch(/invalid/);
+    expect(runCli("store", "create", ".hidden").err).toMatch(/invalid/);
+  });
+
   it("a typo'd flag is an error, never a silently-applied default", () => {
     const r = runCli("store", "create", "typo-test", "--teir", "private");
     expect(r.code).toBe(1);

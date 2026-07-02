@@ -118,16 +118,17 @@ function httpClient(base: string) {
   };
   const init = () => post({ jsonrpc: "2.0", id: 1, method: "initialize", params: {} });
   const call = async (name: string, args: Record<string, unknown>): Promise<unknown> => {
-    const { rpc } = await post({
+    const { status, rpc } = await post({
       jsonrpc: "2.0",
       id: Math.floor(Math.random() * 1e9),
       method: "tools/call",
       params: { name, arguments: args },
     });
+    if (status !== 200) throw new Error(`tools/call ${name}: HTTP ${status}`);
     const content = (rpc.result as { content: Array<{ text: string }> }).content;
     return JSON.parse(content[0]!.text) as unknown;
   };
-  return { init, call };
+  return { init, call, sessionId: () => sessionId };
 }
 
 describe("chorus serve: the node, end to end", () => {
@@ -189,5 +190,25 @@ describe("chorus serve: the node, end to end", () => {
       body: "{}",
     });
     expect(bad.status).toBe(404);
+
+    // A session speaks ONLY through the mount it initialized against: personal's session id on
+    // media's path is a 404, not a silent write to the wrong store.
+    const cross = await fetch(mediaUrl, {
+      method: "POST",
+      headers: { "content-type": "application/json", "mcp-session-id": p.sessionId()! },
+      body: JSON.stringify({
+        jsonrpc: "2.0",
+        id: 99,
+        method: "tools/call",
+        params: { name: "recall", arguments: { entity: "work:dune" } },
+      }),
+    });
+    expect(cross.status).toBe(404);
   }, 40_000);
+
+  it("rejects tokens that break the URL path grammar, loudly and early", () => {
+    const r = runCli("serve", "--store", "personal", "--http", "--token", "abc/def");
+    expect(r.code).toBe(1);
+    expect(r.err).toMatch(/URL path segment/);
+  });
 });

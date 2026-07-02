@@ -102,6 +102,14 @@ export class StoreRegistry {
   }
 
   private dirOf(name: string): string {
+    // A store name is a directory name, a URL path segment (mcp-http mounts), and a CLI token —
+    // one conservative alphabet serves all three, and rejects path traversal ("../../evil")
+    // and names list()/serve could never see again ("a/b").
+    if (!/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(name)) {
+      throw new Error(
+        `store name "${name}" is invalid — use letters/digits, then letters, digits, ".", "_", "-".`,
+      );
+    }
     return join(this.root, name);
   }
 

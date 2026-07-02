@@ -28,12 +28,15 @@ export async function serveCommand(args: ServeArgs, io: StoreIo): Promise<number
   }
   const { registry, seed } = openRegistry(io);
   const known = new Set(registry.list().map((m) => m.name));
+  const seen = new Set<string>();
   for (const name of args.stores) {
     if (!known.has(name)) {
       throw new Error(
         `no store named "${name}" — create it first: \`chorus store create ${name}\``,
       );
     }
+    if (seen.has(name)) throw new Error(`--store ${name} given twice`);
+    seen.add(name);
   }
 
   if (args.stdio) {
