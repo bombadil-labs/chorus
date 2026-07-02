@@ -6,6 +6,7 @@
 
 import { realpathSync } from "node:fs";
 import { createRequire } from "node:module";
+import { chorusHome, initChorusHome } from "./config.js";
 
 interface CommandSpec {
   readonly summary: string; // one line for `chorus help`
@@ -13,10 +14,50 @@ interface CommandSpec {
   run?(args: readonly string[]): Promise<number> | number;
 }
 
+// Tiny flag reader for the hand-rolled parser: `--name value` pairs + positionals.
+function parseFlags(args: readonly string[]): { flags: Map<string, string>; rest: string[] } {
+  const flags = new Map<string, string>();
+  const rest: string[] = [];
+  for (let i = 0; i < args.length; i++) {
+    const a = args[i]!;
+    if (a.startsWith("--")) {
+      const value = args[i + 1];
+      if (value === undefined || value.startsWith("--")) {
+        throw new Error(`${a} needs a value`);
+      }
+      flags.set(a.slice(2), value);
+      i += 1;
+    } else {
+      rest.push(a);
+    }
+  }
+  return { flags, rest };
+}
+
 const COMMANDS: Record<string, CommandSpec> = {
   init: {
     summary: "create ~/.chorus, mint or import the master seed, write config",
-    slice: "task 3",
+    run(args): number {
+      const { flags, rest } = parseFlags(args);
+      if (rest.length > 0) throw new Error(`init takes no positional arguments (got "${rest[0]}")`);
+      for (const name of flags.keys()) {
+        if (name !== "seed" && name !== "home") throw new Error(`init: unknown flag --${name}`);
+      }
+      const home = flags.get("home") ?? chorusHome();
+      const result = initChorusHome({
+        home,
+        ...(flags.get("seed") === undefined ? {} : { seedHex: flags.get("seed")! }),
+      });
+      // The seed is NEVER printed — the public user author is the identity you can show around.
+      if (result.created) {
+        console.log(`initialized ${result.home}`);
+        console.log(`you are ${result.userAuthor}`);
+        console.log(`the master seed is in ${result.home}/config.json — keep it private.`);
+      } else {
+        console.log(`already initialized at ${result.home} (you are ${result.userAuthor})`);
+      }
+      return 0;
+    },
   },
   store: {
     summary: "create | ls | show | adopt — manage named stores in the registry",
