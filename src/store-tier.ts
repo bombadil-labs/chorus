@@ -15,7 +15,7 @@
 // `StoreBackend`. Interface renamed from `Store` → `StoreBackend` so the domain word is free.
 
 import { closeSync, existsSync, openSync, readSync } from "node:fs";
-import type { Delta } from "@rhizomes/rhizomatic";
+import type { Delta, Primitive } from "@rhizomes/rhizomatic";
 import type { ChorusAgent } from "./agent.js";
 import { JsonlStore } from "./shared-store.js";
 import { SqliteStore, betterSqliteAvailable } from "./sqlite-store.js";
@@ -51,8 +51,9 @@ export interface StoreBackend {
 
   // Stored deltas with a pointer targeting this entity id.
   deltasByTarget?(entityId: string): Delta[];
-  // Stored deltas with a primitive pointer under `role` whose canonical key equals `valueKey`.
-  deltasByValue?(role: string, valueKey: string): Delta[];
+  // Stored deltas with a primitive pointer under `role` matching `value` (canonicalized by the
+  // backend — both SQLite witnesses key on the reactor's own viewCanonicalHex).
+  deltasByValue?(role: string, value: Primitive): Delta[];
 
   // --- maintenance (a JSONL artifact; SQLite no-ops or VACUUMs) ------------------------------
   wasteful?(agent: ChorusAgent): boolean;
@@ -162,14 +163,20 @@ export function resolveEnvStore(
 ): { path: string; kind: BackendKind } {
   const pinned = env["CHORUS_STORE_BACKEND"] !== undefined ? backendFromEnv(env) : undefined;
   const legacy = "chorus-memory.jsonl";
-  // The legacy-file continuity check applies ONLY when no backend is pinned: an explicit pin to
-  // a sqlite kind must get the sqlite default path, never the legacy JSONL file under the pinned
-  // sqlite driver (the exact incoherent pair this function exists to prevent).
-  const path =
-    env["CHORUS_STORE"] ??
-    ((pinned ?? defaultBackendKind()) === "jsonl" || (pinned === undefined && fileExists(legacy))
-      ? legacy
-      : "chorus-memory.sqlite");
+  const sqliteDefault = "chorus-memory.sqlite";
+  // Default-path rules: a pin picks its own default path (never the other format's file — the
+  // incoherent pair this function exists to prevent). Unpinned, an EXISTING default store wins
+  // — either format — so no environment change (Node upgrade, missing optional addon) ever
+  // silently starts a fresh store beside real history; only then does the availability default
+  // decide. If the surviving store needs a driver this machine lacks, construction fails
+  // LOUDLY — an error beats amnesia.
+  const defaultPath = (): string => {
+    if (pinned !== undefined) return pinned === "jsonl" ? legacy : sqliteDefault;
+    if (fileExists(legacy)) return legacy;
+    if (fileExists(sqliteDefault)) return sqliteDefault;
+    return defaultBackendKind() === "jsonl" ? legacy : sqliteDefault;
+  };
+  const path = env["CHORUS_STORE"] ?? defaultPath();
   return { path, kind: pinned ?? backendForPath(path, env) };
 }
 

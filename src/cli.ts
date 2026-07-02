@@ -4,6 +4,7 @@
 // Deliberately a tiny hand-rolled parser: the surface is a handful of subcommands with a few
 // flags each, and a framework would be the heaviest dependency in the package.
 
+import { realpathSync } from "node:fs";
 import { createRequire } from "node:module";
 
 interface CommandSpec {
@@ -87,14 +88,32 @@ export async function main(argv: readonly string[]): Promise<number> {
   return spec.run(rest);
 }
 
-// Direct run (both `node dist/cli.js` and `tsx src/cli.ts`).
-const invoked = process.argv[1]?.replace(/\\/g, "/");
-if (invoked !== undefined && (invoked.endsWith("/cli.js") || invoked.endsWith("/cli.ts"))) {
+// Direct run: `node dist/cli.js`, `tsx src/cli.ts`, AND the npm bin shim — which on POSIX is a
+// SYMLINK named `chorus`, so argv[1] carries no cli.* suffix until realpath-resolved. Check the
+// suffix on both the raw argv and its realpath; exit via exitCode (never process.exit) so async
+// stdout pipes on Windows/macOS drain before the process ends.
+const isDirectRun = (): boolean => {
+  const arg = process.argv[1];
+  if (arg === undefined) return false;
+  const matches = (p: string): boolean => {
+    const norm = p.replace(/\\/g, "/");
+    return norm.endsWith("/cli.js") || norm.endsWith("/cli.ts");
+  };
+  if (matches(arg)) return true;
+  try {
+    return matches(realpathSync(arg));
+  } catch {
+    return false;
+  }
+};
+if (isDirectRun()) {
   main(process.argv.slice(2)).then(
-    (code) => process.exit(code),
+    (code) => {
+      process.exitCode = code;
+    },
     (err: unknown) => {
       console.error(err instanceof Error ? err.message : String(err));
-      process.exit(1);
+      process.exitCode = 1;
     },
   );
 }

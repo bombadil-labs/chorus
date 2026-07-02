@@ -112,8 +112,12 @@ npm run chorus:console # the local web console
 npm run chorus:migrate # JSONL → SQLite store migration
 ```
 
-Toolchain: Node 22, TypeScript ESM, vitest (via esbuild — no separate build for tests), prettier +
-eslint (flat config). Native dep: `better-sqlite3` (ships prebuilds; JSONL backend needs no native dep).
+Toolchain: Node 22+ (node:sqlite needs 22.13+; 24 LTS recommended — this dev machine runs 22.0.0,
+so the node-sqlite suites skip locally and **CI is their witness**), TypeScript ESM, vitest (via
+esbuild — no separate build for tests), prettier + eslint (flat config). Persistence drivers:
+`node-sqlite` (Node's builtin, default where present) / `better-sqlite3` (**optional** dep — never
+load-bearing, a skipped native build is a supported install state) / `jsonl` (dev tier, last-resort
+default). The two sqlite drivers share one file format and substitute for each other at open.
 
 ## Pointers
 

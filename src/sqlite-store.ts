@@ -78,7 +78,8 @@ export class SqliteStore implements StoreBackend {
       throw new Error(
         `the "sqlite" backend needs the optional native dependency better-sqlite3, which is not ` +
           `installed (its build may have been skipped). Use the "node-sqlite" backend (built ` +
-          `into Node >= 22.13) or "jsonl", or install better-sqlite3.`,
+          `into Node >= 22.13), or install better-sqlite3. Use "jsonl" only for a NEW store — ` +
+          `never point the JSONL backend at an existing SQLite file.`,
       );
     }
     mkdirSync(dirname(filePath), { recursive: true });

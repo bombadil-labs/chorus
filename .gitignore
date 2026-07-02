@@ -8,6 +8,7 @@ coverage/
 # Chorus memory stores — NEVER commit a memory
 chorus-memory.jsonl
 chorus-memory.pack
+chorus-memory.sqlite*
 *.jsonl.lock/
 .chorus/
 

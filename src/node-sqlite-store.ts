@@ -73,7 +73,9 @@ export class NodeSqliteStore implements StoreBackend {
     if (!nodeSqlite) {
       throw new Error(
         `the "node-sqlite" backend needs Node's built-in node:sqlite module (Node >= 22.13; ` +
-          `this is ${process.version}). Use the "jsonl" or "sqlite" backend, or upgrade Node.`,
+          `this is ${process.version}). Upgrade Node, or install the optional better-sqlite3 ` +
+          `dependency (identical file format). Use "jsonl" only for a NEW store — never point ` +
+          `the JSONL backend at an existing SQLite file.`,
       );
     }
     mkdirSync(dirname(filePath), { recursive: true });
