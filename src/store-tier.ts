@@ -14,7 +14,7 @@
 // calls a "store" — a named, keyed, federating instance — is `Store` (stores.ts), which wraps a
 // `StoreBackend`. Interface renamed from `Store` → `StoreBackend` so the domain word is free.
 
-import { existsSync } from "node:fs";
+import { closeSync, existsSync, openSync, readSync } from "node:fs";
 import type { Delta } from "@rhizomes/rhizomatic";
 import type { ChorusAgent } from "./agent.js";
 import { JsonlStore } from "./shared-store.js";
@@ -88,14 +88,47 @@ export function backendFromEnv(env: NodeJS.ProcessEnv = process.env): BackendKin
   );
 }
 
-// The kind for a bare path on the PATH-BASED surface (env vars, HTTP server options — anywhere
-// without a registry manifest to pin the kind): an explicit CHORUS_STORE_BACKEND always wins; a
-// `.jsonl` path pins the jsonl driver (the extension is the only continuity signal this surface
-// has); anything else gets the availability-aware default. Registry stores never come through
-// here — their manifest records the kind at creation.
+// Every SQLite database file begins with these 16 bytes; everything Chorus ever wrote that
+// doesn't is the JSONL log. Reading the header is the ONLY honest continuity signal on the
+// path-based surface — filenames lie (the old unconditional-jsonl default wrote JSONL to any
+// name), and "any version of Chorus must read any store it ever wrote" (CLAUDE.md).
+const SQLITE_HEADER = "SQLite format 3\u0000";
+function sniffExistingKind(path: string): BackendKind | undefined {
+  let fd: number;
+  try {
+    fd = openSync(path, "r");
+  } catch {
+    return undefined; // absent or unreadable → fresh-path rules apply
+  }
+  try {
+    const head = Buffer.alloc(16);
+    const n = readSync(fd, head, 0, 16, 0);
+    if (n === 0) return undefined; // empty file → fresh-path rules apply
+    return head.toString("latin1", 0, n) === SQLITE_HEADER
+      ? nodeSqliteAvailable()
+        ? "node-sqlite"
+        : "sqlite"
+      : "jsonl";
+  } finally {
+    closeSync(fd);
+  }
+}
+
+// The kind for a bare path on the PATH-BASED surface (env vars, HTTP/console options — anywhere
+// without a registry manifest to pin the kind). In order: an explicit CHORUS_STORE_BACKEND always
+// wins; an EXISTING file is detected by content (SQLite header vs JSONL text — never by name);
+// a fresh path goes by extension, then the availability-aware default. Registry stores never come
+// through here — their manifest records the kind at creation.
 export function backendForPath(path: string, env: NodeJS.ProcessEnv = process.env): BackendKind {
   if (env["CHORUS_STORE_BACKEND"] !== undefined) return backendFromEnv(env);
-  return path.endsWith(".jsonl") ? "jsonl" : defaultBackendKind();
+  const sniffed = sniffExistingKind(path);
+  if (sniffed !== undefined) return sniffed;
+  const lower = path.toLowerCase();
+  if (lower.endsWith(".jsonl")) return "jsonl";
+  if (lower.endsWith(".sqlite") || lower.endsWith(".db")) {
+    return nodeSqliteAvailable() ? "node-sqlite" : "sqlite";
+  }
+  return defaultBackendKind();
 }
 
 // Resolve the pre-registry env surface (mcp-server / mcp-http: CHORUS_STORE +
@@ -110,17 +143,26 @@ export function resolveEnvStore(
 ): { path: string; kind: BackendKind } {
   const pinned = env["CHORUS_STORE_BACKEND"] !== undefined ? backendFromEnv(env) : undefined;
   const legacy = "chorus-memory.jsonl";
+  // The legacy-file continuity check applies ONLY when no backend is pinned: an explicit pin to
+  // a sqlite kind must get the sqlite default path, never the legacy JSONL file under the pinned
+  // sqlite driver (the exact incoherent pair this function exists to prevent).
   const path =
     env["CHORUS_STORE"] ??
-    ((pinned ?? defaultBackendKind()) === "jsonl" || fileExists(legacy)
+    ((pinned ?? defaultBackendKind()) === "jsonl" || (pinned === undefined && fileExists(legacy))
       ? legacy
       : "chorus-memory.sqlite");
-  return { path, kind: backendForPath(path, env) };
+  return { path, kind: pinned ?? backendForPath(path, env) };
 }
 
 // Construct the durable persistence backend for a path. Callers depend on the `StoreBackend`
-// interface, never on a concrete backend — the seam the whole tier exists to provide.
-export function createBackend(path: string, kind: BackendKind = backendFromEnv()): StoreBackend {
+// interface, never on a concrete backend — the seam the whole tier exists to provide. The
+// default kind resolves through `backendForPath` (env pin → content sniff → extension →
+// availability default), so a bare `createBackend(path)` can never hand an existing store to
+// the wrong driver.
+export function createBackend(
+  path: string,
+  kind: BackendKind = backendForPath(path),
+): StoreBackend {
   switch (kind) {
     case "jsonl":
       return new JsonlStore(path);

@@ -9,6 +9,9 @@ import { afterAll, describe, expect, it } from "vitest";
 import { authorForSeed } from "@rhizomes/rhizomatic";
 import { Store, StoreRegistry, storeSeed, type StoreManifest } from "../src/stores.js";
 import { JsonlStore } from "../src/shared-store.js";
+import { SqliteStore } from "../src/sqlite-store.js";
+import { NodeSqliteStore, nodeSqliteAvailable } from "../src/node-sqlite-store.js";
+import { defaultBackendKind } from "../src/store-tier.js";
 import { callTool, createSession } from "../src/mcp-server.js";
 
 const MASTER = "0f".repeat(32);
@@ -50,8 +53,24 @@ describe("chorus stores: identity + registry", () => {
       name: "personal",
       id: personal.id,
       tier: "federated",
-      backend: "jsonl",
+      // The default backend is availability-aware (node-sqlite where the builtin exists, else
+      // jsonl) — the manifest records whatever was current at creation.
+      backend: defaultBackendKind(),
     });
+  });
+
+  it("a node-sqlite manifest opens everywhere: driver substitution within the shared format", () => {
+    const reg = registry(join(dir, "r-driver"));
+    // Explicitly ask for the builtin driver. On a Node that predates node:sqlite the registry
+    // must still open the store — better-sqlite3 reads the identical file. Nothing is ever
+    // stranded behind a missing driver.
+    const store = track(reg.open("builtin", { backend: "node-sqlite" }));
+    expect(store.backend).toBeInstanceOf(nodeSqliteAvailable() ? NodeSqliteStore : SqliteStore);
+    expect(existsSync(join(dir, "r-driver", "builtin", "memory.sqlite"))).toBe(true);
+    const manifest = JSON.parse(
+      readFileSync(join(dir, "r-driver", "builtin", "store.json"), "utf8"),
+    ) as StoreManifest;
+    expect(manifest.backend).toBe("node-sqlite"); // the record keeps the chosen kind
   });
 
   it("tier is federated by default and can be declared private", () => {

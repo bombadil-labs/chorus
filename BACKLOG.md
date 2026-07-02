@@ -39,12 +39,8 @@ Standing instruction from Myk (2026-07-02), formalized:
 
 ### Now — persistence + CLI (ROADMAP Phases 1)
 
-- [ ] **1. `node-sqlite` backend** — third `StoreBackend` witness on Node's built-in
-      `DatabaseSync`; same SQLite format as the better-sqlite3 tier; verified by the existing
-      conformance suite; `engines: ^22.13.0 || >=24`; CI matrix gains Node 24. Default backend
-      switches to it; `jsonl` stays the legible dev tier; `better-sqlite3` demoted to opt-in
-      (decision record: 2026-07-02 landscape research — zero install surface + sync API + same
-      on-disk format).
+_(task 1 moved to Done)_
+
 - [ ] **2. CLI packaging** — `src/cli.ts` (small arg parser), `bin: {chorus}`, `build` (tsc →
       dist) + `prepare`, `files`/`.npmignore` mirroring `@rhizomes/rhizomatic`. With task 1 done,
       the default install carries **no native dep at all** (supersedes the roadmap's
@@ -59,7 +55,10 @@ Standing instruction from Myk (2026-07-02), formalized:
 - [ ] **7. Direct data ops** — `chorus recall|remember|search|explain|decide|replay|gql --store …`.
 - [ ] ♻ **8. Retro/integration pass #1** — what did tasks 1–7 accumulate that wants integrating?
       (Known candidates: env-var vs CLI-flag config story; error-message voice; CLAUDE.md
-      "Commands" section rewrite around the CLI.)
+      "Commands" section rewrite around the CLI; **shared-core refactor of sqlite-store +
+      node-sqlite-store** — ~170 duplicated lines that must stay format-identical, flagged by the
+      task-1 review, interop tests guard it meanwhile; **migrate.ts driver choice** — hardwired to
+      better-sqlite3, should prefer the builtin where available, folds into task 9.)
 - [ ] **9. `chorus migrate` + `chorus upgrade`** — jsonl→sqlite command over the existing
       migrator; self-update + update-notifier.
 - [ ] **10. Compatibility guarantees** — format-version marker in store manifests,
@@ -84,4 +83,13 @@ Standing instruction from Myk (2026-07-02), formalized:
 
 ### Done
 
-_(moves here with a journal pointer)_
+- [x] **1. `node-sqlite` backend** (2026-07-02, PR #4 — journal: "The third witness"). As
+      specified, plus what the adversarial review forced: content-sniffing `backendForPath`
+      (existing stores detected by their first 16 bytes, never by filename — the compatibility
+      law), `resolveEnvStore` pinned+legacy coherence, registry driver-substitution (a
+      node-sqlite manifest opens via better-sqlite3 on old Nodes), post-commit `onDisk` marking
+      (a rollback-retry data-loss bug — latent in the better-sqlite3 tier too, fixed in both),
+      lazy module probe (no ExperimentalWarning for non-users), console routed through the same
+      resolution as the servers. **Rescoped:** engines bump deferred to task 2 (the library must
+      keep working on the dev machine's Node 22.0.0, which predates node:sqlite; CI at Node
+      22-latest + 24 is the witness).

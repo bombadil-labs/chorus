@@ -11,11 +11,12 @@ import { briefing } from "./briefing.js";
 import { recallUnified, sameAsClass, search, topics } from "./discovery.js";
 import { identityAt, identityIntroductions, userSeed, type AuthorIdentity } from "./identity.js";
 import { ackPointers, inbox } from "./messages.js";
-import { SharedStore } from "./shared-store.js";
+import { createBackend, resolveEnvStore, type BackendKind } from "./store-tier.js";
 import { ROLE_TRUST_AUTHOR, ROLE_TRUST_REASON, ROLE_TRUST_VERDICT } from "./vocab.js";
 
 export interface ConsoleOptions {
   readonly storePath: string;
+  readonly storeBackend?: BackendKind; // default: resolved from the path (content → extension)
   readonly masterSeedHex: string;
   readonly port?: number; // 0 = ephemeral
 }
@@ -34,7 +35,9 @@ function describeAuthor(id: AuthorIdentity | undefined, author: string): string 
 }
 
 export function startConsole(opts: ConsoleOptions): Promise<ConsoleHandle> {
-  const store = new SharedStore(opts.storePath);
+  // Same resolution as the MCP servers — the console MUST see the same store the sessions
+  // write, whatever backend that resolved to.
+  const store = createBackend(opts.storePath, opts.storeBackend);
   const uSeed = userSeed(opts.masterSeedHex);
   const userAuthor = authorForSeed(uSeed);
   // The console's reading agent. Its keypair exists but never signs anything; every console
@@ -147,7 +150,10 @@ export function startConsole(opts: ConsoleOptions): Promise<ConsoleHandle> {
         server,
         port,
         url: `http://127.0.0.1:${port}/`,
-        close: () => server.close(),
+        close: () => {
+          server.close();
+          store.close?.(); // a SQLite backend holds a file handle; JSONL holds none
+        },
       });
     });
   });
@@ -260,8 +266,10 @@ if (
   process.argv[1] !== undefined &&
   process.argv[1].replace(/\\\\/g, "/").replace(/\\/g, "/").endsWith("src/console.ts")
 ) {
+  const envStore = resolveEnvStore();
   const opts: ConsoleOptions = {
-    storePath: process.env["CHORUS_STORE"] ?? "chorus-memory.jsonl",
+    storePath: envStore.path,
+    storeBackend: envStore.kind,
     masterSeedHex:
       process.env["CHORUS_MASTER_SEED"] ?? process.env["CHORUS_SEED_HEX"] ?? "0f".repeat(32),
     port: Number(process.env["CHORUS_CONSOLE_PORT"] ?? 4820),

@@ -34,3 +34,43 @@ place of PR approval, merge on green, journal, keep VISION.md alive. Hard limits
 BACKLOG.md (live store untouchable, no publish, substrate changes are conversations). VISION.md
 seeded with the three interlocking horizons: public read surfaces (ad-hoc Letterboxd), the schema
 commons (GitHub for vocabularies), fuzzy salience (vectors at the index, judgment as author).
+
+---
+
+## 2026-07-02 (later) — The third witness, and what the review caught
+
+**Task 1 done (PR #4): the `node-sqlite` backend.** A ~200-line port of the better-sqlite3 tier
+onto Node's built-in `DatabaseSync` — same schema, same pragmas, same file format, proven
+interchangeable by a both-directions interop test that includes the pointer indexes. The default
+backend is now availability-aware (`node-sqlite` where the builtin exists, else `jsonl`), and the
+better-sqlite3 tier is the opt-in throughput witness.
+
+**The adversarial review earned its cost.** Eight angles across six agents, and the findings were
+not cosmetic:
+
+- **CI-red the local gate couldn't see:** `chorus-stores.test.ts` asserted `backend: "jsonl"` as
+  the manifest default — true only on Nodes without node:sqlite. All four CI legs failed exactly
+  as the cross-file tracer predicted (a satisfying verification: the finder called the shot
+  before I looked).
+- **A retry data-loss bug, latent in PROVEN code:** both SQLite tiers marked ids in the in-memory
+  `onDisk` set inside the transaction — a rollback undoes the rows but not the Set, so a later
+  `persist()` skips those deltas forever. The new backend copied the bug faithfully from the old
+  one. Fixed in both: mark only after commit.
+- **The compatibility law, nearly broken:** my extension-sniffing `backendForPath` violated "any
+  version of Chorus must read any store it ever wrote" — the old default wrote JSONL to ANY
+  filename, so extension-based continuity stranded (or in one direction silently CORRUPTED — the
+  JSONL reader tolerates binary garbage and then appends text into a SQLite file) every
+  non-`.jsonl`-named store. The fix went one level deeper, as the altitude reviewer suggested:
+  detect existing files by their first 16 bytes (`SQLite format 3\0`), never by name.
+- Plus: pinned-backend + legacy-file produced exactly the incoherent (path, kind) pair the
+  resolver claimed to prevent; registry manifests recording `node-sqlite` would strand stores on
+  older Nodes (now: driver substitution within the shared format family); the console had
+  diverged from the servers' resolution entirely and showed an empty world beside a populated
+  store; the eager module probe leaked an ExperimentalWarning into every consumer's stderr.
+
+**Learned.** (1) On environment-dependent behavior, the local gate is not the witness — design
+the tests so CI legs disagree loudly (the finder that predicted the CI failure read the test
+expectations against the matrix, which I hadn't). (2) When two backends must share a format,
+duplication is not neutral — it's a fork waiting to happen; shared-core refactor queued for the
+retro. (3) The review-before-merge protocol paid for itself on its first outing: three of the
+findings were the kind that surface weeks later as "my memory disappeared."

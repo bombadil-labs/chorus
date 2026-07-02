@@ -26,17 +26,23 @@ import {
 import type { ChorusAgent } from "./agent.js";
 import type { StoreBackend } from "./store-tier.js";
 
-// Resolve the builtin once. `undefined` = this Node predates node:sqlite (added v22.5.0).
-const nodeSqlite = (() => {
-  try {
-    return createRequire(import.meta.url)("node:sqlite") as typeof import("node:sqlite");
-  } catch {
-    return undefined;
+// Resolve the builtin lazily, memoized: `null` = probed and absent (pre-22.5 Node). Lazy matters
+// beyond startup cost — on 22.5–23.x the require emits an ExperimentalWarning to stderr, and a
+// process pinned to jsonl or better-sqlite3 should never pay that just for importing the barrel.
+let probed: typeof import("node:sqlite") | null | undefined;
+function nodeSqliteModule(): typeof import("node:sqlite") | undefined {
+  if (probed === undefined) {
+    try {
+      probed = createRequire(import.meta.url)("node:sqlite") as typeof import("node:sqlite");
+    } catch {
+      probed = null;
+    }
   }
-})();
+  return probed ?? undefined;
+}
 
 export function nodeSqliteAvailable(): boolean {
-  return nodeSqlite !== undefined;
+  return nodeSqliteModule() !== undefined;
 }
 
 interface DeltaRow {
@@ -63,6 +69,7 @@ export class NodeSqliteStore implements StoreBackend {
   private readonly selectByValue: StatementSync;
 
   constructor(readonly filePath: string) {
+    const nodeSqlite = nodeSqliteModule();
     if (!nodeSqlite) {
       throw new Error(
         `the "node-sqlite" backend needs Node's built-in node:sqlite module (Node >= 22.13; ` +
@@ -118,9 +125,9 @@ export class NodeSqliteStore implements StoreBackend {
   // rows committing atomically, concurrent writers waiting. node:sqlite has no transaction
   // helper, so the BEGIN/COMMIT/ROLLBACK discipline is explicit.
   private appendTxn(deltas: readonly Delta[]): number {
+    const stored: string[] = [];
     this.db.exec("BEGIN IMMEDIATE");
     try {
-      let count = 0;
       for (const d of deltas) {
         const info = this.insertDelta.run(
           d.id,
@@ -129,16 +136,24 @@ export class NodeSqliteStore implements StoreBackend {
         );
         if (Number(info.changes) > 0) {
           this.indexPointers(d);
-          this.onDisk.add(d.id);
-          count += 1;
+          stored.push(d.id);
         }
       }
       this.db.exec("COMMIT");
-      return count;
     } catch (err) {
-      this.db.exec("ROLLBACK");
+      // Some failures (SQLITE_FULL/IOERR/NOMEM) auto-roll-back, making this ROLLBACK itself
+      // throw "no transaction is active" — swallow that so the ORIGINAL error propagates.
+      try {
+        this.db.exec("ROLLBACK");
+      } catch {
+        /* already rolled back */
+      }
       throw err;
     }
+    // Mark durable only AFTER the commit: ids marked inside a rolled-back transaction would make
+    // every future persist() skip those deltas as already-stored — silent data loss on retry.
+    for (const id of stored) this.onDisk.add(id);
+    return stored.length;
   }
 
   private indexPointers(d: Delta): void {
@@ -156,6 +171,12 @@ export class NodeSqliteStore implements StoreBackend {
     return makeDelta(parseClaims(JSON.parse(row.claims)), row.sig ?? undefined);
   }
 
+  // The one audited bridge from node:sqlite's untyped rows to DeltaRow — every SELECT here names
+  // exactly (seq, id, claims, sig).
+  private rows(stmt: StatementSync, ...args: (string | number)[]): DeltaRow[] {
+    return stmt.all(...args) as unknown as DeltaRow[];
+  }
+
   // --- the delta-level primitive (store-tier.ts) -------------------------------------------------
 
   appendDeltas(deltas: Iterable<Delta>): number {
@@ -171,9 +192,8 @@ export class NodeSqliteStore implements StoreBackend {
   }
 
   deltasSince(knownIds: ReadonlySet<string>): Delta[] {
-    const rows = this.selectAll.all() as unknown as DeltaRow[];
     const out: Delta[] = [];
-    for (const row of rows) {
+    for (const row of this.rows(this.selectAll)) {
       if (knownIds.has(row.id)) continue;
       out.push(this.rehydrate(row));
     }
@@ -183,19 +203,19 @@ export class NodeSqliteStore implements StoreBackend {
   // --- indexed reads (mirror the reactor's targetIndex / valueIndex) -----------------------------
 
   deltasByTarget(entityId: string): Delta[] {
-    const rows = this.selectByTarget.all(entityId) as unknown as DeltaRow[];
-    return rows.map((r) => this.rehydrate(r));
+    return this.rows(this.selectByTarget, entityId).map((r) => this.rehydrate(r));
   }
 
   deltasByValue(role: string, value: Primitive): Delta[] {
-    const rows = this.selectByValue.all(role, viewCanonicalHex(value)) as unknown as DeltaRow[];
-    return rows.map((r) => this.rehydrate(r));
+    return this.rows(this.selectByValue, role, viewCanonicalHex(value)).map((r) =>
+      this.rehydrate(r),
+    );
   }
 
   // --- agent-sync ergonomics ---------------------------------------------------------------------
 
   refresh(agent: ChorusAgent): number {
-    const rows = this.selectSince.all(this.lastSeq) as unknown as DeltaRow[];
+    const rows = this.rows(this.selectSince, this.lastSeq);
     if (rows.length === 0) return 0;
     const arrived: Delta[] = [];
     for (const row of rows) {
