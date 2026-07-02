@@ -32,9 +32,8 @@ evaluator, resolution policies, the reactor (live indexes), packs, federation (`
   reason we're a separate repo — to keep Rhizomatic small while Chorus grows.
 
 Docs copied in from the monorepo ([CONSTELLATION.md](CONSTELLATION.md), [PERSISTENCE.md](PERSISTENCE.md),
-parts of [README.md](README.md)) still contain a few `../../spec/...` links pointing at the old
-monorepo layout — treat those as pointers into the `rhizomatic` repo's `spec/`. (Fixing them is a
-Phase-0 roadmap item.)
+parts of [README.md](README.md)) reference the format's `spec/` and TS witness — those links point
+at the `rhizomatic` repo on GitHub.
 
 ## ⚠️ There is a LIVE production demo. Do not break it.
 

@@ -21,16 +21,16 @@ monorepo. The work below is **standalone-ization + the CLI + cutover**, not a re
 
 ## Phase 0 — Stand it up (do this first)
 
-- [ ] **`git init`** + first commit; bind to a new GitHub repo. _(Myk does the `git init`; you take it from there.)_
-- [ ] `npm install` and confirm **`npm run check` is green** consuming the **published**
+- [x] **`git init`** + first commit; bind to a new GitHub repo. _(Myk does the `git init`; you take it from there.)_
+- [x] `npm install` and confirm **`npm run check` is green** consuming the **published**
       `@rhizomes/rhizomatic@^0.1.0` (not a file: link). This is the proof the extraction worked.
-- [ ] Add a **LICENSE** (dual MIT/Apache-2.0, matching the format) — copy both `LICENSE-*` files.
-- [ ] Add **CI** (`.github/workflows/ci.yml`) running the green gate on push. (Native `better-sqlite3`
+- [x] Add a **LICENSE** (dual MIT/Apache-2.0, matching the format) — copy both `LICENSE-*` files.
+- [x] Add **CI** (`.github/workflows/ci.yml`) running the green gate on push. (Native `better-sqlite3`
       builds on the runner.)
-- [ ] **Fix cross-repo doc links**: `README.md`, `CONSTELLATION.md`, `PERSISTENCE.md` still have
+- [x] **Fix cross-repo doc links**: `README.md`, `CONSTELLATION.md`, `PERSISTENCE.md` still have
       `../../spec/...` links from the monorepo — repoint them at the `rhizomatic` repo / the format's
       npm page, or drop them.
-- [ ] Trim/rewrite `README.md` for a standalone-repo front page (it's currently the monorepo's chorus
+- [x] Trim/rewrite `README.md` for a standalone-repo front page (it's currently the monorepo's chorus
       doc — good content, some stale paths).
 
 ## Phase 1 — The CLI (the alpha centerpiece)

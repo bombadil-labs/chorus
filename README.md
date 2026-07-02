@@ -1,10 +1,19 @@
 # Chorus
 
-Memory for agents, built on [Rhizomatic](../../README.md). Every belief is a signed claim;
-an agent is a keypair, a reactor, and a policy. This package is the product layer: the agent
-handle, trust dynamics, the librarian, the demo, and the MCP server.
+Memory for LLM agents where every belief is a signed claim. An agent is a keypair, a reactor,
+and a policy; disagreement is held in superposition; trust is editable policy; decisions replay
+against exactly what was known. Chorus is the product layer built on
+[`@rhizomes/rhizomatic`](https://www.npmjs.com/package/@rhizomes/rhizomatic) — the portable
+signed-content-addressed-delta format, whose spec and witnesses live in the
+[rhizomatic repo](https://github.com/mbilokonsky/rhizomatic) — and provides the agent handle,
+trust dynamics, the librarian, stores, the MCP server, and the web console.
+
+**Status: pre-alpha.** The immediate goal is a `chorus` CLI installable via
+`npm i -g @rhizomes/chorus` — see [ROADMAP.md](ROADMAP.md) for the burndown and
+[CONSTELLATION.md](CONSTELLATION.md) for where it's headed. Until then, run it from a checkout:
 
 ```
+npm install
 npm run chorus:demo     # the whole thesis, one deterministic receipt-printing story
 npm run chorus:mcp      # the MCP server over stdio (local clients)
 npm run chorus:http     # the same server over streamable HTTP (remote surfaces, :4821)
@@ -175,7 +184,7 @@ cost goes to zero.
 claude mcp add chorus \
   --env CHORUS_MASTER_SEED=<64 hex chars, keep private> \
   --env CHORUS_STORE=~/.chorus/memory.jsonl \
-  -- npx tsx <repo>/apps/chorus/src/mcp-server.ts
+  -- npx tsx <this repo>/src/mcp-server.ts
 ```
 
 Concurrent sessions are safe: each server process is its own session author; they share the
@@ -279,13 +288,13 @@ Chorus's position, inherited from the substrate:
   service. Two fleets can trust different registrars and still federate; disputes are held in
   superposition like any other disagreement.
 
-(The sameAs closure and discovery tools land in the discovery slice — see PROGRESS.md.)
+(The sameAs closure and discovery tools are landed — [src/discovery.ts](src/discovery.ts).)
 
 ## Status
 
-Tracked in [PROGRESS.md](../../PROGRESS.md) ("MX arc"). The full MX arc is landed — identity
-(interval introductions), the shared store, discovery, the briefing, decide/replay, the
-console — and the system has survived first contact with live dogfooding (which produced the
-reference-over-string surface, the unbounded contested scan, and mid-session model
-rebinding). Open: scoped briefings (per-topic lenses + curator digests), a real embedding
-model behind the librarian, log compaction at scale.
+The full MX arc is landed — identity (interval introductions), the shared store + pluggable
+persistence ([PERSISTENCE.md](PERSISTENCE.md)), discovery, the briefing, decide/replay, the
+console, and store identity + the registry (constellation Phase A) — and the system has
+survived first contact with live dogfooding (which produced the reference-over-string
+surface, the unbounded contested scan, and mid-session model rebinding). The path from here
+— the CLI, the cutover of the live node, the constellation — is [ROADMAP.md](ROADMAP.md).
