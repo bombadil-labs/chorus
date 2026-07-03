@@ -136,3 +136,4 @@ export {
 } from "./similarity.js";
 export { EncryptedSqliteStore, storeKeyHex } from "./encrypted-store.js";
 export { computeVitals, type Vitals } from "./vitals.js";
+export { diffBeliefs, agentAsOf, type BeliefDiff, type DiffEntry } from "./belief-diff.js";

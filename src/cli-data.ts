@@ -12,6 +12,8 @@ import { flagValue } from "./cli-args.js";
 import { openRegistry, type StoreIo } from "./cli-store.js";
 import { callTool, createSession } from "./mcp-server.js";
 import { computeVitals } from "./vitals.js";
+import { agentAsOf, diffBeliefs } from "./belief-diff.js";
+import type { ChorusAgent } from "./agent.js";
 
 // Open the named store, run tool calls against one short-lived CLI session, persist, close.
 // The session context rides along for READ-ONLY consumers (vitals) that measure the agent
@@ -250,4 +252,87 @@ export function dataCommand(
     default:
       throw new Error(`unknown data op "${op}"`);
   }
+}
+
+// `chorus diff` (EPISTEME V.2): two stores side by side, or one store against its own past.
+export function diffCommand(
+  stores: readonly string[],
+  flags: ReadonlyMap<string, string>,
+  io: StoreIo,
+): number {
+  const { registry, seed } = openRegistry(io);
+  const known = new Set(registry.list().map((m) => m.name));
+  for (const name of stores) {
+    if (!known.has(name)) throw new Error(`no store named "${name}" — see \`chorus store ls\``);
+  }
+
+  const readerFor = (name: string): ChorusAgent => {
+    const store = registry.open(name);
+    try {
+      const ctx = createSession({
+        masterSeedHex: seed,
+        sessionId: `cli-diff-${Date.now()}-${randomBytes(3).toString("hex")}`,
+      });
+      ctx.model = "cli";
+      store.backend.refresh(ctx.agent);
+      return ctx.agent;
+    } finally {
+      store.close();
+    }
+  };
+
+  const from = flagValue(flags, "from");
+  const to = flagValue(flags, "to");
+  let left: ChorusAgent;
+  let right: ChorusAgent;
+  let leftLabel: string;
+  let rightLabel: string;
+
+  if (from !== undefined || to !== undefined) {
+    // One store against its own past: what changed its mind since <from>?
+    if (stores.length !== 1 || from === undefined) {
+      throw new Error("usage: chorus diff --store <name> --from <ms> [--to <ms>]");
+    }
+    if (!/^\d+$/.test(from) || (to !== undefined && !/^\d+$/.test(to))) {
+      throw new Error("--from/--to are epoch milliseconds (chorus as-of speaks instants)");
+    }
+    const all = readerFor(stores[0]!).peer.reactor.arrivalLog();
+    const vessel = "ab".repeat(32); // a reader's keypair signs nothing
+    left = agentAsOf(all, Number(from), vessel);
+    right =
+      to === undefined ? agentAsOf(all, Date.now(), vessel) : agentAsOf(all, Number(to), vessel);
+    leftLabel = `${stores[0]} @ ${from}`;
+    rightLabel = to === undefined ? `${stores[0]} now` : `${stores[0]} @ ${to}`;
+  } else {
+    if (stores.length !== 2) {
+      throw new Error(
+        "usage: chorus diff --store <a> --store <b>  (or --store <a> --from <ms> [--to <ms>])",
+      );
+    }
+    left = readerFor(stores[0]!);
+    right = readerFor(stores[1]!);
+    leftLabel = stores[0]!;
+    rightLabel = stores[1]!;
+  }
+
+  const d = diffBeliefs(left, right);
+  if (flags.has("json")) {
+    io.out(JSON.stringify(d, null, 2));
+  } else {
+    io.out(`${leftLabel} ⟷ ${rightLabel}`);
+    io.out(`  agree               ${d.agree} slot(s)`);
+    io.out(
+      `  agree independently ${d.agreeIndependently.length} — same conclusion, separate testimony`,
+    );
+    io.out(`  disagree            ${d.disagree.length}`);
+    io.out(`  only ${leftLabel}: ${d.onlyLeft.length} · only ${rightLabel}: ${d.onlyRight.length}`);
+    for (const e of d.disagree.slice(0, 20)) {
+      io.out(
+        `  ≠ ${e.entity} ${e.attribute}: ${JSON.stringify(e.left)} vs ${JSON.stringify(e.right)}`,
+      );
+    }
+    if (d.disagree.length > 20) io.out(`  … and ${d.disagree.length - 20} more (use --json)`);
+  }
+  // Disagreement is information, not an error — but scripts chaining on drift want the signal.
+  return d.disagree.length > 0 ? 1 : 0;
 }

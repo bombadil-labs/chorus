@@ -10,7 +10,7 @@ import { flagValue, parseFlags, portValue, redactSecrets, rejectUnknownFlags } f
 import { chorusHome, configPath, initChorusHome } from "./config.js";
 import { migrateCommand, storeCommand } from "./cli-store.js";
 import { consoleCommand, serveCommand } from "./cli-serve.js";
-import { dataCommand } from "./cli-data.js";
+import { dataCommand, diffCommand } from "./cli-data.js";
 
 interface CommandSpec {
   readonly summary: string; // one line for `chorus help`
@@ -160,6 +160,19 @@ const COMMANDS: Record<string, CommandSpec> = {
   replay: dataOp("replay", "replay a decision against the world it was made in", {
     allowed: ["store", "home"],
   }),
+  diff: {
+    summary: "two stores side by side — or one store against its own past",
+    run(args): number {
+      const { flags, lists, rest } = parseFlags(args, new Set(["json"]), new Set(["store"]));
+      rejectUnknownFlags(flags, new Set(["json", "home", "from", "to", "store"]), "diff", lists);
+      if (rest.length > 0) throw new Error(`diff takes no positional arguments (got "${rest[0]}")`);
+      const home = flagValue(flags, "home");
+      return diffCommand(lists.get("store") ?? [], flags, {
+        out: console.log,
+        ...(home === undefined ? {} : { home }),
+      });
+    },
+  },
   vitals: dataOp("vitals", "epistemic vitals: contested, concentration, staleness, churn", {
     booleans: ["json"],
     allowed: ["store", "home", "json"],

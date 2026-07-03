@@ -99,6 +99,9 @@ runs dry, revise [VISION.md](VISION.md) against actual progress and mine it for 
 periodically run a retrospective/integration task instead of a feature task. Update this file
 whenever a learning changes how future work should happen. The hard limits in BACKLOG.md override
 loop momentum, always — the live store, publishing, and anything irreversible remain Myk-gated.
+Standing directive (2026-07-03): **the poetry is as important as the engineering** — prose
+surfaces (help text, errors, docs, commit messages, console copy) are first-class craft, held
+to the same review bar as code. Name things like they matter.
 
 ## Commands
 
