@@ -17,6 +17,7 @@ import { bisectBelief } from "./bisect.js";
 import { testifyVitals } from "./examiner.js";
 import { reviewDecisions } from "./review.js";
 import { challengeStale } from "./challenges.js";
+import { mineContradictions } from "./contradictions.js";
 import { resolveMasterSeed } from "./config.js";
 import { chorusHome } from "./config.js";
 import type { ChorusAgent } from "./agent.js";
@@ -386,6 +387,48 @@ export function dataCommand(
           io.out(`nothing is past its half-life; the store is keeping itself current.`);
         }
         return r.challenges.length > 0 ? 1 : 0;
+      });
+    }
+
+    case "contradictions": {
+      // Contradiction mining (EPISTEME VI.3): near-synonym attributes carrying different
+      // values — the contradictions the contested scan can't see because the words differ.
+      const storeName = storeOf(flags);
+      const home = io.home ?? chorusHome();
+      const master = resolveMasterSeed(process.env, home);
+      if (master === undefined) throw new Error("no master seed — run `chorus init` first");
+      const thresholdRaw = flagValue(flags, "threshold");
+      if (thresholdRaw !== undefined && !/^0?\.\d+$|^1(\.0+)?$/.test(thresholdRaw)) {
+        throw new Error("--threshold is a similarity in (0, 1], e.g. 0.6");
+      }
+      return withStore(storeName, io, (_call, ctx, persist) => {
+        const r = mineContradictions(ctx.agent, master, storeName, {
+          ...(thresholdRaw === undefined ? {} : { threshold: Number(thresholdRaw) }),
+        });
+        persist();
+        if (flags.has("json")) {
+          emit(r);
+          return r.pairs.length > 0 ? 1 : 0;
+        }
+        io.out(
+          `${r.pairs.length} latent contradiction(s) proposed (comparator: ${r.comparator}, ` +
+            `threshold ${r.threshold}).`,
+        );
+        for (const p of r.pairs) {
+          io.out(
+            `  ${p.entity}: ${p.attributeA} = ${JSON.stringify(p.valuesA)} vs ` +
+              `${p.attributeB} = ${JSON.stringify(p.valuesB)} (${p.score.toFixed(2)})`,
+          );
+          io.out(
+            p.mailed
+              ? `    proposed to the judge — proximity proposes, only a signed judgment disposes`
+              : `    already proposed (unchanged — the examiner does not nag)`,
+          );
+        }
+        if (r.pairs.length === 0) {
+          io.out(`no two dialects disagree; the store speaks with one vocabulary.`);
+        }
+        return r.pairs.length > 0 ? 1 : 0;
       });
     }
 
