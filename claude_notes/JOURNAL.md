@@ -497,3 +497,34 @@ gh pr checks --watch — checks register late and the watch exits clean on "no c
 the gate by reading the counts, never by grepping for absence. Prose edits go through .mjs
 script files, not shell heredocs. And Myk's tidy-root request mid-loop was a reminder worth
 keeping: the working agreement is a living document, and the footprint is part of the product.
+
+## 2026-07-03 — The examiner starts knocking (VI.1)
+
+**What landed.** `chorus review --store <n>` (and the library seam `reviewDecisions`): every
+standing decision is replayed against the present, and where its ground has moved — beliefs it
+relied on retracted, the same question resolving differently today, the slot newly contested,
+or the pinned basis no longer verifying — the examiner writes the decider a letter: _"On
+<date> you decided '<intent>' about <entity>. Since then, 2 of the beliefs you relied on have
+been retracted; the question resolves differently today. The action may need revisiting —
+`chorus replay <id>` shows exactly what you saw."_ Author-mail, addressed to the exact keypair
+that decided; `about` the entity; carrying a pointer to the decision itself. Phase V built the
+gauges; this is the first instrument that acts on what it reads.
+
+**Earning the interruption.** EPISTEME named alert fatigue as Phase VI's failure mode, so
+idempotence is structural, not polite: each letter carries a verdict fingerprint — a hash of
+exactly what moved (retracted ids, current basis, contested flag) — and a verdict already on
+file is never re-mailed. The world moves again, the fingerprint moves, one new letter. The
+test asserts all three beats: mail, silence, mail. Exit code 1 on findings, same contract as
+diff: drift is the signal scripts chain on.
+
+**Mail and claims, never mutation.** The review's entire output is an introduction (once),
+letters, and fingerprints. Messages carry no belief pointer, so recall/search/vitals never see
+them — the test closes with the letters staying out of the belief surface. And the examiner in
+the review is the SAME derived author as the examiner in the testimony: one voice, one track
+record, distrustable as a unit.
+
+**Caught in passing.** The bisect CLI's --good/--bad validator read /^d+$/ — missing
+backslash, so every VALID instant threw "is an instant in epoch milliseconds." The existing
+test only asserted that junk was rejected; a validator that rejects everything passes that
+test. Wrong-silence's mirror: loud on the right input. Fixed, with an accept-side regression
+test. The lesson from the retro holds shape: test the door opens, not just that it locks.

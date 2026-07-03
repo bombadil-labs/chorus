@@ -102,5 +102,11 @@ describe("chorus bisect: find the instant a mind changed", () => {
     expect(runCli("bisect", "svc:api", "--good", "yesterday", "--store", "mind").err).toMatch(
       /epoch milliseconds/,
     );
+
+    // And the valid form must be ACCEPTED — a mistyped regex (/^d+$/) once rejected every
+    // real instant, which the junk-only assertion above could never catch.
+    const ok = runCli("bisect", "svc:api", "--good", "1000", "--store", "mind");
+    expect(ok.err).not.toMatch(/epoch milliseconds/);
+    expect(ok.code).toBe(0);
   });
 });

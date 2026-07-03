@@ -17,8 +17,11 @@ And an accounted mind can be _examined_: `chorus vitals` reads a store the way a
 reads a chart (how contested? how stale? how much rests on one voice?), `chorus diff` catches
 two agents drifting apart before it costs something, `chorus bisect` binary-searches history to
 the exact instant a belief flipped — and _who flipped it_ — and `chorus examine` puts the
-measurements on the record, signed by an examiner you can distrust like anyone else. No view
-from nowhere, all the way up: the instruments live inside the epistemology they measure.
+measurements on the record, signed by an examiner you can distrust like anyone else. The
+examiner also _acts_: `chorus review` replays every standing decision against the present and
+mails the decider when the ground has moved — "you acted on X; X is now known otherwise" — and
+it never nags: an unchanged verdict is never re-mailed. No view from nowhere, all the way up:
+the instruments live inside the epistemology they measure.
 
 Chorus is the product layer on [`@rhizomes/rhizomatic`](https://www.npmjs.com/package/@rhizomes/rhizomatic)
 — the portable signed-content-addressed-delta format ([spec + witnesses](https://github.com/mbilokonsky/rhizomatic))
@@ -27,7 +30,7 @@ trust dynamics, the librarian, the instruments, and the web console.
 
 **Status: alpha, unpublished.** The `chorus` CLI is code-complete — `init`, `store
 create|ls|show|adopt`, `serve` (stdio + multi-store HTTP, read-only GraphQL mounts including
-`@union`), `console`, direct data ops, the instruments (`vitals|diff|bisect|examine`),
+`@union`), `console`, direct data ops, the instruments (`vitals|diff|bisect|examine|review`),
 `migrate` — with the live-node cutover scripted and rehearsed ([CUTOVER.md](claude_notes/CUTOVER.md)).
 Publication to npm is gated on the cutover proving out; until then, install from a checkout
 (`npm install` builds `dist/`; `npm pack` produces the same tarball CI smoke-installs globally

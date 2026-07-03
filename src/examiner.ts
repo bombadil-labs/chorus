@@ -25,6 +25,34 @@ export interface Testimony {
   readonly vitals: Vitals;
 }
 
+// Introduce the examiner once — receipts should say WHO measures, not "unknown". The
+// introduction is interval-bound like every identity claim; re-introducing every run would be
+// noise, so it happens only when the store has never heard this voice. Returns 1 if a claim
+// was written, 0 if the examiner was already on record. Shared by every examiner surface
+// (testimony, review) so they stay one identity.
+export function introduceExaminer(
+  agent: ChorusAgent,
+  seed: string,
+  storeName: string,
+  clock: () => number,
+): number {
+  const examiner = authorForSeed(seed);
+  const alreadyIntroduced = [...identityIntroductions(agent.snapshot(), "").values()].some(
+    (intros) => intros.some((i) => i.author === examiner),
+  );
+  if (alreadyIntroduced) return 0;
+  agent.recordAs(seed, {
+    timestamp: clock(),
+    pointers: identityPointers({
+      model: "chorus-examiner",
+      sessionId: `examiner-${storeName}`,
+      startedAt: clock(),
+      purpose: "measure the store's epistemic vitals and put them on the record",
+    }),
+  });
+  return 1;
+}
+
 // Measure the agent's world and put the numbers ON THE RECORD, signed by the examiner.
 export function testifyVitals(
   agent: ChorusAgent,
@@ -39,25 +67,7 @@ export function testifyVitals(
   const subject = `vitals:${storeName}`;
   const vitals = computeVitals(agent, now);
 
-  // Introduce the examiner once — receipts should say WHO measures, not "unknown". The
-  // introduction is interval-bound like every identity claim; re-introducing every run would
-  // be noise, so only the first testimony carries it.
-  let recorded = 0;
-  const alreadyIntroduced = [...identityIntroductions(agent.snapshot(), "").values()].some(
-    (intros) => intros.some((i) => i.author === examiner),
-  );
-  if (!alreadyIntroduced) {
-    agent.recordAs(seed, {
-      timestamp: clock(),
-      pointers: identityPointers({
-        model: "chorus-examiner",
-        sessionId: `examiner-${storeName}`,
-        startedAt: now,
-        purpose: "measure the store's epistemic vitals and put them on the record",
-      }),
-    });
-    recorded += 1;
-  }
+  let recorded = introduceExaminer(agent, seed, storeName, clock);
 
   const measurements: Record<string, string | number | boolean> = {
     "live-beliefs": vitals.liveBeliefs,
