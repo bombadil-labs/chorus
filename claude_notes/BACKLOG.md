@@ -118,8 +118,13 @@ context to be dismissed in one read, and ack-rates are its future report card, p
       — kept deliberately, flagged for N.4 barrel coherence. Deps already lean (2 + 1
       optional). Root clean. The suite-runtime question noted and deferred: the CLI tests
       spawn tsx per invocation, honest but slow; batching is rework, not pruning.
-- [ ] **N.3 Expansion again** — now are there some next things that would be cool?
-      (contraction changes what is visible)
+- [x] **N.3 Expansion again** — _Done 2026-07-03 (journal: What the deletions uncovered):_
+      five ideas that only exist because N.2 removed the duplication — the inhabitant kit
+      (the six instruments' shared skeleton as a declarative framework; skills ship
+      residents), the generated protocol dictionary, the checkup (one pipeline, one exit
+      code — lands in N.4), the watchmen's ledger (inhabitant track records = the Actuary's
+      data, already accruing), and the library-as-product-surface (the unframed barrel door —
+      N.4's first job). Recorded in VISION.md beside the N.1 pass.
 - [ ] **N.4 Consolidation** — the API/MCP surface area: 25 tools, the CLI, the library
       barrel. Merges, modes, deprecations — never silent breaks; the golden pins make it a
       decision.

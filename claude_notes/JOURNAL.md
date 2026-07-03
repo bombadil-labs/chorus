@@ -713,3 +713,30 @@ Deps were already lean (rhizomatic + graphql, better-sqlite3 optional). Root alr
 (Myk's tidy-root request did that pass). Suite runtime noted and deferred: the CLI tests spawn
 tsx per invocation — honest, slow, and batching them is rework, not pruning. Contraction
 resisted the temptation to become a second expansion.
+
+## 2026-07-03 — What the deletions uncovered (N.3)
+
+Myk's sequencing was the insight: expansion, THEN contraction, THEN expansion again — because
+contraction changes what is visible. He was right in a way I could not have predicted from the
+front side of it. N.1 diverged from the product and produced windows. N.3 diverged from the
+CODE — from shapes that only became visible when N.2 put nine copies of surviving() into one
+place and lined the six instruments up side by side — and produced infrastructure:
+
+the **inhabitant kit** (the instruments' shared skeleton — voice, condition, gesture,
+idempotence — as a declarative framework, so skills can ship residents: a compliance officer,
+a style warden, an apprentice librarian; the store as a village you can hire into); the
+**generated protocol dictionary** (the ROLE_* exports ARE the wire format — extract them with
+their comments into one page and the format documents itself; an LLM reading it speaks fluent
+chorus without reading the implementation); the **checkup** (six instruments, one exit-code
+convention, obviously one pipeline — the daily physical); the **watchmen's ledger** (the
+inhabitants' own activity is queryable testimony, which means Phase VII's calibration data is
+ALREADY ACCRUING — the Actuary will not start from zero); and the **library as a product
+surface** (three doors into one house — embed, speak, walk up — and the barrel is the door
+nobody framed).
+
+The pattern worth keeping: the first expansion asked "what could this DO?"; the second asked
+"what IS this, now that I can see it?" Different muscles. Both needed. The nightcap's
+architecture is teaching me how to think in phases the way the store thinks in instants.
+
+Next: N.4 consolidation — the barrel gets framed, the checkup gets built, the MCP/CLI surface
+gets judged coherently. Deprecate, never break; the golden pins make every change a decision.
