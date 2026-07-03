@@ -173,6 +173,10 @@ const COMMANDS: Record<string, CommandSpec> = {
       });
     },
   },
+  bisect: dataOp("bisect", "find the instant a belief flipped, and who flipped it", {
+    booleans: ["json"],
+    allowed: ["store", "home", "attribute", "good", "bad", "json"],
+  }),
   vitals: dataOp("vitals", "epistemic vitals: contested, concentration, staleness, churn", {
     booleans: ["json"],
     allowed: ["store", "home", "json"],

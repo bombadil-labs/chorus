@@ -13,6 +13,7 @@ import { openRegistry, type StoreIo } from "./cli-store.js";
 import { callTool, createSession } from "./mcp-server.js";
 import { computeVitals } from "./vitals.js";
 import { agentAsOf, diffBeliefs } from "./belief-diff.js";
+import { bisectBelief } from "./bisect.js";
 import type { ChorusAgent } from "./agent.js";
 
 // Open the named store, run tool calls against one short-lived CLI session, persist, close.
@@ -224,6 +225,57 @@ export function dataCommand(
               .map(([k, n]) => `${k}:${n}`)
               .join("  ") || "none"
           }`,
+        );
+        return 0;
+      });
+    }
+
+    case "bisect": {
+      const [entity] = positionals;
+      if (entity === undefined) {
+        throw new Error(
+          "usage: chorus bisect <entity> [--attribute a] [--good ms] [--bad ms] --store <name>",
+        );
+      }
+      const attribute = flagValue(flags, "attribute");
+      const good = flagValue(flags, "good");
+      const bad = flagValue(flags, "bad");
+      for (const [name, v] of [
+        ["good", good],
+        ["bad", bad],
+      ] as const) {
+        if (v !== undefined && !/^d+$/.test(v)) {
+          throw new Error(`--${name} is an instant in epoch milliseconds`);
+        }
+      }
+      return withStore(storeOf(flags), io, (_call, ctx) => {
+        const r = bisectBelief(ctx.agent, entity, {
+          ...(attribute === undefined ? {} : { attribute }),
+          ...(good === undefined ? {} : { good: Number(good) }),
+          ...(bad === undefined ? {} : { bad: Number(bad) }),
+          userAuthor: ctx.userAuthor,
+        });
+        if (flags.has("json")) return emit(r);
+        if (!r.flipped) {
+          io.out(
+            `no flip: ${entity}${attribute === undefined ? "" : ` ${attribute}`} reads the same at both ends of the range (${r.probes} probe(s)).`,
+          );
+          return 0;
+        }
+        io.out(`flipped at ${r.flippedAt}:`);
+        io.out(`  before  ${JSON.stringify(r.before)}`);
+        io.out(`  after   ${JSON.stringify(r.after)}`);
+        for (const c of r.culprits ?? []) {
+          const who =
+            c.speaker === "user"
+              ? "the user"
+              : c.model !== undefined
+                ? `${c.model} · session ${c.sessionId ?? "?"}`
+                : `${c.author.slice(0, 20)}… (${c.speaker})`;
+          io.out(`  by      ${who}  (delta ${c.deltaId.slice(0, 16)}…)`);
+        }
+        io.out(
+          `  found in ${r.probes} probe(s) — as-of was always the time machine; this is just the search.`,
         );
         return 0;
       });
