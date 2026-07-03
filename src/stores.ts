@@ -18,9 +18,11 @@ import {
   availableDriver,
   backendFromEnv,
   createBackend,
+  openSqliteDriver,
   type BackendKind,
   type StoreBackend,
 } from "./store-tier.js";
+import { EncryptedSqliteStore, storeKeyHex } from "./encrypted-store.js";
 
 // Two exposure postures (spec/12 §4). A `private` store publishes no lens — default-deny means it
 // never federates — and (Phase B) is encrypted at rest. A `federated` store MAY publish queries.
@@ -43,6 +45,9 @@ export interface StoreManifest {
   readonly id: string; // StoreId = authorForSeed(storeSeed) — "ed25519:<pubkey>"
   readonly tier: StoreTier;
   readonly backend: BackendKind;
+  // Phase B: the file is ciphertext at rest (key = a labeled child of the master seed).
+  // Additive and optional — absent means plaintext, so no format-version bump.
+  readonly encrypted?: boolean;
   readonly createdAt: number;
 }
 
@@ -137,7 +142,10 @@ export class StoreRegistry {
   // function of (master seed, name), so a re-open never re-mints; on an existing manifest we VERIFY
   // the stored id matches the derived one, so a wrong master seed or a tampered manifest fails
   // loudly rather than silently mis-signing.
-  open(name: string, opts: { tier?: StoreTier; backend?: BackendKind } = {}): Store {
+  open(
+    name: string,
+    opts: { tier?: StoreTier; backend?: BackendKind; encrypted?: boolean } = {},
+  ): Store {
     const dir = this.dirOf(name);
     mkdirSync(dir, { recursive: true });
     const manifestPath = join(dir, MANIFEST);
@@ -175,6 +183,7 @@ export class StoreRegistry {
         id,
         tier: opts.tier ?? "federated",
         backend: opts.backend ?? backendFromEnv(),
+        ...(opts.encrypted === true ? { encrypted: true } : {}),
         createdAt: this.clock(),
       };
       // Exclusive create: a concurrent open() of the same new name must not silently clobber a
@@ -193,6 +202,17 @@ export class StoreRegistry {
     // better-sqlite3 on a Node that predates the builtin, and vice versa where the native addon
     // is missing. A store created anywhere opens everywhere — the manifest never strands data
     // behind a missing driver.
+    if (manifest.encrypted === true) {
+      // The at-rest key is derived, never stored: the master holder can always re-open, and
+      // the manifest+file together still leak nothing but counts and hashes.
+      const backendPath = join(dir, "memory.enc.sqlite");
+      const backend = new EncryptedSqliteStore(
+        backendPath,
+        storeKeyHex(this.masterSeedHex, name),
+        openSqliteDriver,
+      );
+      return new Store({ manifest, seedHex, backend, backendPath });
+    }
     const backendPath = join(dir, BACKEND_FILE[manifest.backend]);
     const backend = createBackend(backendPath, availableDriver(manifest.backend));
     return new Store({ manifest, seedHex, backend, backendPath });
@@ -212,6 +232,12 @@ export class StoreRegistry {
       const fromKind = store.backendKind;
       const manifestPath = join(this.dirOf(name), MANIFEST);
       const manifest = JSON.parse(readFileSync(manifestPath, "utf8")) as StoreManifest;
+      if (manifest.encrypted === true) {
+        throw new Error(
+          `store "${name}" is encrypted — backend migration for encrypted stores is not ` +
+            `supported yet (adopt into a new store instead).`,
+        );
+      }
       if (fromKind === backend) {
         const all = store.backend.deltasSince(new Set());
         return {

@@ -283,3 +283,15 @@ Myk's, all listed in BACKLOG under their own heading now.
 
 **Tranche 2 queued:** encrypted private stores (Phase B), the aggregator union read (Phase
 C's first slice), publish readiness minus the button. The loop continues.
+
+---
+
+## 2026-07-03 - Ciphertext at rest (Phase B)
+
+**Task 16 done (PR #21).** The encrypted private store: AES-256-GCM per row with the delta
+id bound as AAD, the key a labeled child of the master seed (re-derivable by the master
+holder, forgeable by nobody), and - the deliberate trade - NO pointer index, because indexed
+targets and values would write the store structure in the clear. The leak model is stated in
+the file header and PROVEN by the test that greps the raw bytes: what leaks is how much you
+know and when it arrived, never what. The conformance suite runs the encrypted backend as a
+full witness, so private stores converge, dedup, and resume exactly like every other tier.

@@ -25,36 +25,39 @@ export function betterSqliteAvailable(): boolean {
   return betterSqliteModule() !== undefined;
 }
 
+// The raw driver, for backends that compose differently (the encrypted store). Explicit
+// adapter: better-sqlite3's generic Statement typings don't line up structurally, and the seam
+// deserves to be visible anyway.
+export function openBetterSqliteDriver(path: string): SqliteDriver {
+  const Db = betterSqliteModule();
+  if (!Db) {
+    throw new Error(
+      `the "sqlite" backend needs the optional native dependency better-sqlite3, which is ` +
+        `not installed (its build may have been skipped). Use the "node-sqlite" backend ` +
+        `(built into Node >= 22.13), or install better-sqlite3. Use "jsonl" only for a NEW ` +
+        `store — never point the JSONL backend at an existing SQLite file.`,
+    );
+  }
+  const db = new Db(path);
+  return {
+    exec: (sql) => {
+      db.exec(sql);
+    },
+    prepare: (sql) => {
+      const stmt = db.prepare(sql);
+      return {
+        run: (...params) => stmt.run(...params),
+        all: (...params) => stmt.all(...params),
+      };
+    },
+    close: () => {
+      db.close();
+    },
+  };
+}
+
 export class SqliteStore extends SqliteCoreStore {
   constructor(filePath: string) {
-    super(filePath, (path): SqliteDriver => {
-      const Db = betterSqliteModule();
-      if (!Db) {
-        throw new Error(
-          `the "sqlite" backend needs the optional native dependency better-sqlite3, which is ` +
-            `not installed (its build may have been skipped). Use the "node-sqlite" backend ` +
-            `(built into Node >= 22.13), or install better-sqlite3. Use "jsonl" only for a NEW ` +
-            `store — never point the JSONL backend at an existing SQLite file.`,
-        );
-      }
-      // Explicit adapter: better-sqlite3's generic Statement typings don't line up
-      // structurally, and the seam deserves to be visible anyway.
-      const db = new Db(path);
-      return {
-        exec: (sql) => {
-          db.exec(sql);
-        },
-        prepare: (sql) => {
-          const stmt = db.prepare(sql);
-          return {
-            run: (...params) => stmt.run(...params),
-            all: (...params) => stmt.all(...params),
-          };
-        },
-        close: () => {
-          db.close();
-        },
-      };
-    });
+    super(filePath, openBetterSqliteDriver);
   }
 }
