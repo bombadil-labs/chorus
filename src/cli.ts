@@ -188,6 +188,8 @@ const COMMANDS: Record<string, CommandSpec> = {
   },
 };
 
+export const commandNames = (): string[] => Object.keys(COMMANDS);
+
 function version(): string {
   // Read at runtime relative to this file: dist/cli.js and src/cli.ts sit one level below the
   // package root, so ../package.json resolves for both the built and the tsx-run form.

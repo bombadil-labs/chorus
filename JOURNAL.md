@@ -190,3 +190,21 @@ reviews enforced one voice (fail loudly, name the way out, echo nothing secret) 
 any style pass would have. The env-vs-flag config story resolved itself into a rule: flags
 for intent, env for environment, registry manifests for durable facts, and set-but-empty
 env always means absent.
+
+---
+
+## 2026-07-03 - The contract
+
+**Tasks 9 and 10 done (PRs #14, #15).** Migration is registry-first: a lossless re-container
+that writes the new backend file BESIDE the old one (grow-only, the old bytes stay), verifies
+the digest, and only then updates the manifest - and a flip between the two sqlite drivers is
+manifest-only, because the shared core made their files identical by construction.
+
+The compatibility promise is now MACHINERY, not prose: manifests carry a formatVersion; an
+older store stamps up the ladder on open (every step must stay lossless and digest-neutral);
+a store from a newer chorus refuses loudly and names the way out. And the surfaces are pinned
+by goldens - the MCP tool schemas and the CLI command list fail CI on drift until someone
+DELIBERATELY regenerates them. A breaking change is a decision now, never a side effect.
+
+**The alpha burndown pre-rehearsal is complete.** Remaining: the synthetic cutover rehearsal
+(task 11) producing the runbook for Myk, then the horizon spikes.
