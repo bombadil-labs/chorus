@@ -103,8 +103,12 @@ context to be dismissed in one read, and ack-rates are its future report card, p
 
 ### The nightcap protocol (Myk, 2026-07-03, verbatim order — run when the V-ladder thins)
 
-- [ ] **N.1 Expansion** — are there some next things that would be cool? (a real divergent
-      pass; new ideas, not EPISTEME re-listed)
+- [x] **N.1 Expansion** — _Done 2026-07-03 (journal: Ten new windows):_ a genuinely divergent
+      pass recorded in VISION.md ("The nightcap expansions"): the deposition, the time-travel
+      console, story mode, second opinions (cross-store consultation), chorus watch, session
+      diaries, named policy presets, the provenance poster, the mirror test, chorus as a git
+      citizen. Deliberately unranked; N.3/N.4 decide what gets mined. The through-line: the
+      store already knows more than any surface shows — most of these are windows, not rooms.
 - [ ] **N.2 Contraction** — given the expansive run: prune. Dead exports, accumulated
       scaffolding, doc coherence, dependency audit, suite runtime. Delete what the 28-PR
       sprint left behind.
