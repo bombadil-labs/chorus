@@ -58,13 +58,14 @@ export function storeCommand(
 ): number {
   switch (sub) {
     case "create": {
-      rejectUnknownFlags(flags, new Set(["tier", "backend", "home"]), "store create");
+      rejectUnknownFlags(flags, new Set(["tier", "backend", "home", "encrypted"]), "store create");
       const name = positionals[0];
       if (name === undefined)
         throw new Error("usage: chorus store create <name> [--tier …] [--backend …]");
       const { registry } = openRegistry(io);
       const existed = registry.list().some((m) => m.name === name);
       const store = registry.open(name, {
+        ...(flags.has("encrypted") ? { encrypted: true } : {}),
         ...(tierOf(flagValue(flags, "tier")) === undefined
           ? {}
           : { tier: tierOf(flagValue(flags, "tier"))! }),

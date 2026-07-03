@@ -134,3 +134,4 @@ export {
   type VectorHit,
   type VectorIndex,
 } from "./similarity.js";
+export { EncryptedSqliteStore, storeKeyHex } from "./encrypted-store.js";

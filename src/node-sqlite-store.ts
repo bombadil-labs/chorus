@@ -24,19 +24,22 @@ export function nodeSqliteAvailable(): boolean {
   return nodeSqliteModule() !== undefined;
 }
 
+// The raw driver, for backends that compose differently (the encrypted store).
+export function openNodeSqliteDriver(path: string): SqliteDriver {
+  const mod = nodeSqliteModule();
+  if (!mod) {
+    throw new Error(
+      `the "node-sqlite" backend needs Node's built-in node:sqlite module (Node >= 22.13; ` +
+        `this is ${process.version}). Upgrade Node, or install the optional better-sqlite3 ` +
+        `dependency (identical file format). Use "jsonl" only for a NEW store — never ` +
+        `point the JSONL backend at an existing SQLite file.`,
+    );
+  }
+  return new mod.DatabaseSync(path);
+}
+
 export class NodeSqliteStore extends SqliteCoreStore {
   constructor(filePath: string) {
-    super(filePath, (path): SqliteDriver => {
-      const mod = nodeSqliteModule();
-      if (!mod) {
-        throw new Error(
-          `the "node-sqlite" backend needs Node's built-in node:sqlite module (Node >= 22.13; ` +
-            `this is ${process.version}). Upgrade Node, or install the optional better-sqlite3 ` +
-            `dependency (identical file format). Use "jsonl" only for a NEW store — never ` +
-            `point the JSONL backend at an existing SQLite file.`,
-        );
-      }
-      return new mod.DatabaseSync(path);
-    });
+    super(filePath, openNodeSqliteDriver);
   }
 }

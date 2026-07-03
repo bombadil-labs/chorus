@@ -18,8 +18,9 @@ import { closeSync, existsSync, openSync, readSync } from "node:fs";
 import type { Delta, Primitive } from "@rhizomes/rhizomatic";
 import type { ChorusAgent } from "./agent.js";
 import { JsonlStore } from "./shared-store.js";
-import { SqliteStore, betterSqliteAvailable } from "./sqlite-store.js";
-import { NodeSqliteStore, nodeSqliteAvailable } from "./node-sqlite-store.js";
+import { SqliteStore, betterSqliteAvailable, openBetterSqliteDriver } from "./sqlite-store.js";
+import { NodeSqliteStore, nodeSqliteAvailable, openNodeSqliteDriver } from "./node-sqlite-store.js";
+import type { SqliteDriver } from "./sqlite-core.js";
 
 export interface StoreBackend {
   // --- the delta-level primitive: durable append + read-since-watermark ---------------------
@@ -100,6 +101,12 @@ export function availableDriver(kind: BackendKind): BackendKind {
   if (kind === "sqlite" && betterSqliteAvailable()) return "sqlite";
   if (kind === "node-sqlite" && nodeSqliteAvailable()) return "node-sqlite";
   return sqliteFamilyDriver() ?? kind;
+}
+
+// A RAW sqlite driver over a path — for backends that compose differently than the standard
+// tiers (the encrypted store wraps one). Same preference order as everywhere: builtin first.
+export function openSqliteDriver(path: string): SqliteDriver {
+  return nodeSqliteAvailable() ? openNodeSqliteDriver(path) : openBetterSqliteDriver(path);
 }
 
 export function backendFromEnv(env: NodeJS.ProcessEnv = process.env): BackendKind {

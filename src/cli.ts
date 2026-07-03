@@ -78,7 +78,7 @@ const COMMANDS: Record<string, CommandSpec> = {
     summary: "create | ls | show | adopt — manage named stores in the registry",
     run(args): number {
       // `json` is boolean: it must never swallow a following positional (`show --json media`).
-      const { flags, rest } = parseFlags(args, new Set(["json"]));
+      const { flags, rest } = parseFlags(args, new Set(["json", "encrypted"]));
       const [sub, ...positionals] = rest;
       const home = flagValue(flags, "home");
       return storeCommand(sub, positionals, flags, {

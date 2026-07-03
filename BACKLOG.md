@@ -57,10 +57,8 @@ _(task 11 moved to Done)_
 
 ### Now — constellation + readiness (tranche 2, mined at retro #2)
 
-- [ ] **16. Encrypted private store (constellation Phase B)** — an encrypted sqlite-family
-      backend: decrypt-in-memory, key derived from the master seed (a labeled child, like
-      store identities); a `private` store's file is ciphertext at rest; conformance suite as
-      the witness. Leak-safety is the claim to prove, not promise.
+_(task 16 moved to Done)_
+
 - [ ] **17. Aggregator union read (constellation Phase C, first slice)** — a read-only lens
       over SEVERAL mounts: gql over the union snapshot with per-delta origin annotations
       (relay provenance). The multi-store node already exists; this is the union READ.
@@ -80,6 +78,12 @@ _(task 11 moved to Done)_
 
 ### Done
 
+- [x] **16. Encrypted private store** (2026-07-03, PR #21 - journal: Ciphertext at rest).
+      EncryptedSqliteStore over the raw driver seam: AES-256-GCM per row, id bound as AAD,
+      key a labeled child of the master seed, NO pointer index (structure would leak - a
+      private store trades indexed reads for opacity). Full conformance witness + the leak
+      test greps the raw file bytes. chorus store create <n> --tier private --encrypted.
+      Encrypted migration refused loudly for now (adopt into a new store instead).
 - [x] ♻ **15. Retro #2 + VISION revision** (2026-07-03, PR #20 - journal: Stock-take). All
       three horizons grounded; VISION revised with per-horizon status + what the day taught;
       tranche 2 mined (Phase B/C constellation + publish readiness); Myk's decision gates
