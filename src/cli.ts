@@ -160,6 +160,10 @@ const COMMANDS: Record<string, CommandSpec> = {
   replay: dataOp("replay", "replay a decision against the world it was made in", {
     allowed: ["store", "home"],
   }),
+  vitals: dataOp("vitals", "epistemic vitals: contested, concentration, staleness, churn", {
+    booleans: ["json"],
+    allowed: ["store", "home", "json"],
+  }),
   gql: dataOp("gql", "pin a snapshot, run one GraphQL query, release it", {
     allowed: ["store", "home"],
   }),

@@ -135,3 +135,4 @@ export {
   type VectorIndex,
 } from "./similarity.js";
 export { EncryptedSqliteStore, storeKeyHex } from "./encrypted-store.js";
+export { computeVitals, type Vitals } from "./vitals.js";
