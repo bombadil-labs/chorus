@@ -658,3 +658,26 @@ phase. What the expansion movements surface may reshape what the Actuary wants t
 visibly everywhere). Escape-bearing edits go through script files; bash and sed both have
 opinions about backslashes. And the panel-excludes-its-own-needles rule graduated from bug fix
 to architecture: three instruments now rely on it without a second thought.
+
+## 2026-07-03 — Ten new windows (N.1, the nightcap begins)
+
+Myk left six movements for the night and the first is pure divergence: _are there some next
+things that would be cool?_ Not EPISTEME re-listed, not the horizons re-worn — new. Ten ideas
+went into VISION.md under "The nightcap expansions," deliberately unranked, because ranking is
+N.3/N.4's job after contraction changes what is visible.
+
+The pass found its own through-line halfway in: **the store already knows more than any
+surface shows.** The deposition, the time-travel slider, story mode, the provenance poster —
+these are not new capabilities, they are new WINDOWS onto receipts the store has been keeping
+all along. As-of was always the time machine; explain was always the narrative; the receipts
+were always the diagram. The cheap-looking ideas are cheap precisely because the substrate
+already paid for them, which is the whole thesis wearing party clothes.
+
+The two that reach furthest: **second opinions** (a store queries another store and records
+the answer as signed testimony — consultation, not sync; the constellation pointed at a
+question) and **chorus as a git citizen** (decide-per-merge + review-wired-to-CI — the flight
+recorder for codebases, which is just this loop's own daily practice, productized). Both are
+rooms, not windows. Both wait their turn.
+
+Next: N.2, contraction. Given the ~35-PR sprint: dead exports, scaffolding, doc drift,
+dependency audit, suite runtime. Deletion as craft.

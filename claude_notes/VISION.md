@@ -162,6 +162,69 @@ theses, scaled.
 
 ---
 
+---
+
+## The nightcap expansions (N.1, 2026-07-03 — a divergent pass, deliberately unranked)
+
+Myk's instruction: _are there some next things that would be cool?_ — a real divergent pass,
+not EPISTEME re-listed, not the horizons re-worn. These are new. None is committed; N.3 and
+N.4 decide what gets mined. The through-line, if there is one: **the store already knows more
+than any surface shows.** Most of these are new windows, not new rooms.
+
+- **The deposition (`chorus depose`).** The instruments answer one question each; an incident
+  review asks a hundred. Depose an agent at an instant: one dossier — every belief held at T
+  with its ground, every decision standing on it, what has moved since, signed testimony
+  throughout. The flight recorder's data, formatted for the hearing room. Everything it needs
+  (as-of reads, replay, receipts) already exists; this is composition, not construction.
+
+- **The time-travel console.** The web console gains an as-of slider. Drag it and watch the
+  store's beliefs, vitals, doubts, and mail as they stood at any instant — the mind as a
+  scrubbing timeline. As-of was always the time machine; this is just the window seat. Demo
+  value out of proportion to its cost.
+
+- **Story mode (`chorus tell <entity>`).** The receipts rendered as narrative: "svc:api
+  entered the record on July 2nd, on the user's word that team-a owned it. A decision leaned
+  on that belief within the hour. On the 3rd the ground shifted — team-b now, said the same
+  voice — and the examiner wrote the decider a letter." The poetry surface, literally: nothing
+  the explain output doesn't know, everything it doesn't say.
+
+- **Second opinions (cross-store consultation).** `chorus diff` compares two stores; the
+  active form is asking: store A queries store B about an entity and records the answer as
+  testimony from B's identity — inter-mind consultation with receipts, the constellation's
+  federation machinery pointed at a question instead of a feed. "What does my research store
+  believe about this library?" asked from the project store, answer signed, trust-weighted.
+
+- **`chorus watch`.** The instruments run on demand; a watch process is the store's
+  heartbeat — review, challenge, skeptic on a cadence, letters printing as they file, vitals
+  ticking in the corner. The nurse's station monitor. Also the natural bridge to running the
+  examiners inside `chorus serve` (the daemon EPISTEME imagined, grown from a terminal pane).
+
+- **Session diaries.** end-session already closes the interval; it could also file a digest
+  claim — what this session learned, decided, doubted — so the store writes its own diary,
+  one entry per voice per sitting. Briefings then open with "since you last sat down" composed
+  from diaries instead of raw deltas. Memory that remembers itself.
+
+- **Policy presets with names.** Trust policies are editable but naked JSON. Name them, claim
+  them, share them: `chorus policy adopt paranoid` / `recency-first` / `user-sovereign` —
+  presets as commons entries with authors and track records. The trust marketplace, starting
+  as three good defaults.
+
+- **The provenance poster (`chorus trace --render`).** One entity's full epistemic history as
+  a diagram (mermaid/DOT export): claims as nodes, retractions as strikethroughs, doubts as
+  dashed edges, letters in the margin. The thing you paste into the postmortem doc. Cheap,
+  and nobody else can draw it because nobody else has the receipts.
+
+- **The mirror test.** Sessions are voices; do they cohere? A continuity gauge: how much does
+  session N+1 act on (recall, cite, extend) what session N believed — per model, per surface,
+  over time. Identity as a measurable property of a chorus rather than an assertion. (Phase
+  VII-adjacent: this is calibration's cousin, coherence.)
+
+- **Chorus as a git citizen (`chorus for-commit`).** The repo work this loop does daily —
+  decide-before-merge, review-after-CI — productized: a decision recorded per commit/PR with
+  the store's relevant beliefs pinned, and `chorus review` wired to CI so the letters land
+  when merged assumptions rot. The flight recorder for codebases, dogfooding what the loop
+  already lives.
+
 ## Revision log
 
 - **2026-07-03 (later)** — THE REFRAME: Myk proposed treating Chorus as an epistemic
