@@ -124,6 +124,7 @@ chorus serve --store <n> (--stdio | --http)  # the MCP node; repeat --store to h
 chorus console --store <n>                   # the web console
 chorus recall|remember|search|explain|decide|replay|gql --store <n>   # MCP-less data ops
 chorus vitals|examine|bisect|review|challenge|contradictions|skeptic --store <n>  # instruments
+chorus checkup --store <n>                   # every instrument in one pass, one exit code
 chorus diff --store a --store b              # two stores, or one against its own past
 
 # Legacy env-var surface (predates the registry; still serves the monorepo-era wiring):

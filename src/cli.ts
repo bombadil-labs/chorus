@@ -196,6 +196,10 @@ const COMMANDS: Record<string, CommandSpec> = {
     booleans: ["all", "json"],
     allowed: ["store", "home", "all", "json"],
   }),
+  checkup: dataOp("checkup", "every instrument in one pass — the store's daily physical", {
+    booleans: ["all", "json"],
+    allowed: ["store", "home", "all", "half-life", "json"],
+  }),
   vitals: dataOp("vitals", "epistemic vitals: contested, concentration, staleness, churn", {
     booleans: ["json"],
     allowed: ["store", "home", "json"],

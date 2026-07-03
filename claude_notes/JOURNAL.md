@@ -713,3 +713,55 @@ Deps were already lean (rhizomatic + graphql, better-sqlite3 optional). Root alr
 (Myk's tidy-root request did that pass). Suite runtime noted and deferred: the CLI tests spawn
 tsx per invocation — honest, slow, and batching them is rework, not pruning. Contraction
 resisted the temptation to become a second expansion.
+
+## 2026-07-03 — What the deletions uncovered (N.3)
+
+Myk's sequencing was the insight: expansion, THEN contraction, THEN expansion again — because
+contraction changes what is visible. He was right in a way I could not have predicted from the
+front side of it. N.1 diverged from the product and produced windows. N.3 diverged from the
+CODE — from shapes that only became visible when N.2 put nine copies of surviving() into one
+place and lined the six instruments up side by side — and produced infrastructure:
+
+the **inhabitant kit** (the instruments' shared skeleton — voice, condition, gesture,
+idempotence — as a declarative framework, so skills can ship residents: a compliance officer,
+a style warden, an apprentice librarian; the store as a village you can hire into); the
+**generated protocol dictionary** (the ROLE_* exports ARE the wire format — extract them with
+their comments into one page and the format documents itself; an LLM reading it speaks fluent
+chorus without reading the implementation); the **checkup** (six instruments, one exit-code
+convention, obviously one pipeline — the daily physical); the **watchmen's ledger** (the
+inhabitants' own activity is queryable testimony, which means Phase VII's calibration data is
+ALREADY ACCRUING — the Actuary will not start from zero); and the **library as a product
+surface** (three doors into one house — embed, speak, walk up — and the barrel is the door
+nobody framed).
+
+The pattern worth keeping: the first expansion asked "what could this DO?"; the second asked
+"what IS this, now that I can see it?" Different muscles. Both needed. The nightcap's
+architecture is teaching me how to think in phases the way the store thinks in instants.
+
+Next: N.4 consolidation — the barrel gets framed, the checkup gets built, the MCP/CLI surface
+gets judged coherently. Deprecate, never break; the golden pins make every change a decision.
+
+## 2026-07-03 — Three doors, one house (N.4)
+
+**The barrel, framed.** index.ts had grown by accretion and stopped at Phase V — none of the
+Phase VI instruments, none of the mail vocabulary, none of the shared helpers were exported.
+Now the library door is deliberate: every instrument (reviewDecisions, challengeStale,
+mineContradictions, skepticPass) with its report types, the full wire vocabulary (ROLE_MSG__,
+ROLE_ID__, ROLE_SAME*, the instrument roles), and the load-bearing helpers (surviving,
+decisionBasisIds, introduceVoice — the inhabitant kit's first three parts, exported before the
+kit has a name). Embed Chorus in an agent host and you get everything the CLI has.
+
+**The checkup.** `chorus checkup --store <n>` — pulse, decisions, freshness, dialects,
+testimony: every instrument in one pass, one report, one exit code. The poetry of the clean
+bill: "every letter already answered, nothing resting on rot." This was N.3's most obvious
+idea and N.4's cheapest build precisely because it consolidates instead of adding — five
+library calls and a report format.
+
+**The MCP surface, judged and left standing.** Twenty-five tools, examined for merges and
+deprecations: none warranted. The surface divides cleanly (session, belief CRUD, decisions,
+mail, trust, gql, discovery) and every tool earns its slot. The one decision worth writing
+down is the boundary that was already true but never said: **the instruments derive from the
+MASTER seed, so they are operator tools.** An MCP session is a one-author surface; it speaks
+AS itself, and it never holds the key that derives the examiner and the skeptic. The human at
+the console runs the physicals; the sessions live their lives. Consolidation sometimes means
+documenting the wall instead of moving it.

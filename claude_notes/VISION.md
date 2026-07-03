@@ -225,6 +225,49 @@ than any surface shows.** Most of these are new windows, not new rooms.
   when merged assumptions rot. The flight recorder for codebases, dogfooding what the loop
   already lives.
 
+---
+
+## The second expansion (N.3, 2026-07-03 — what contraction made visible)
+
+N.1 diverged from the product; this pass diverges from the CODE, because N.2's consolidation
+put shapes side by side that had never been visible together. Five ideas that only exist
+because the duplication is gone:
+
+- **The inhabitant kit.** Consolidation revealed that all six instruments share one skeleton:
+  a derived voice, a condition over the surviving world, a gesture (letter, claim, or
+  withdrawal), and an idempotence discipline (fingerprint for mail, live-claim for testimony).
+  That is a framework asking to be born: define an inhabitant declaratively — seed label,
+  model name, purpose line, condition, gesture — and the kit handles introduction, receipts,
+  and never-nagging. Then SKILLS can ship inhabitants: a compliance officer who letters when
+  PII-adjacent claims lack a source; a style warden for a writing store; an apprentice
+  librarian. The store as a village you can hire into.
+
+- **The protocol dictionary, generated.** N.2 found the ROLE_* constants are the wire
+  vocabulary, scattered across eight files as exports. One tool pass could extract every role,
+  kind, and entity prefix (vitals:, doubt:, attr:, session:, concept:) with their comments
+  into a single PROTOCOL page — the format self-documenting from the source that defines it.
+  Feeds N.5's agent-facing docs directly: an LLM reading the dictionary can speak fluent
+  chorus without reading the implementation.
+
+- **The checkup.** Six instruments, one convention: exit 1 when something needs a human.
+  Lined up after consolidation they are obviously ONE pipeline: `chorus checkup --store <n>`
+  — vitals, review, challenge, contradictions, skeptic in one pass, one report, one exit
+  code. The daily physical. (This lands in N.4 as the consolidation of the instrument
+  surface, not as new machinery.)
+
+- **The watchmen's ledger.** The inhabitants now generate history — letters filed, doubts
+  standing and withdrawn, challenges cleared by re-assertion. That activity is itself
+  queryable testimony: a `chorus inhabitants` view showing each resident voice, its volume,
+  its ack rate, its withdrawal rate. Who watches the watchmen: the same store, obviously.
+  This is Phase VII's calibration data already accruing — the Actuary will not start from
+  zero.
+
+- **The library as a product surface.** The barrel (index.ts) predates the instruments and
+  exports none of them. N.2's disposition — protocol vocabulary and result types are public
+  API — implies the real product boundary: embed Chorus in an agent host (the library), speak
+  to it from anywhere (MCP), or walk up to it (CLI). Three doors, one house; the barrel is
+  the door nobody has framed yet. (N.4's first job.)
+
 ## Revision log
 
 - **2026-07-03 (later)** — THE REFRAME: Myk proposed treating Chorus as an epistemic

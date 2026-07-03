@@ -118,11 +118,22 @@ context to be dismissed in one read, and ack-rates are its future report card, p
       — kept deliberately, flagged for N.4 barrel coherence. Deps already lean (2 + 1
       optional). Root clean. The suite-runtime question noted and deferred: the CLI tests
       spawn tsx per invocation, honest but slow; batching is rework, not pruning.
-- [ ] **N.3 Expansion again** — now are there some next things that would be cool?
-      (contraction changes what is visible)
-- [ ] **N.4 Consolidation** — the API/MCP surface area: 25 tools, the CLI, the library
-      barrel. Merges, modes, deprecations — never silent breaks; the golden pins make it a
-      decision.
+- [x] **N.3 Expansion again** — _Done 2026-07-03 (journal: What the deletions uncovered):_
+      five ideas that only exist because N.2 removed the duplication — the inhabitant kit
+      (the six instruments' shared skeleton as a declarative framework; skills ship
+      residents), the generated protocol dictionary, the checkup (one pipeline, one exit
+      code — lands in N.4), the watchmen's ledger (inhabitant track records = the Actuary's
+      data, already accruing), and the library-as-product-surface (the unframed barrel door —
+      N.4's first job). Recorded in VISION.md beside the N.1 pass.
+- [x] **N.4 Consolidation** — _Done 2026-07-03 (journal: Three doors, one house):_ (1) the
+      barrel framed — all Phase VI instruments, the mail/identity/sameAs vocabulary, and the
+      shared helpers (surviving, decisionBasisIds, introduceVoice) now export from index.ts;
+      the library is a first-class door. (2) `chorus checkup` — every instrument in one pass,
+      one report, one exit code; the instrument surface consolidated, not expanded. (3) The
+      MCP surface judged coherent as-is (25 tools; no merges or deprecations warranted) with
+      one principled boundary made explicit: instruments derive from the MASTER seed, so they
+      are operator tools (CLI/library) — an MCP session is a one-author surface and never
+      holds master. Golden pins updated deliberately (+1 CLI command)._
 - [ ] **N.5 The marketing pass** — a GitHub Pages site; an agent-friendly summary (llms.txt + AGENTS-facing docs); the pitch that makes a stranger feel it.
 - [ ] **N.6 The edge** — seriously: next cool things, or the honest end of what Claude
       Fable, the feeling-is-first creature, can imagine? Answer as one. Reach.

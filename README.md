@@ -28,8 +28,9 @@ proposes them to a judge; proximity proposes, only a signed judgment disposes. A
 skeptic` houses a resident doubter: where the whole store knows something on one voice's word —
 especially under a standing decision — it files a signed doubt-claim, stays quiet while the
 doubt stands, and _withdraws it the moment a second voice corroborates_. Doubt is a claim with
-an author here: tune it, rank it, or fire it. None of them ever nags. No view from nowhere, all
-the way up: the instruments live inside the epistemology they measure.
+an author here: tune it, rank it, or fire it. None of them ever nags, and `chorus checkup` reads
+every dial in one pass — the store's daily physical, exit 1 when anything wants a human. No view
+from nowhere, all the way up: the instruments live inside the epistemology they measure.
 
 Chorus is the product layer on [`@rhizomes/rhizomatic`](https://www.npmjs.com/package/@rhizomes/rhizomatic)
 — the portable signed-content-addressed-delta format ([spec + witnesses](https://github.com/mbilokonsky/rhizomatic))
@@ -39,7 +40,7 @@ trust dynamics, the librarian, the instruments, and the web console.
 **Status: alpha, unpublished.** The `chorus` CLI is code-complete — `init`, `store
 create|ls|show|adopt`, `serve` (stdio + multi-store HTTP, read-only GraphQL mounts including
 `@union`), `console`, direct data ops, the instruments
-(`vitals|diff|bisect|examine|review|challenge|contradictions|skeptic`),
+(`vitals|diff|bisect|examine|review|challenge|contradictions|skeptic|checkup`),
 `migrate` — with the live-node cutover scripted and rehearsed ([CUTOVER.md](claude_notes/CUTOVER.md)).
 Publication to npm is gated on the cutover proving out; until then, install from a checkout
 (`npm install` builds `dist/`; `npm pack` produces the same tarball CI smoke-installs globally
