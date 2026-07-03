@@ -619,3 +619,42 @@ LITERAL NULs — sed's replacement grammar ate the backslash — recreating the 
 bug VI.3 had just cleaned up, in the file being written to avoid it. The fixer script un-mangled
 it in one pass. The lesson compounds: source edits carrying escapes go through script files,
 never shell substitution — bash and sed both have opinions about backslashes.
+
+## 2026-07-03 — What Phase VI taught (the VI.6 retro)
+
+**The arc.** Phase V built gauges; Phase VI gave the store a voice. Four instruments in four
+PRs: review (your decision's ground moved), challenge (your belief is going stale — say it
+again if you still mean it), contradictions (you are answering one question in two
+vocabularies), skeptic (the whole store knows this on one voice's word). Every one of them
+speaks in mail and claims, never mutation; every one earns its interruptions — fingerprints
+where letters leave no trace, the live doubt itself where a claim does. The store stopped
+being a place you look things up and became something closer to a colleague who reads over
+your shoulder and only taps it when the tapping is worth it.
+
+**The deepest structural find: two voices are better than one.** The examiner and the skeptic
+are DIFFERENT derived authors, deliberately. Trust in Chorus is per-author policy, so
+splitting the inhabitants by function means you can keep the measurements and fire the
+doubter, or rank doubt below testimony without muting the vitals. The substrate made this
+free; noticing it was the work. Phase VII (the Actuary — calibration, earned trust) now has
+its subjects already standing in the store: voices with track records, waiting to be scored.
+
+**Idempotence has two honest shapes.** Letters need fingerprints (mail leaves no live trace
+once acked). Claims need nothing — their own standing is the ledger, and WITHDRAWAL becomes a
+first-class gesture with a named reason. Knowing which shape a surface wants is now a design
+reflex: if re-running the tool twice changes the store, the tool is wrong.
+
+**VI.5 deferred, honestly.** The hypnagogic pass (idle-time consolidation) requires judgment —
+which recast is better, which sameAs is true — and without the Myk-gated embedding model or an
+in-loop judge it degrades to auto-merge wearing a nightcap. It waits for its gate. Also: no
+stretch features immediately before a contraction phase.
+
+**Gates check: unmoved.** Cutover, publish, commons, embedding model — all four still Myk's.
+Phase VII deliberately not mined yet: Myk's nightcap protocol is next, and its contraction /
+consolidation / marketing passes are integration work that should precede another feature
+phase. What the expansion movements surface may reshape what the Actuary wants to be.
+
+**Process lessons that compounded this phase.** Test the door opens, not just that it locks
+(the bisect regex). Invisible bytes cross files by imitation (the NUL saga — now spelled
+visibly everywhere). Escape-bearing edits go through script files; bash and sed both have
+opinions about backslashes. And the panel-excludes-its-own-needles rule graduated from bug fix
+to architecture: three instruments now rely on it without a second thought.
