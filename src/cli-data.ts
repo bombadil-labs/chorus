@@ -474,6 +474,63 @@ export function dataCommand(
       });
     }
 
+    case "checkup": {
+      // The daily physical (N.4): every instrument in one pass, one report, one exit code.
+      // Exit 1 when anything needs a human — the instruments already speak in letters and
+      // claims; this just reads all the dials at once.
+      const storeName = storeOf(flags);
+      const home = io.home ?? chorusHome();
+      const master = resolveMasterSeed(process.env, home);
+      if (master === undefined) throw new Error("no master seed — run `chorus init` first");
+      const halfLifeRaw = flagValue(flags, "half-life");
+      if (halfLifeRaw !== undefined && !/^\d+$/.test(halfLifeRaw)) {
+        throw new Error("--half-life is a whole number of days");
+      }
+      return withStore(storeName, io, (_call, ctx, persist) => {
+        const vitals = computeVitals(ctx.agent);
+        const review = reviewDecisions(ctx.agent, master, storeName);
+        const challenge = challengeStale(ctx.agent, master, storeName, {
+          ...(halfLifeRaw === undefined ? {} : { halfLifeDays: Number(halfLifeRaw) }),
+        });
+        const contradictions = mineContradictions(ctx.agent, master, storeName);
+        const skeptic = skepticPass(ctx.agent, master, storeName, {
+          ...(flags.has("all") ? { all: true } : {}),
+        });
+        persist();
+        const findings =
+          review.findings.length +
+          challenge.challenges.length +
+          contradictions.pairs.length +
+          skeptic.doubts.length;
+        if (flags.has("json")) {
+          emit({ vitals, review, challenge, contradictions, skeptic, findings });
+          return findings > 0 ? 1 : 0;
+        }
+        io.out(
+          `pulse       ${vitals.liveBeliefs} live belief(s), ${vitals.authors} voice(s), ` +
+            `${vitals.contested} contested`,
+        );
+        io.out(
+          `decisions   ${review.examined} reviewed: ${review.standing} stand, ` +
+            `${review.findings.length} need revisiting`,
+        );
+        io.out(
+          `freshness   ${challenge.slots} slot(s): ${challenge.challenges.length} past half-life`,
+        );
+        io.out(`dialects    ${contradictions.pairs.length} latent contradiction(s) proposed`);
+        io.out(
+          `testimony   ${skeptic.doubts.length} slot(s) under doubt, ` +
+            `${skeptic.withdrawals.length} doubt(s) withdrawn`,
+        );
+        io.out(
+          findings === 0
+            ? `a clean bill of health — every letter already answered, nothing resting on rot.`
+            : `${findings} finding(s) want a human. The letters are in the inbox; the ledger has receipts.`,
+        );
+        return findings > 0 ? 1 : 0;
+      });
+    }
+
     case "gql": {
       const [query] = positionals;
       if (query === undefined) throw new Error('usage: chorus gql "<query>" --store <name>');

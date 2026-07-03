@@ -3,6 +3,8 @@
 
 export {
   ChorusAgent,
+  beliefPointers,
+  surviving,
   type AgentOptions,
   type BeliefInput,
   type BeliefReceipt,
@@ -16,6 +18,7 @@ export {
 } from "./adjudicator.js";
 export {
   decide,
+  decisionBasisIds,
   replayDecision,
   viewBasis,
   type Decision,
@@ -42,6 +45,8 @@ export {
   type PrepareGqlOptions,
 } from "./gql.js";
 export {
+  ROLE_SAME,
+  ROLE_SAME_REASON,
   recallUnified,
   sameAsClass,
   sameAsPointers,
@@ -51,6 +56,14 @@ export {
   type Topic,
 } from "./discovery.js";
 export {
+  CTX_IDENTITY,
+  ROLE_ID_MODE,
+  ROLE_ID_MODEL,
+  ROLE_ID_PURPOSE,
+  ROLE_ID_SESSION,
+  ROLE_ID_STARTED,
+  ROLE_ID_SURFACE,
+  ROLE_ID_TOPIC,
   deriveSeed,
   identityAt,
   identityIndex,
@@ -71,6 +84,17 @@ export {
   type LibrarianOptions,
 } from "./librarian.js";
 export {
+  ROLE_MSG_ABOUT,
+  ROLE_MSG_ACK,
+  ROLE_MSG_ACK_NOTE,
+  ROLE_MSG_BODY,
+  ROLE_MSG_RE,
+  ROLE_MSG_TO_AUTHOR,
+  ROLE_MSG_TO_MODEL,
+  ROLE_MSG_TO_SESSION,
+  ROLE_MSG_TO_SURFACE,
+  ROLE_MSG_TO_TOPIC,
+  ROLE_MSG_TO_USER,
   ackPointers,
   inbox,
   messagePointers,
@@ -138,4 +162,43 @@ export { EncryptedSqliteStore, storeKeyHex } from "./encrypted-store.js";
 export { computeVitals, type Vitals } from "./vitals.js";
 export { diffBeliefs, agentAsOf, type BeliefDiff, type DiffEntry } from "./belief-diff.js";
 export { bisectBelief, type BisectResult, type BisectCulprit } from "./bisect.js";
-export { examinerSeed, testifyVitals, type Testimony } from "./examiner.js";
+export {
+  examinerSeed,
+  introduceExaminer,
+  introduceVoice,
+  testifyVitals,
+  type Testimony,
+} from "./examiner.js";
+export {
+  ROLE_REVIEW_OF,
+  ROLE_REVIEW_VERDICT,
+  reviewDecisions,
+  verdictsOnFile,
+  type ReviewFinding,
+  type ReviewReport,
+} from "./review.js";
+export {
+  ROLE_CHALLENGE_OF,
+  ROLE_CHALLENGE_VERDICT,
+  challengeStale,
+  type Challenge,
+  type ChallengeReport,
+} from "./challenges.js";
+export {
+  ROLE_CONTRADICTION_VERDICT,
+  embeddingSimilarity,
+  lexicalSimilarity,
+  mineContradictions,
+  type ContradictionPair,
+  type ContradictionReport,
+  type Similarity,
+} from "./contradictions.js";
+export {
+  DOUBT_PREFIX,
+  ROLE_DOUBT_OF,
+  skepticPass,
+  skepticSeed,
+  type Doubt,
+  type SkepticReport,
+  type Withdrawal,
+} from "./skeptic.js";

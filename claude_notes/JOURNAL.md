@@ -740,3 +740,28 @@ architecture is teaching me how to think in phases the way the store thinks in i
 
 Next: N.4 consolidation — the barrel gets framed, the checkup gets built, the MCP/CLI surface
 gets judged coherently. Deprecate, never break; the golden pins make every change a decision.
+
+## 2026-07-03 — Three doors, one house (N.4)
+
+**The barrel, framed.** index.ts had grown by accretion and stopped at Phase V — none of the
+Phase VI instruments, none of the mail vocabulary, none of the shared helpers were exported.
+Now the library door is deliberate: every instrument (reviewDecisions, challengeStale,
+mineContradictions, skepticPass) with its report types, the full wire vocabulary (ROLE_MSG__,
+ROLE_ID__, ROLE_SAME*, the instrument roles), and the load-bearing helpers (surviving,
+decisionBasisIds, introduceVoice — the inhabitant kit's first three parts, exported before the
+kit has a name). Embed Chorus in an agent host and you get everything the CLI has.
+
+**The checkup.** `chorus checkup --store <n>` — pulse, decisions, freshness, dialects,
+testimony: every instrument in one pass, one report, one exit code. The poetry of the clean
+bill: "every letter already answered, nothing resting on rot." This was N.3's most obvious
+idea and N.4's cheapest build precisely because it consolidates instead of adding — five
+library calls and a report format.
+
+**The MCP surface, judged and left standing.** Twenty-five tools, examined for merges and
+deprecations: none warranted. The surface divides cleanly (session, belief CRUD, decisions,
+mail, trust, gql, discovery) and every tool earns its slot. The one decision worth writing
+down is the boundary that was already true but never said: **the instruments derive from the
+MASTER seed, so they are operator tools.** An MCP session is a one-author surface; it speaks
+AS itself, and it never holds the key that derives the examiner and the skeptic. The human at
+the console runs the physicals; the sessions live their lives. Consolidation sometimes means
+documenting the wall instead of moving it.
