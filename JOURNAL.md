@@ -171,3 +171,22 @@ scripts chain on exit codes, not on reading JSON.
 **Retro pass (task 8) is next.** Its queue: the sqlite shared-core refactor (the one
 structural debt deliberately carried since task 1), and a VISION.md check against a week that
 went faster than the plan assumed.
+
+---
+
+## 2026-07-03 - The core is one (retro pass #1)
+
+**Task 8 done (PR #13).** The twin sqlite stores are now one core and two driver adapters.
+The schema, pragmas, SQL, and the txn/onDisk discipline live in exactly one file
+(sqlite-core.ts), parameterized over a 3-method driver seam (exec/prepare/close, positional
+params only - the intersection both drivers speak natively). better-sqlite3 needed an
+explicit adapter object anyway (its generic Statement typings do not line up structurally),
+which makes the seam visible rather than incidental. 142 tests, conformance and both-
+direction interop included, pass unchanged - the refactor is proven byte-neutral by the
+same witnesses that guarded the duplication.
+
+**Retro verdict on the rest:** error-message voice needed no sweep - five consecutive
+reviews enforced one voice (fail loudly, name the way out, echo nothing secret) better than
+any style pass would have. The env-vs-flag config story resolved itself into a rule: flags
+for intent, env for environment, registry manifests for durable facts, and set-but-empty
+env always means absent.

@@ -49,12 +49,8 @@ _(tasks 4-6 moved to Done)_
 
 _(task 7 moved to Done)_
 
-- [ ] ♻ **8. Retro/integration pass #1** — what did tasks 1–7 accumulate that wants integrating?
-      (Known candidates: env-var vs CLI-flag config story; error-message voice; CLAUDE.md
-      "Commands" section rewrite around the CLI; **shared-core refactor of sqlite-store +
-      node-sqlite-store** — ~170 duplicated lines that must stay format-identical, flagged by the
-      task-1 review, interop tests guard it meanwhile; **migrate.ts driver choice** — hardwired to
-      better-sqlite3, should prefer the builtin where available, folds into task 9.)
+_(task 8 moved to Done)_
+
 - [ ] **9. `chorus migrate` + `chorus upgrade`** — jsonl→sqlite command over the existing
       migrator; self-update + update-notifier.
 - [ ] **10. Compatibility guarantees** — format-version marker in store manifests,
@@ -79,6 +75,13 @@ _(task 7 moved to Done)_
 
 ### Done
 
+- [x] ♻ **8. Retro/integration pass #1** (2026-07-03, PR #13 - journal: The core is one).
+      The sqlite SHARED-CORE refactor: schema/SQL/write-discipline live once in
+      sqlite-core.ts, both drivers are ~40-line adapters over a 3-method seam - the way to
+      fork the file format is gone, not just guarded. Other retro items resolved along the
+      way: migrate.ts driver choice (task-2 fixes), CLAUDE.md Commands rewrite (PR #12),
+      error-message voice (enforced review-by-review: fail loudly, name the way out, echo
+      nothing secret).
 - [x] **7. Direct data ops** (2026-07-03, PR #11 - journal: The MCP-less client). recall,
       remember, search, explain, decide, replay, gql - all through the SAME protocol brain the
       MCP servers use (createSession + callTool), so the CLI can never drift from the tool
