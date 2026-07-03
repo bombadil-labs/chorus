@@ -28,6 +28,10 @@ function withStore<T>(
       masterSeedHex: seed,
       sessionId: `cli-${Date.now()}-${randomBytes(3).toString("hex")}`,
     });
+    // If a write forces an auto-introduction, the identity claim should say what this IS — a
+    // CLI invocation — not "unknown" (which reads as a misconfigured MCP client in receipts
+    // and would be swept up by `trust --distrustModel unknown`).
+    ctx.model = "cli";
     store.backend.refresh(ctx.agent);
     const result = fn((tool, args) =>
       callTool(ctx, tool, args, () => store.backend.persist(ctx.agent)),
@@ -39,10 +43,20 @@ function withStore<T>(
 }
 
 // A CLI value: JSON where it parses (numbers, booleans, quoted strings, objects), the raw string
-// otherwise — so `chorus remember svc:api replicas 3` stores the number 3, and `--ref` makes the
-// value a typed entity reference (reference, don't transcribe).
-function parseValue(raw: string, asRef: boolean): unknown {
-  if (asRef) return { entity: raw };
+// otherwise — so `chorus remember svc:api replicas 3` stores the number 3. Escape hatches for
+// the inherent ambiguity: --string takes the value verbatim (the string "3", "1.10", "true"
+// without shell-quoting gymnastics), --json requires valid JSON and fails loudly, --ref makes
+// the value a typed entity reference (reference, don't transcribe).
+function parseValue(raw: string, flags: ReadonlyMap<string, string>): unknown {
+  if (flags.has("ref")) return { entity: raw };
+  if (flags.has("string")) return raw;
+  if (flags.has("json")) {
+    try {
+      return JSON.parse(raw) as unknown;
+    } catch {
+      throw new Error(`--json: value is not valid JSON`);
+    }
+  }
   try {
     return JSON.parse(raw) as unknown;
   } catch {
@@ -93,21 +107,30 @@ export function dataCommand(
       }
       const kind = flagValue(flags, "kind");
       const source = flagValue(flags, "source");
-      const confidence = flagValue(flags, "confidence");
+      const confidenceRaw = flagValue(flags, "confidence");
       const speaker = flagValue(flags, "speaker") ?? "user";
       if (speaker !== "user" && speaker !== "model") {
         throw new Error("--speaker must be user or model");
+      }
+      let confidence: number | undefined;
+      if (confidenceRaw !== undefined) {
+        confidence = Number(confidenceRaw);
+        // NaN passes typeof checks and dies deep in the CBOR encoder; out-of-range encodes
+        // fine but lies. Validate where the flag is, like every other flag.
+        if (!Number.isFinite(confidence) || confidence < 0 || confidence > 1) {
+          throw new Error("--confidence must be a number in [0, 1]");
+        }
       }
       return withStore(storeOf(flags), io, (call) =>
         emit(
           call("remember", {
             about,
             attribute,
-            value: parseValue(rawValue, flags.has("ref")),
+            value: parseValue(rawValue, flags),
             speaker,
             ...(kind === undefined ? {} : { kind }),
             ...(source === undefined ? {} : { source }),
-            ...(confidence === undefined ? {} : { confidence: Number(confidence) }),
+            ...(confidence === undefined ? {} : { confidence }),
           }),
         ),
       );
@@ -116,9 +139,19 @@ export function dataCommand(
     case "search": {
       const [query] = positionals;
       if (query === undefined) throw new Error("usage: chorus search <query> --store <name>");
-      const limit = flagValue(flags, "limit");
+      const limitRaw = flagValue(flags, "limit");
+      if (limitRaw !== undefined && !/^\d+$/.test(limitRaw)) {
+        // NaN would silently DISABLE the limit (n >= NaN is always false) — the opposite of
+        // rejecting a typo.
+        throw new Error("--limit must be a whole number");
+      }
       return withStore(storeOf(flags), io, (call) =>
-        emit(call("search", { query, ...(limit === undefined ? {} : { limit: Number(limit) }) })),
+        emit(
+          call("search", {
+            query,
+            ...(limitRaw === undefined ? {} : { limit: Number(limitRaw) }),
+          }),
+        ),
       );
     }
 
@@ -135,7 +168,9 @@ export function dataCommand(
       const [about] = positionals;
       const intent = flagValue(flags, "intent");
       if (about === undefined || intent === undefined) {
-        throw new Error('usage: chorus decide <about> --intent "<what you are about to do>"');
+        throw new Error(
+          'usage: chorus decide <about> --intent "<what you are about to do>" --store <name>',
+        );
       }
       const attribute = flagValue(flags, "attribute");
       return withStore(storeOf(flags), io, (call) =>
@@ -158,7 +193,13 @@ export function dataCommand(
       return withStore(storeOf(flags), io, (call) => {
         const prep = call("gql-prepare", {}) as { prepId: string };
         try {
-          return emit(call("gql-query", { prepId: prep.prepId, query }));
+          const body = call("gql-query", { prepId: prep.prepId, query }) as {
+            errors?: unknown[];
+          };
+          emit(body);
+          // GraphQL reports syntax/validation failures in the body, not by throwing — a script
+          // chaining on exit code must see them.
+          return Array.isArray(body.errors) && body.errors.length > 0 ? 1 : 0;
         } finally {
           call("gql-release", { prepId: prep.prepId });
         }

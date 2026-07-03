@@ -33,8 +33,8 @@ const json = (r: { out: string }): unknown => JSON.parse(r.out);
 
 describe("chorus data ops: the CLI as a client of the one tool surface", () => {
   beforeAll(() => {
-    runCli("init");
-    runCli("store", "create", "personal");
+    expect(runCli("init").code).toBe(0);
+    expect(runCli("store", "create", "personal").code).toBe(0);
   });
 
   it("remember → recall round-trips; values parse as JSON where they are JSON", () => {
@@ -65,6 +65,7 @@ describe("chorus data ops: the CLI as a client of the one tool surface", () => {
     // The CLI default speaker is the USER: the human at the terminal speaks as themselves.
     const who = runCli("explain", "svc:api", "--store", "personal");
     const receiptsFor = json(who) as Array<{ speaker: string }>;
+    expect(receiptsFor.length).toBeGreaterThan(0); // [].every() is vacuously true
     expect(receiptsFor.every((r) => r.speaker === "user")).toBe(true);
   });
 

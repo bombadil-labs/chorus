@@ -103,10 +103,19 @@ loop momentum, always — the live store, publishing, and anything irreversible 
 ## Commands
 
 ```
-npm install            # once — pulls @rhizomes/rhizomatic from npm
+npm install            # once — pulls @rhizomes/rhizomatic from npm (runs prepare → tsc → dist)
 npm run check          # format:check + lint + typecheck + test — the green gate
+
+# The chorus CLI (tsx src/cli.ts …, or node dist/cli.js …, or the installed bin):
+chorus init                                  # ~/.chorus + master seed (CHORUS_HOME overrides)
+chorus store create|ls|show|adopt            # the registry; adopt = lossless digest-verified import
+chorus serve --store <n> (--stdio | --http)  # the MCP node; repeat --store to host several
+chorus console --store <n>                   # the web console
+chorus recall|remember|search|explain|decide|replay|gql --store <n>   # MCP-less data ops
+
+# Legacy env-var surface (predates the registry; still serves the monorepo-era wiring):
 npm run chorus:demo    # the deterministic thesis walk
-npm run chorus:mcp     # MCP server over stdio
+npm run chorus:mcp     # MCP server over stdio (CHORUS_STORE/CHORUS_MASTER_SEED)
 npm run chorus:http    # MCP server over streamable HTTP
 npm run chorus:console # the local web console
 npm run chorus:migrate # JSONL → SQLite store migration
