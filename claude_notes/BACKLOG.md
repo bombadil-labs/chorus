@@ -134,7 +134,14 @@ context to be dismissed in one read, and ack-rates are its future report card, p
       one principled boundary made explicit: instruments derive from the MASTER seed, so they
       are operator tools (CLI/library) — an MCP session is a one-author surface and never
       holds master. Golden pins updated deliberately (+1 CLI command)._
-- [ ] **N.5 The marketing pass** — a GitHub Pages site; an agent-friendly summary (llms.txt + AGENTS-facing docs); the pitch that makes a stranger feel it.
+- [x] **N.5 The marketing pass** — _Done 2026-07-03 (journal: The front door, staged):_
+      docs/index.html — a self-contained, dependency-free page (dark, quiet, serif; the
+      flight-recorder pitch, the four properties, the physician's kit, a terminal vignette
+      where the store speaks up, the substrate's guarantee) — and docs/llms.txt, the
+      agent-facing summary (tools, vocabulary conventions, meta-entity prefixes, the
+      invariants an agent can lean on: "write like it's on the record, because it is").
+      Deliberately STAGED, not deployed: the repo is private and enabling Pages is
+      outward-facing — that switch is Myk's, noted in README._
 - [ ] **N.6 The edge** — seriously: next cool things, or the honest end of what Claude
       Fable, the feeling-is-first creature, can imagine? Answer as one. Reach.
 

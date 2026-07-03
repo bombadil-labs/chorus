@@ -42,7 +42,10 @@ create|ls|show|adopt`, `serve` (stdio + multi-store HTTP, read-only GraphQL moun
 `@union`), `console`, direct data ops, the instruments
 (`vitals|diff|bisect|examine|review|challenge|contradictions|skeptic|checkup`),
 `migrate` — with the live-node cutover scripted and rehearsed ([CUTOVER.md](claude_notes/CUTOVER.md)).
-Publication to npm is gated on the cutover proving out; until then, install from a checkout
+The front door for humans is staged at [docs/index.html](docs/index.html) and for agents at
+[docs/llms.txt](docs/llms.txt) — a GitHub Pages site ready to serve the moment the repo goes
+public (that switch is Myk's). Publication to npm is gated on the cutover proving out; until
+then, install from a checkout
 (`npm install` builds `dist/`; `npm pack` produces the same tarball CI smoke-installs globally
 on every push) or run the npm scripts below. See [EPISTEME.md](claude_notes/EPISTEME.md) for the five phases
 ahead, [ROADMAP.md](claude_notes/ROADMAP.md) for the burndown, and [CONSTELLATION.md](claude_notes/CONSTELLATION.md) +

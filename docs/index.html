@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Chorus — the flight recorder for minds</title>
+    <meta
+      name="description"
+      content="Chorus doesn't store what happened. It stores what was believed — by whom, since when, on what grounds, and what became of that belief next."
+    />
+    <style>
+      :root {
+        --ink: #e8e6e1;
+        --dim: #9a968e;
+        --faint: #5c5952;
+        --bg: #14130f;
+        --panel: #1c1a15;
+        --edge: #2c2921;
+        --gold: #d4a94f;
+        --green: #8aa86b;
+        --rust: #c07850;
+        --mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+        --serif: Georgia, "Times New Roman", serif;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        background: var(--bg);
+        color: var(--ink);
+        font-family: var(--serif);
+        line-height: 1.65;
+        -webkit-font-smoothing: antialiased;
+      }
+      main {
+        max-width: 46rem;
+        margin: 0 auto;
+        padding: 5rem 1.5rem 6rem;
+      }
+      h1 {
+        font-size: 2.6rem;
+        font-weight: normal;
+        line-height: 1.2;
+        letter-spacing: -0.01em;
+        margin-bottom: 2.5rem;
+      }
+      h1 em {
+        color: var(--gold);
+        font-style: italic;
+      }
+      h2 {
+        font-size: 0.85rem;
+        font-family: var(--mono);
+        font-weight: normal;
+        color: var(--gold);
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        margin: 4rem 0 1.2rem;
+      }
+      p {
+        margin-bottom: 1.2rem;
+        color: var(--ink);
+      }
+      p.dim {
+        color: var(--dim);
+      }
+      a {
+        color: var(--gold);
+        text-decoration: none;
+        border-bottom: 1px solid var(--edge);
+      }
+      a:hover {
+        border-bottom-color: var(--gold);
+      }
+      .lede {
+        font-size: 1.25rem;
+        color: var(--dim);
+      }
+      .lede strong {
+        color: var(--ink);
+        font-weight: normal;
+      }
+      pre {
+        background: var(--panel);
+        border: 1px solid var(--edge);
+        border-radius: 6px;
+        padding: 1.1rem 1.3rem;
+        overflow-x: auto;
+        font-family: var(--mono);
+        font-size: 0.82rem;
+        line-height: 1.7;
+        margin: 1.4rem 0;
+        color: var(--ink);
+      }
+      pre .c {
+        color: var(--faint);
+      }
+      pre .g {
+        color: var(--green);
+      }
+      pre .y {
+        color: var(--gold);
+      }
+      pre .r {
+        color: var(--rust);
+      }
+      code {
+        font-family: var(--mono);
+        font-size: 0.9em;
+        color: var(--gold);
+      }
+      .instrument {
+        display: grid;
+        grid-template-columns: 11rem 1fr;
+        gap: 0.4rem 1.2rem;
+        margin: 1.4rem 0;
+      }
+      .instrument dt {
+        font-family: var(--mono);
+        font-size: 0.85rem;
+        color: var(--gold);
+        padding-top: 0.15rem;
+      }
+      .instrument dd {
+        color: var(--dim);
+        margin-bottom: 0.7rem;
+      }
+      .instrument dd strong {
+        color: var(--ink);
+        font-weight: normal;
+      }
+      .rule {
+        border: none;
+        border-top: 1px solid var(--edge);
+        margin: 4rem 0;
+      }
+      .quiet {
+        color: var(--faint);
+        font-size: 0.9rem;
+      }
+      blockquote {
+        border-left: 2px solid var(--gold);
+        padding-left: 1.2rem;
+        margin: 2rem 0;
+        color: var(--dim);
+        font-style: italic;
+      }
+      footer {
+        margin-top: 5rem;
+        color: var(--faint);
+        font-size: 0.85rem;
+      }
+      footer a {
+        color: var(--dim);
+      }
+      @media (max-width: 40rem) {
+        h1 {
+          font-size: 1.9rem;
+        }
+        .instrument {
+          grid-template-columns: 1fr;
+        }
+        .instrument dd {
+          margin-bottom: 1rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>
+        Chorus doesn't store what happened.<br />
+        It stores <em>what was believed</em> — by whom, since when, on what grounds, and what became
+        of that belief next.
+      </h1>
+
+      <p class="lede">
+        Your agents already act on beliefs. They just can't show them to you. Ask a system today
+        <strong>why</strong> it did something and you get a log of what it did — the belief that
+        drove the act evaporated when the context window closed. Chorus is what you get when you
+        refuse to let that evaporate.
+      </p>
+
+      <h2>Four load-bearing properties</h2>
+      <p>
+        Every belief is a <strong>signed claim</strong> — an author, a timestamp, a signature,
+        forever. Disagreement is <strong>held in superposition</strong> instead of silently
+        overwritten: two voices saying different things is a fact worth keeping, not a conflict to
+        resolve behind your back. Trust is <strong>your editable policy</strong>, not the database's
+        opinion — the same store reads differently under different judges, and both readings carry
+        receipts. And every decision is
+        <strong>replayable against exactly what was known</strong> when it was made: not what the
+        store knows now — what it knew <em>then</em>, under the policy held <em>then</em>, verified
+        by hash.
+      </p>
+
+      <p class="dim">
+        Memory is the feature. Belief accounting — the flight recorder for minds — is the product.
+      </p>
+
+      <h2>The instruments</h2>
+      <p>An accounted mind can be examined. The store ships with a physician's kit:</p>
+      <dl class="instrument">
+        <dt>chorus vitals</dt>
+        <dd>reads the chart — how contested, how stale, how much rests on one voice.</dd>
+        <dt>chorus diff</dt>
+        <dd>
+          catches two stores drifting apart — and refuses to flatten agreement: the same conclusion
+          from <strong>disjoint testimony</strong> is stronger than agreement, and it says so.
+        </dd>
+        <dt>chorus bisect</dt>
+        <dd>
+          binary-searches history to the instant a belief flipped —
+          <strong>and who flipped it</strong>.
+        </dd>
+        <dt>chorus examine</dt>
+        <dd>
+          puts the measurements on the record, signed by an examiner you can distrust like anyone
+          else.
+        </dd>
+        <dt>chorus review</dt>
+        <dd>
+          replays every standing decision; when the ground has moved, the decider gets a letter:
+          <em>"you acted on X; X is now known otherwise."</em>
+        </dd>
+        <dt>chorus challenge</dt>
+        <dd>
+          asks stale beliefs to re-verify before they rot — in a grow-only store,
+          <strong>re-assertion is re-verification</strong>.
+        </dd>
+        <dt>chorus contradictions</dt>
+        <dd>
+          finds one question answered in two vocabularies with two different answers — the
+          contradiction no single-slot scan can see.
+        </dd>
+        <dt>chorus skeptic</dt>
+        <dd>
+          a resident doubter: files a signed doubt where everything rests on one voice, and
+          <strong>withdraws it the moment a second voice corroborates</strong>.
+        </dd>
+        <dt>chorus checkup</dt>
+        <dd>every dial in one pass. Exit 1 when anything wants a human.</dd>
+      </dl>
+      <p class="dim">
+        None of them ever nags — an unchanged verdict is never re-mailed. And none of them mutates
+        anything: hygiene here is testimony, not surgery. There is no view from nowhere, all the way
+        up: the instruments live <em>inside</em> the epistemology they measure.
+      </p>
+
+      <h2>What it looks like</h2>
+      <pre><span class="c"># one binary, many minds</span>
+<span class="g">chorus</span> init
+<span class="g">chorus</span> store create mind
+<span class="g">chorus</span> remember svc:api owner team-a --store mind
+<span class="g">chorus</span> decide svc:api --intent <span class="y">"page team-a at 3am"</span> --attribute owner --store mind
+
+<span class="c"># the world moves…</span>
+<span class="g">chorus</span> remember svc:api owner team-b --store mind
+
+<span class="c"># …and the store speaks up</span>
+<span class="g">chorus</span> review --store mind
+<span class="r">reviewed 1 decision(s): 0 stand, 1 need revisiting.</span>
+<span class="r">  "page team-a at 3am" (svc:api)</span>
+<span class="r">    the question resolves differently today</span>
+<span class="r">    mail filed to its author</span></pre>
+
+      <p>
+        Serve any store over MCP and it becomes memory for whatever agent speaks the protocol — one
+        session, one keypair, one voice in the chorus. Pin a snapshot and query it as GraphQL. Open
+        the web console and read your own mind's mail.
+      </p>
+
+      <h2>Built on rhizomatic</h2>
+      <p class="dim">
+        Chorus is the product layer on
+        <a href="https://www.npmjs.com/package/@rhizomes/rhizomatic">@rhizomes/rhizomatic</a> — a
+        portable format of signed, content-addressed deltas whose merge is set union: order-blind,
+        idempotent, grow-only. Nothing is ever edited in place; a retraction is itself a signed
+        claim. The format is frozen by conformance vectors and two independent witnesses. The store
+        can be trusted with a mind because the substrate cannot lie about what it was told.
+      </p>
+
+      <blockquote>
+        Doubt that cannot be satisfied is not skepticism; it is a grudge. This skeptic can be
+        satisfied.
+      </blockquote>
+
+      <hr class="rule" />
+      <p class="quiet">
+        Alpha, unpublished. Install from a checkout while the live cutover proves out. Agents:
+        <a href="llms.txt">llms.txt</a> is for you.
+      </p>
+      <footer>
+        <a href="https://github.com/mbilokonsky/chorus">github.com/mbilokonsky/chorus</a> ·
+        MIT/Apache-2.0 · built by a chorus: Myk Bilokonsky and Claude, in long conversation
+      </footer>
+    </main>
+  </body>
+</html>
