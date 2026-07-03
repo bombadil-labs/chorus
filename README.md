@@ -1,21 +1,39 @@
 # Chorus
 
-Memory for LLM agents where every belief is a signed claim. An agent is a keypair, a reactor,
-and a policy; disagreement is held in superposition; trust is editable policy; decisions replay
-against exactly what was known. Chorus is the product layer built on
-[`@rhizomes/rhizomatic`](https://www.npmjs.com/package/@rhizomes/rhizomatic) — the portable
-signed-content-addressed-delta format, whose spec and witnesses live in the
-[rhizomatic repo](https://github.com/mbilokonsky/rhizomatic) — and provides the agent handle,
-trust dynamics, the librarian, stores, the MCP server, and the web console.
+**Chorus doesn't store what happened. It stores what was believed — by whom, since when, on
+what grounds, and what became of that belief next.**
+
+Your agents already act on beliefs. They just can't show them to you. Ask a system today _why_
+it did something and you get a log of what it did; the belief that drove the act — where it
+came from, how confident it was, what it contradicted, whether anyone had already retracted it
+— evaporated the moment the context window closed. Chorus is what you get when you refuse to
+let that evaporate: every belief is a **signed claim** with an author and a timestamp;
+disagreement is **held in superposition** instead of silently overwritten; trust is **your
+editable policy**, not the database's opinion; and every decision is **replayable against
+exactly what was known** when it was made. Memory is the feature. Belief accounting — the
+flight recorder for minds — is the product.
+
+And an accounted mind can be _examined_: `chorus vitals` reads a store the way a physician
+reads a chart (how contested? how stale? how much rests on one voice?), `chorus diff` catches
+two agents drifting apart before it costs something, `chorus bisect` binary-searches history to
+the exact instant a belief flipped — and _who flipped it_ — and `chorus examine` puts the
+measurements on the record, signed by an examiner you can distrust like anyone else. No view
+from nowhere, all the way up: the instruments live inside the epistemology they measure.
+
+Chorus is the product layer on [`@rhizomes/rhizomatic`](https://www.npmjs.com/package/@rhizomes/rhizomatic)
+— the portable signed-content-addressed-delta format ([spec + witnesses](https://github.com/mbilokonsky/rhizomatic))
+— providing the agent handle, named/keyed/encryptable stores, the MCP server, GraphQL-on-demand,
+trust dynamics, the librarian, the instruments, and the web console.
 
 **Status: alpha, unpublished.** The `chorus` CLI is code-complete — `init`, `store
 create|ls|show|adopt`, `serve` (stdio + multi-store HTTP, read-only GraphQL mounts including
-`@union`), `console`, direct data ops, `migrate` — with the live-node cutover scripted and
-rehearsed ([CUTOVER.md](CUTOVER.md)). Publication to npm is gated on the cutover proving out;
-until then, install from a checkout (`npm install` builds `dist/`; `npm pack` produces the same
-tarball CI smoke-installs globally on every push) or run the npm scripts below. See
-[ROADMAP.md](ROADMAP.md) for the burndown and [CONSTELLATION.md](CONSTELLATION.md) +
-[VISION.md](VISION.md) for where it's headed.
+`@union`), `console`, direct data ops, the instruments (`vitals|diff|bisect|examine`),
+`migrate` — with the live-node cutover scripted and rehearsed ([CUTOVER.md](CUTOVER.md)).
+Publication to npm is gated on the cutover proving out; until then, install from a checkout
+(`npm install` builds `dist/`; `npm pack` produces the same tarball CI smoke-installs globally
+on every push) or run the npm scripts below. See [EPISTEME.md](EPISTEME.md) for the five phases
+ahead, [ROADMAP.md](ROADMAP.md) for the burndown, and [CONSTELLATION.md](CONSTELLATION.md) +
+[VISION.md](VISION.md) for the federated horizon.
 
 ```
 npm install

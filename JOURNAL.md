@@ -410,3 +410,27 @@ the first re-examination counted the examiner own testimony as live beliefs - th
 instrument measured its own needles, twelve where three lived. Vitals now excludes
 kind:measurement wholesale: the panel describes the world, never the describing. Godel
 would have smiled; the test caught it in nine seconds.
+
+## 2026-07-03 — The pitch is the product (V.5)
+
+**What landed.** The README no longer leads with "memory." It opens: _"Chorus doesn't store what
+happened. It stores what was believed — by whom, since when, on what grounds, and what became of
+that belief next."_ Then the stranger-facing argument (your agents already act on beliefs; they
+just can't show them to you; the belief that drove the act evaporates when the context window
+closes), the four load-bearing properties in one breath, and the line that names the product:
+**memory is the feature; belief accounting — the flight recorder for minds — is the product.**
+A second paragraph gives the instruments their public debut as a physician's kit: vitals reads
+the chart, diff catches drift, bisect finds the flip and the finger, examine signs its own
+measurements. Closing on the phrase that has carried EPISTEME since Phase V began: _no view from
+nowhere, all the way up._ EPISTEME.md is now linked from the status paragraph.
+
+**Why this counts as engineering.** EPISTEME's premise was that positioning is a product surface
+— the words a stranger reads first decide what they think the instruments are FOR. "Memory for
+agents" invites comparison to a vector store; "flight recorder for minds" invites the question
+"what did my agent believe when it did that?" — which is the question the toolchain actually
+answers. The pitch had to wait until V.1–V.4 existed, because before the instruments shipped it
+would have been a promise; now it is a description.
+
+**Housekeeping.** The backlog's V.2/V.3 entries had gone stale-open with mangled titles from an
+earlier edit; moved to Done properly (Belief diff, Belief bisect) and the open ladder now reads
+clean: V.6 retro, then the nightcap.
