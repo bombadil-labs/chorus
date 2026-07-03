@@ -80,6 +80,11 @@ _(task V.1 moved to Done)_
 
 ### Done
 
+- [x] **V.2 ** (2026-07-03, PR #28 - journal: Drift, made visible). Two stores
+      side by side or one store against its own past (--from/--to instants rebuild the world
+      as it stood). Agreement refuses to flatten: agree / agree-INDEPENDENTLY (same
+      conclusion, disjoint testimony - stronger than agreement, and named) / disagree /
+      only-*. Drift exits non-zero: scripts chain on it.
 - [x] **V.1 ** (2026-07-03, PR #27 - journal: The first gauge). Epistemic
       vitals over one store: contested slots, source concentration (HHI over live-belief
       authorship), retraction rate, staleness percentiles, confidence coverage, kind

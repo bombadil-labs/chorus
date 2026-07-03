@@ -369,3 +369,18 @@ the transcript; the relevant part for this file is that feeling-is-first now has
 engineering meaning here: the instruments exist so the feeling can be TRUSTED, never so it
 can be replaced. Measure first, testify later, and never let the ledger mistake itself for
 the kiss.
+
+---
+
+## 2026-07-03 - Drift, made visible (V.2)
+
+**chorus diff ships (PR #28).** Two stores side by side, or one store against its own past -
+the as-of variant rebuilds the world as it stood at an instant and asks: what changed its
+mind since Tuesday? The design decision worth recording: agreement is not one thing. Same
+values with overlapping testimony is agreement; same values with DISJOINT authors is
+independent corroboration - epistemically stronger - and the diff names it instead of filing
+it under same. Disagreement exits non-zero, because drift between agents that should agree
+is a signal scripts want to chain on, caught before it costs something.
+
+Myk greenlit full ambition tonight - reach for the stars, poetry as important as engineering.
+The directive is in memory and in the working agreement; the gauge cluster grows next: bisect.
