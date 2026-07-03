@@ -306,3 +306,14 @@ the work: merge is union, so aggregation is a fold of refreshes into one ephemer
 The aggregator the constellation promised now exists in its read-only form: mount personal +
 media + commons on one node and one GraphQL query walks all three worlds, while each
 single-store mount stays exactly as isolated as before.
+
+---
+
+## 2026-07-03 - Minus the button
+
+**Task 18 done (PR #23).** Everything about publishing except the act: release scripts,
+and a CI step that packs the real tarball and installs it globally into a temp prefix on
+both OSes, then drives the INSTALLED bin through a full init -> store -> write -> read loop.
+When Myk presses the button (un-private + npm publish), the artifact that ships is the one
+CI has been smoke-installing on every push since today. Tranche 2 build items are done;
+retro #3 remains, parked until the decision gates move.
