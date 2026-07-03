@@ -251,3 +251,16 @@ opt-in provider that degrades with its reason, and similarTerms() generating fuz
 over exactly the terms dialect-bridging cares about (attributes ride as the about-pointer
 context - found the hard way). The thesis line held: vectors at the index, judgment as signed
 claims, nothing written by proposing.
+
+---
+
+## 2026-07-03 - The commons (Horizon 2 touches ground)
+
+**Task 14 done (PR #19).** The schema commons needed no new mechanism - that was the point
+to prove. attr:/scheme:/hyperschema: are ordinary entities carrying ordinary claims; the
+seeder is an ordinary author (a registrar is just an author whose naming you rank);
+convergence is sameAs and librarian mappings, exactly as everywhere. The seed self-hosts:
+hyperschema:commons declares the very attributes the commons is made of, which is the proof
+the modeling suffices. And the public read surface for a hosted commons is the task-12
+endpoint, already shipped. All three horizons have now touched ground in code, each
+composing with the others exactly as VISION.md claimed they would.

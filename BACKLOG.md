@@ -61,14 +61,20 @@ _(task 12 moved to Done)_
 
 _(task 13 moved to Done)_
 
-- [ ] **14. Schema-commons design doc + seed** (Horizon 2) — vocabulary-of-vocabularies as
-      claims; publish the four skills' `chorus.md` conventions into a `commons` store as the
-      worked example; teach `chorus-skill-designer` to consult it.
+_(task 14 moved to Done)_
+
 - [ ] ♻ **15. Retro/integration pass #2 + VISION.md revision** — full stock-take; revise the
       horizons against what the spikes taught; mine the next tranche.
 
 ### Done
 
+- [x] **14. Schema commons: design + seed** (2026-07-03, PR #19 - journal: The commons).
+      COMMONS.md is the vocabulary-of-vocabularies design (attr:/scheme:/hyperschema: as
+      entities carrying beliefs; registrar-as-author; adoption/analytics deferred with their
+      hard parts named). tools/seed-commons.ts publishes the four skills conventions as
+      hyperschema claims - SELF-HOSTING included (hyperschema:commons declares its own
+      vocabulary); chorus-skill-designer now consults a commons before minting. The read-only
+      GQL endpoint from task 12 is the public commons surface, already built.
 - [x] **13. The similarity seam** (2026-07-03, PR #18 - journal: Proximity proposes).
       **Rescoped:** sqlite-vec binaries exist neither locally nor on CI, so a vec-only
       implementation would have had NO witness anywhere. Shipped instead: a VectorIndex seam
