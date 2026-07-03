@@ -47,7 +47,8 @@ _(task 3 moved to Done)_
 
 _(tasks 4-6 moved to Done)_
 
-- [ ] **7. Direct data ops** — `chorus recall|remember|search|explain|decide|replay|gql --store …`.
+_(task 7 moved to Done)_
+
 - [ ] ♻ **8. Retro/integration pass #1** — what did tasks 1–7 accumulate that wants integrating?
       (Known candidates: env-var vs CLI-flag config story; error-message voice; CLAUDE.md
       "Commands" section rewrite around the CLI; **shared-core refactor of sqlite-store +
@@ -78,6 +79,13 @@ _(tasks 4-6 moved to Done)_
 
 ### Done
 
+- [x] **7. Direct data ops** (2026-07-03, PR #11 - journal: The MCP-less client). recall,
+      remember, search, explain, decide, replay, gql - all through the SAME protocol brain the
+      MCP servers use (createSession + callTool), so the CLI can never drift from the tool
+      surface. remember speaks as the USER by default (a human at their own terminal). Review
+      fix-forward: CLI sessions introduce as model 'cli' (was 'unknown' - identity pollution),
+      NaN confidence/limit validation at the flag, --string/--json value escape hatches, gql
+      exits non-zero on GraphQL errors.
 - [x] **6. `chorus console`** (2026-07-02, PR #9 - journal: Serve and the seat). The web
       console over a registry store, same discovery as serve. Post-merge review fixes: listen
       error handler (EADDRINUSE was an uncaught crash), ack/distrust POST handlers no longer

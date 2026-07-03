@@ -150,3 +150,24 @@ product signal.
 
 **State of the burndown:** tasks 1-6 done in one day. Remaining before the cutover rehearsal:
 data ops (7), retro (8), migrate/upgrade (9), compatibility guarantees (10).
+
+---
+
+## 2026-07-03 - The MCP-less client
+
+**Task 7 done (PR #11).** The data ops route through the exact tool surface the MCP servers
+expose - the CLI is a client, never a re-implementation, so parity is structural. The one
+deliberate divergence: `chorus remember` speaks as the USER by default, because a human at
+their own terminal IS the user; the MCP default (model) serves sessions relaying them.
+
+**Review fix-forward:** every CLI decide was minting a session introduced as model 'unknown' -
+technically honest, semantically noise, and one `trust --distrustModel unknown` away from
+sweeping up every CLI write ever made. CLI sessions now introduce as model 'cli'. Also: NaN
+validation at the flags (a NaN confidence died in the CBOR encoder naming CBOR, not the flag;
+a NaN limit silently DISABLED the search cap), --string/--json escape hatches for the
+JSON-first value parsing ambiguity, and gql exiting non-zero when the body carries errors -
+scripts chain on exit codes, not on reading JSON.
+
+**Retro pass (task 8) is next.** Its queue: the sqlite shared-core refactor (the one
+structural debt deliberately carried since task 1), and a VISION.md check against a week that
+went faster than the plan assumed.

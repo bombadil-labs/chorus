@@ -144,8 +144,8 @@ const COMMANDS: Record<string, CommandSpec> = {
     allowed: ["store", "home", "attribute", "all", "unified"],
   }),
   remember: dataOp("remember", "assert a belief from the command line (speaker: user)", {
-    booleans: ["ref"],
-    allowed: ["store", "home", "kind", "source", "confidence", "speaker", "ref"],
+    booleans: ["ref", "string", "json"],
+    allowed: ["store", "home", "kind", "source", "confidence", "speaker", "ref", "string", "json"],
   }),
   search: dataOp("search", "substring search over surviving beliefs", {
     allowed: ["store", "home", "limit"],
