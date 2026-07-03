@@ -90,9 +90,16 @@ context to be dismissed in one read, and ack-rates are its future report card, p
       widens. No fingerprints: the live doubt IS the idempotence key, and the skeptic WITHDRAWS
       its doubt (a named-reason negation) the moment a second voice corroborates — doubt that
       cannot be satisfied is a grudge, not skepticism. Measurements and doubts never doubted._
-- [ ] **VI.5 (stretch) The hypnagogic pass** — idle-time consolidation: recasts, sameAs filing,
-      digest curation. Stores that sleep.
-- [ ] ♻ **VI.6 Retro** — then the gates check, then Phase VII (the Actuary) if still unmoved.
+- [~] **VI.5 (stretch) The hypnagogic pass** — _Deferred 2026-07-03 (the VI.6 rescope):_
+  consolidation requires judgment (which recast is better? which sameAs is true?), and
+  without the Myk-gated embedding model or an in-loop judge it degrades to mechanical
+  guesswork — auto-merge by another name, against "proximity proposes, judgment disposes."
+  Revisit when the embedding-model gate moves. (Also: no stretch features immediately
+  before a contraction phase.)
+- [x] ♻ **VI.6 Retro** — _Done 2026-07-03 (journal: What Phase VI taught)._ Gates checked:
+      all four still Myk-gated, unmoved. Phase VII (the Actuary) deliberately NOT mined yet —
+      Myk's nightcap protocol (below) is integration work that should precede another feature
+      phase; N.1/N.3 expansion may reshape what Phase VII wants to be.
 
 ### The nightcap protocol (Myk, 2026-07-03, verbatim order — run when the V-ladder thins)
 
