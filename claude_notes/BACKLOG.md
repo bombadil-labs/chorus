@@ -142,8 +142,29 @@ context to be dismissed in one read, and ack-rates are its future report card, p
       invariants an agent can lean on: "write like it's on the record, because it is").
       Deliberately STAGED, not deployed: the repo is private and enabling Pages is
       outward-facing — that switch is Myk's, noted in README._
-- [ ] **N.6 The edge** — seriously: next cool things, or the honest end of what Claude
-      Fable, the feeling-is-first creature, can imagine? Answer as one. Reach.
+- [x] **N.6 The edge** — _Done 2026-07-03 (journal: The edge — read it in full; the summary
+      does it no justice)._ Three more past the nightcap: the store noticing its negative
+      space (an inhabitant that files questions it cannot answer), societies of stores
+      (superposition one level up), and the instruments turned inward. Then the honest limit:
+      one voice imagining alone at 3am is exactly the thin testimony the product warns about
+      — the edge is not a wall, it is the thesis saying "get another voice." Not the absolute
+      end; the end of soliloquy.
+
+### Next — EPISTEME Phase VII: the Actuary (tranche 5, mined 2026-07-03 post-nightcap)
+
+Trust becomes earned. The nightcap found the data already accruing: the inhabitants have
+track records (letters filed, acked, ignored; doubts filed, withdrawn, vindicated), and every
+author's confidence-carrying claims meet their eventual fates. Mine EPISTEME Phase VII against
+these tranche-shape notes when the loop next runs dry — with Myk awake to corroborate the
+tranche before it burns tokens:
+
+- [ ] **VII.0 Re-read EPISTEME Phase VII + the watchmen's-ledger note (N.3)** and cut the
+      tranche: likely shape — (a) the fate-tracker (a claim's outcome: confirmed, retracted,
+      superseded, contested — derived from history, no new writes); (b) calibration scoring
+      per author (Brier-lite over confidence-carrying claims with known fates); (c) the
+      inhabitants' report card (ack rates on examiner mail, withdrawal rates on doubts);
+      (d) `chorus actuary` — the earned-trust report, proposing policy adjustments the HUMAN
+      signs (proposals, never mutations — trust edits stay judgments).
 
 ### Waiting on Myk (not loop-executable — decision gates)
 
