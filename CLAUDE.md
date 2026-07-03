@@ -131,6 +131,7 @@ default). The two sqlite drivers share one file format and substitute for each o
 ## Pointers
 
 - [ROADMAP.md](ROADMAP.md) — the ordered burndown to an alpha `@rhizomes/chorus` CLI. **Start here.**
+- [EPISTEME.md](EPISTEME.md) — the next five phases: belief, not memory (the reframed north star).
 - [BACKLOG.md](BACKLOG.md) — the autonomous loop's protocol + working queue (finer-grained than the
   roadmap). [JOURNAL.md](JOURNAL.md) — the loop's record. [VISION.md](VISION.md) — the horizons
   past the roadmap; revised whenever the backlog runs dry.

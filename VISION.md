@@ -164,6 +164,15 @@ theses, scaled.
 
 ## Revision log
 
+- **2026-07-03 (later)** — THE REFRAME: Myk proposed treating Chorus as an epistemic
+  telemetry engine — known for belief, not memory — and it turned out to be the recorded
+  north star (agent accountability / behavioral provenance) surfacing as the product name.
+  The next five phases are planned in [EPISTEME.md](EPISTEME.md): the Instrument Panel,
+  the Examiner, the Actuary, the Epidemiology, the Weather Service, and beyond them the
+  Flight Recorder. The three horizons in this file remain true and become SUBSTRATES of
+  that plan (the endpoint serves the weather service; the commons carries resolution and
+  calibration vocabulary; the similarity seam feeds contradiction mining).
+
 - **2026-07-03** — Retro #2. The plan underestimated the day: ROADMAP Phase 1 went
   code-complete (PRs #1-#16, cutover runbook proven synthetically) and all three horizons
   grounded (PRs #17-#19) in the first 24 hours of the loop. What the day taught, added to
