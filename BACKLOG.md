@@ -57,8 +57,8 @@ _(task 11 moved to Done)_
 
 ### Next — horizon spikes (from VISION.md, interleaved after the CLI exists)
 
-- [ ] **12. Read-only pinned-lens GQL endpoint** (Horizon 1) — `chorus serve --gql-readonly`
-      pinned to `(policy, lens)`; the blog-feed primitive. Include a closure-audit dry-run mode.
+_(task 12 moved to Done)_
+
 - [ ] **13. `sqlite-vec` opt-in index** (Horizon 3) — vector index in the node-sqlite backend via
       `allowExtension`, graceful degradation when absent; `similar(text)` candidate read on the
       store tier; wire librarian candidate generation to it.
@@ -70,6 +70,13 @@ _(task 11 moved to Done)_
 
 ### Done
 
+- [x] **12. Read-only GQL endpoint** (2026-07-03, PR #17 - journal: The blog-feed primitive).
+      serve --gql-readonly mounts /gql/<token>[/store]: GET/POST GraphQL over a per-request
+      pinned snapshot, read-only by construction (ephemeral reader, nothing persisted, the
+      synthesized schema has no mutations), token-gated like the MCP mounts. **Rescoped:** the
+      closure-audit dry-run stays deferred to constellation Phase D - an approximate audit
+      would claim safety it cannot prove; the serving half ships, the audit half waits for
+      reactor-level provenance.
 - [x] **11. Cutover rehearsal (synthetic)** (2026-07-03, PR #16 - journal: The rehearsal).
       CUTOVER.md is the runbook; test/chorus-cutover-rehearsal.test.ts executes every step of
       it against a synthetic live store: seed-continuous init, read-only digest-verified

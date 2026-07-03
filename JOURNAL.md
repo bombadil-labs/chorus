@@ -223,3 +223,19 @@ exactly its own node's interim writes and not one delta from the rehearsal itsel
 **ROADMAP Phase 1 is fully ticked.** Every CLI slice is shipped, reviewed, and contract-
 pinned. Phase 2 (the live cutover) is Myk's, by hand, per CUTOVER.md. The horizon spikes
 (12-14) are next for the loop.
+
+---
+
+## 2026-07-03 - The blog-feed primitive (Horizon 1 touches ground)
+
+**Task 12 done (PR #17).** chorus serve --gql-readonly mounts a read-only GraphQL endpoint
+beside the MCP mounts: GET ?query= or POST {query}, answered over a per-request pinned
+snapshot under the store policy, token-gated, and read-only BY CONSTRUCTION - an ephemeral
+reader agent that never persists, over a schema that never had mutations. The test proves
+the delta count is unchanged after queries. This is VISION Horizon 1 first concrete step:
+tailscale-funnel this URL and a static blog can render straight from the store.
+
+Rescoped honestly: the closure-audit dry-run (what does a published query EXPOSE) waits for
+constellation Phase D and reactor-level provenance - an approximation would claim a safety
+property it cannot prove, which is exactly the kind of silence the review culture here
+exists to prevent.
