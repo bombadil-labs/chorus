@@ -138,3 +138,4 @@ export { EncryptedSqliteStore, storeKeyHex } from "./encrypted-store.js";
 export { computeVitals, type Vitals } from "./vitals.js";
 export { diffBeliefs, agentAsOf, type BeliefDiff, type DiffEntry } from "./belief-diff.js";
 export { bisectBelief, type BisectResult, type BisectCulprit } from "./bisect.js";
+export { examinerSeed, testifyVitals, type Testimony } from "./examiner.js";

@@ -396,3 +396,17 @@ DELTA, never the entity it silences - filter by entity and you miss the retracti
 flipped the view. Second: the tool came out more honest than its own test - a revise is
 retract-then-assert across two instants, and bisect correctly surfaces the intermediate {}
 the view passed through. The test was wrong; the mind really did blink.
+
+---
+
+## 2026-07-03 - The instrument goes on the record (V.4)
+
+**chorus examine ships (PR #30).** The examiner is an author now, in the fullest sense: a
+labeled child of the master seed, introduced once as model chorus-examiner, signing every
+measurement it takes. recall vitals:<store> reads current health; explain reads the health
+HISTORY, because re-examination re-asserts and the grow-only log keeps the series - the
+time-series chart was free, as EPISTEME predicted. And the night second philosophical bug:
+the first re-examination counted the examiner own testimony as live beliefs - the
+instrument measured its own needles, twelve where three lived. Vitals now excludes
+kind:measurement wholesale: the panel describes the world, never the describing. Godel
+would have smiled; the test caught it in nine seconds.

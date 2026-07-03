@@ -16,8 +16,12 @@ export const ROLE_KIND = `${CHORUS_PREFIX}.belief.kind`;
 export const ROLE_CONFIDENCE = `${CHORUS_PREFIX}.belief.confidence`;
 export const ROLE_SOURCE = `${CHORUS_PREFIX}.belief.source`;
 
-export const BELIEF_KINDS = ["observation", "fact", "preference", "task"] as const;
-export type BeliefKind = (typeof BELIEF_KINDS)[number];
+// The CORE kinds — documentation, not a fence. The vocabulary is open (2026-07-03 ruling,
+// from Myk dogfooding: a thesis being ADVANCED needed "claim" and the enum had no room):
+// any string is a legal kind, minted like any id. Briefing surfaces lean on "preference"/
+// "task" by exact match; the examiner writes "measurement"; reuse before minting.
+export const BELIEF_KINDS = ["observation", "fact", "preference", "task", "claim"] as const;
+export type BeliefKind = (typeof BELIEF_KINDS)[number] | (string & {});
 
 // A decision is one delta pinning exactly what was known when an agent acted: the instant it
 // resolved (asOf), the policy it held (canonical CBOR hex), and the content address of the

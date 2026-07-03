@@ -64,8 +64,7 @@ _(task V.1 moved to Done)_
       instants. The drift-detection primitive.
 - [ ] **V.3 ** — binary-search the as-of history for the instant a resolved
       view flipped; return the delta, author, session, model. git-bisect for a mind.
-- [ ] **V.4 The examiner testifies** — vitals emitted as claims by a derived examiner author
-      (telemetry IN the medium, distrustable); console instrument-panel view.
+      _(V.4 moved to Done)_
 - [ ] **V.5 Repositioning** — README/pitch rewrite around belief-not-memory (EPISTEME says
       positioning is a product surface).
 - [ ] ♻ **V.6 Retro** — then mine Phase VI (the Examiner) if the gates still have not moved.
@@ -96,6 +95,13 @@ _(task V.1 moved to Done)_
 
 ### Done
 
+- [x] **V.4 The examiner testifies** (2026-07-03, PR #30 - journal: The instrument goes on
+      the record). chorus examine: vitals emitted as signed claims by a derived examiner
+      author (model chorus-examiner in receipts, introduced once, distrustable like anyone);
+      re-examination accrues a grow-only health history (explain vitals:<store> is the
+      chart). Console /api/state carries live vitals. Design finding: the panel must exclude
+      its own needles - measurement claims describe the world, so vitals skips
+      kind:measurement or every examine inflates the next reading.
 - [x] **V.3 ** (2026-07-03, PR #29 - journal: The search). Binary search over
       as-of instants for the moment a resolved view flipped; culprit named with model/session
       receipts; O(log n) probes asserted by test. Default baseline is the entity BIRTH (first

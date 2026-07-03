@@ -12,6 +12,7 @@ import { recallUnified, sameAsClass, search, topics } from "./discovery.js";
 import { identityAt, identityIntroductions, userSeed, type AuthorIdentity } from "./identity.js";
 import { ackPointers, inbox } from "./messages.js";
 import { createBackend, resolveEnvStore, type BackendKind } from "./store-tier.js";
+import { computeVitals } from "./vitals.js";
 import { resolveMasterSeed } from "./config.js";
 import { ROLE_TRUST_AUTHOR, ROLE_TRUST_REASON, ROLE_TRUST_VERDICT } from "./vocab.js";
 
@@ -69,6 +70,7 @@ export function startConsole(opts: ConsoleOptions): Promise<ConsoleHandle> {
           // The human's mail: messages addressed to the user land HERE, nowhere else.
           inbox: inbox(agent, { author: userAuthor, user: true, userAuthor }),
           topics: topics(agent, { limit: 100 }),
+          vitals: computeVitals(agent),
         });
       } else if (url.pathname === "/api/entity") {
         const id = url.searchParams.get("id") ?? "";
