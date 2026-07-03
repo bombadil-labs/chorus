@@ -58,7 +58,7 @@
   },
   {
     "name": "remember",
-    "description": "Assert a belief as a signed claim: about (entity id), attribute (property name), value (primitive, or {entity} for a typed reference — see the value description), optional kind (observation|fact|preference|task), confidence (0..1), source, speaker.",
+    "description": "Assert a belief as a signed claim: about (entity id), attribute (property name), value (primitive, or {entity} for a typed reference — see the value description), optional kind (open vocabulary — core: observation|fact|preference|task|claim), confidence (0..1), source, speaker.",
     "inputSchema": {
       "type": "object",
       "properties": {
@@ -90,7 +90,8 @@
           ]
         },
         "kind": {
-          "enum": ["observation", "fact", "preference", "task"]
+          "type": "string",
+          "description": "What KIND of belief this is. Core vocabulary: 'observation' (something noticed), 'fact' (a world-truth), 'preference' (about the principal), 'task' (something open), 'claim' (an interpretation or thesis being ADVANCED — distinct from a passive observation). The vocabulary is OPEN, like every id here: mint a new kind when the core five genuinely don't fit, reuse before minting (typos fragment), and know that briefing surfaces lean on 'preference' and 'task' specifically."
         },
         "confidence": {
           "type": "number"
