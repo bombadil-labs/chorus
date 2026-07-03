@@ -46,19 +46,19 @@ slices, each green:
       "default jsonl so `npm i -g` is painless" dissolved — the default backend is now Node's
       built-in `node:sqlite`, with `better-sqlite3` demoted to an **optional** dependency and
       JSONL as the dev tier / last-resort fallback. Zero native deps in the default install.)_
-- [ ] **`chorus init`** — create `~/.chorus`, mint (or import) the master seed, write config. Never
+- [x] **`chorus init`** — create `~/.chorus`, mint (or import) the master seed, write config. Never
       print the seed. (Seed handling: `~/.chorus/config` for v0; keychain is a hardening note.)
-- [ ] **`chorus store create|ls|show|adopt`** — over the `StoreRegistry` (stores.ts). `adopt` reuses
+- [x] **`chorus store create|ls|show|adopt`** — over the `StoreRegistry` (stores.ts). `adopt` reuses
       the non-destructive, digest-verified import already built. **No destructive `delete`** (grow-only
       ethos — `forget`/deregister only; data stays).
-- [ ] **`chorus serve --store <name> [--store <name>…] [--stdio | --http --port N --token …]`** — the
+- [x] **`chorus serve --store <name> [--store <name>…] [--stdio | --http --port N --token …]`** — the
       node. `--stdio` for `claude mcp add`; `--http` = the streamable-HTTP node; **repeat `--store` to
       host several concurrently** (the aggregator shape). This is what replaces `start-chorus-node.cmd`.
-- [ ] **`chorus console [--port N]`** — the web console over the store(s).
-- [ ] **`chorus recall|remember|search|explain|decide|replay|gql --store <name> …`** — direct data ops,
+- [x] **`chorus console [--port N]`** — the web console over the store(s).
+- [x] **`chorus recall|remember|search|explain|decide|replay|gql --store <name> …`** — direct data ops,
       so the CLI is useful without an MCP client.
-- [ ] **`chorus migrate`** (jsonl→sqlite) and **`chorus upgrade`** (self-update) + an update-notifier.
-- [ ] **Compatibility guarantees (bake in from the start):** a **format-version marker** in each store
+- [x] **`chorus migrate`** (jsonl→sqlite) and **`chorus upgrade`** (self-update) + an update-notifier.
+- [x] **Compatibility guarantees (bake in from the start):** a **format-version marker** in each store
       manifest + **auto-migrate-on-open** (lossless, digest-checked); **contract/golden tests** pinning
       command behavior + MCP tool schemas so a breaking change fails CI. Data safe forever; surface is
       semver.

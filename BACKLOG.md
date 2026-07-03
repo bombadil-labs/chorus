@@ -53,10 +53,7 @@ _(task 8 moved to Done)_
 
 _(tasks 9-10 moved to Done)_
 
-- [ ] **11. Cutover rehearsal (synthetic)** — full Phase 2 dress rehearsal against a synthetic
-      store built for the purpose: adopt → serve --http → real MCP round-trip → digest
-      verification. Produces a written runbook for Myk's live cutover. **Does not touch the live
-      store.**
+_(task 11 moved to Done)_
 
 ### Next — horizon spikes (from VISION.md, interleaved after the CLI exists)
 
@@ -73,6 +70,13 @@ _(tasks 9-10 moved to Done)_
 
 ### Done
 
+- [x] **11. Cutover rehearsal (synthetic)** (2026-07-03, PR #16 - journal: The rehearsal).
+      CUTOVER.md is the runbook; test/chorus-cutover-rehearsal.test.ts executes every step of
+      it against a synthetic live store: seed-continuous init, read-only digest-verified
+      adoption, old receipts resolving, trial serving while the old node keeps writing,
+      re-adoption as the idempotent union sweeping interim writes, a real MCP round-trip over
+      HTTP, and proof the source only ever gained its own node's writes. The live cutover is
+      Myk's, by hand, per the runbook.
 - [x] **10. Compatibility guarantees** (2026-07-03, PR #15 - journal: The contract). Manifest
       formatVersion + the upgrade ladder (legacy manifests stamp on open, lossless and digest-
       neutral; future manifests refuse loudly naming the way out) + golden pins for the MCP
