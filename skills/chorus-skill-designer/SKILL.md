@@ -98,3 +98,21 @@ Triggers on the right domain phrases; renders even with zero live data (sample m
 `recall`/`gql` and writes through `remember`/`revise` using entity references and declared sets;
 surfaces provenance and disagreement instead of hiding them; states its privacy tier; and packages to
 a `.skill` that installs clean. When those hold, it is done.
+
+## Consult the commons before minting vocabulary
+
+If a schema commons store is available (locally: `chorus store ls` shows `commons`; remotely: a
+`/gql/<token>` read endpoint — see the repo's COMMONS.md), **check it before inventing new
+attribute names or id schemes**:
+
+- `chorus gql "{ hyperschemas { id domain } }" --store commons` — what domains already have
+  contracts.
+- `chorus recall hyperschema:<domain> --store commons --all` — a domain's declared attributes
+  and id schemes; `chorus recall attr:<name> --store commons` — what an attribute means and its
+  value shape.
+
+Reuse what fits; where your domain genuinely diverges, mint freely (ids are cheap and local) and
+consider PUBLISHING your new chorus.md conventions back as hyperschema claims (the repo's
+`tools/seed-commons.ts` shows the modeling). Convergence is asserted, not assigned: if you later
+find your `attr:mood` duplicates someone's `attr:vibe`, that repair is a mapping claim, not a
+rename.
