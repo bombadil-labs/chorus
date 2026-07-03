@@ -239,3 +239,15 @@ Rescoped honestly: the closure-audit dry-run (what does a published query EXPOSE
 constellation Phase D and reactor-level provenance - an approximation would claim a safety
 property it cannot prove, which is exactly the kind of silence the review culture here
 exists to prevent.
+
+---
+
+## 2026-07-03 - Proximity proposes (Horizon 3 touches ground)
+
+**Task 13 done (PR #18), rescoped honestly.** The backlog said sqlite-vec; the environment
+said a vec-only feature would ship with zero witnesses (no binary locally OR on CI). So the
+seam is the deliverable: VectorIndex with a brute cosine witness everywhere, sqlite-vec as an
+opt-in provider that degrades with its reason, and similarTerms() generating fuzzy candidates
+over exactly the terms dialect-bridging cares about (attributes ride as the about-pointer
+context - found the hard way). The thesis line held: vectors at the index, judgment as signed
+claims, nothing written by proposing.

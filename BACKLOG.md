@@ -59,9 +59,8 @@ _(task 11 moved to Done)_
 
 _(task 12 moved to Done)_
 
-- [ ] **13. `sqlite-vec` opt-in index** (Horizon 3) — vector index in the node-sqlite backend via
-      `allowExtension`, graceful degradation when absent; `similar(text)` candidate read on the
-      store tier; wire librarian candidate generation to it.
+_(task 13 moved to Done)_
+
 - [ ] **14. Schema-commons design doc + seed** (Horizon 2) — vocabulary-of-vocabularies as
       claims; publish the four skills' `chorus.md` conventions into a `commons` store as the
       worked example; teach `chorus-skill-designer` to consult it.
@@ -70,6 +69,14 @@ _(task 12 moved to Done)_
 
 ### Done
 
+- [x] **13. The similarity seam** (2026-07-03, PR #18 - journal: Proximity proposes).
+      **Rescoped:** sqlite-vec binaries exist neither locally nor on CI, so a vec-only
+      implementation would have had NO witness anywhere. Shipped instead: a VectorIndex seam
+      with a pure-TS brute witness (tested everywhere, honestly right at personal-store
+      scale), sqlite-vec as an env-pointed provider (CHORUS_SQLITE_VEC, opportunistic test,
+      graceful degradation with the reason), and similarTerms() - fuzzy candidates over what
+      a store talks about (entity ids + attributes), proposals only, judgment stays with the
+      caller. Deeper librarian rewiring deferred until a real embedding model lands.
 - [x] **12. Read-only GQL endpoint** (2026-07-03, PR #17 - journal: The blog-feed primitive).
       serve --gql-readonly mounts /gql/<token>[/store]: GET/POST GraphQL over a per-request
       pinned snapshot, read-only by construction (ephemeral reader, nothing persisted, the
