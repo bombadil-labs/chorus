@@ -2,8 +2,8 @@
 // is the MEMORY.md of Chorus — except every line has provenance, contested facts surface as
 // contested instead of last-write-wins, and standing trust edits rehydrate into the lens.
 
-import { evalTerm, parseTerm, type Delta } from "@rhizomes/rhizomatic";
-import type { ChorusAgent } from "./agent.js";
+import { type Delta } from "@rhizomes/rhizomatic";
+import { surviving, type ChorusAgent } from "./agent.js";
 import { sameAsClass, topics, type Topic } from "./discovery.js";
 import { identityIndex } from "./identity.js";
 import {
@@ -14,12 +14,6 @@ import {
   ROLE_TRUST_VERDICT,
   ROLE_VALUE,
 } from "./vocab.js";
-
-function surviving(agent: ChorusAgent): Delta[] {
-  const result = evalTerm(parseTerm({ op: "mask", policy: "drop", in: "input" }), agent.snapshot());
-  if (result.sort !== "dset") throw new Error("mask must yield a DSet");
-  return [...result.set];
-}
 
 interface BeliefRow {
   readonly entity: string;

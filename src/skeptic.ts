@@ -14,12 +14,12 @@
 //   - Opt-in and narrow by default: only decision-cited single-voice slots draw doubt unless
 //     --all widens it. Alert fatigue is the failure mode; the skeptic earns its voice.
 
-import { authorForSeed, evalTerm, parseTerm, type Delta, type Pointer } from "@rhizomes/rhizomatic";
-import { beliefPointers, type ChorusAgent } from "./agent.js";
+import { authorForSeed, type Delta, type Pointer } from "@rhizomes/rhizomatic";
+import { surviving, beliefPointers, type ChorusAgent } from "./agent.js";
 import { deriveSeed } from "./identity.js";
 import { introduceVoice } from "./examiner.js";
-import { replayDecision } from "./decisions.js";
-import { CHORUS_PREFIX, ROLE_ABOUT, ROLE_DECISION_ABOUT, ROLE_KIND, ROLE_VALUE } from "./vocab.js";
+import { decisionBasisIds } from "./decisions.js";
+import { CHORUS_PREFIX, ROLE_ABOUT, ROLE_KIND, ROLE_VALUE } from "./vocab.js";
 
 export const ROLE_DOUBT_OF = `${CHORUS_PREFIX}.doubt.of`;
 export const DOUBT_PREFIX = "doubt:";
@@ -53,12 +53,6 @@ export interface SkepticReport {
   readonly doubts: readonly Doubt[]; // thin slots, doubted or already under doubt
   readonly withdrawals: readonly Withdrawal[]; // doubts satisfied by corroboration (or mooted)
 }
-
-const surviving = (agent: ChorusAgent): Delta[] => {
-  const result = evalTerm(parseTerm({ op: "mask", policy: "drop", in: "input" }), agent.snapshot());
-  if (result.sort !== "dset") throw new Error("mask must yield a DSet");
-  return [...result.set];
-};
 
 interface Slot {
   entity: string;
@@ -143,23 +137,6 @@ function standingDoubts(alive: readonly Delta[], skeptic: string): Map<string, D
     doubts.set(`${entity.slice(DOUBT_PREFIX.length)}\u0000${attribute}`, d);
   }
   return doubts;
-}
-
-// Every claim a standing decision saw when it acted — where thin testimony matters most.
-function decisionBasisIds(agent: ChorusAgent, alive: readonly Delta[]): Set<string> {
-  const cited = new Set<string>();
-  for (const d of alive) {
-    if (
-      !d.claims.pointers.some((p) => p.role === ROLE_DECISION_ABOUT && p.target.kind === "entity")
-    )
-      continue;
-    try {
-      for (const r of replayDecision(agent, d.id).receipts) cited.add(r.deltaId);
-    } catch {
-      continue;
-    }
-  }
-  return cited;
 }
 
 // One pass of the resident skeptic: doubt the thin, withdraw where the world answered.

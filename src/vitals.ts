@@ -11,8 +11,7 @@
 //   - staleness → "what load-bearing beliefs haven't been looked at in months?"
 //   - confidence.carried → "can calibration (Phase VII) even be computed here yet?"
 
-import { evalTerm, parseTerm, type Delta } from "@rhizomes/rhizomatic";
-import type { ChorusAgent } from "./agent.js";
+import { surviving, type ChorusAgent } from "./agent.js";
 import { ROLE_ABOUT, ROLE_CONFIDENCE, ROLE_KIND, ROLE_VALUE } from "./vocab.js";
 
 export interface Vitals {
@@ -33,12 +32,6 @@ export interface Vitals {
   readonly confidence: { readonly carried: number; readonly mean?: number };
   readonly kinds: Readonly<Record<string, number>>;
 }
-
-const surviving = (agent: ChorusAgent): Delta[] => {
-  const result = evalTerm(parseTerm({ op: "mask", policy: "drop", in: "input" }), agent.snapshot());
-  if (result.sort !== "dset") throw new Error("mask must yield a DSet");
-  return [...result.set];
-};
 
 const percentile = (sorted: readonly number[], p: number): number =>
   sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * p))]!;

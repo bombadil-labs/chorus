@@ -9,8 +9,8 @@
 // session of a model, every session on a surface, any session scoped to a topic, or the
 // human (whose inbox is the console). No addressing at all = broadcast.
 
-import { evalTerm, parseTerm, type Delta, type Pointer } from "@rhizomes/rhizomatic";
-import type { ChorusAgent } from "./agent.js";
+import { type Pointer } from "@rhizomes/rhizomatic";
+import { surviving, type ChorusAgent } from "./agent.js";
 import { identityAt, identityIntroductions } from "./identity.js";
 import { CHORUS_PREFIX } from "./vocab.js";
 
@@ -132,12 +132,6 @@ export interface MessageView {
   readonly about: readonly string[];
   readonly re?: string;
   readonly acked: boolean; // by THIS recipient
-}
-
-function surviving(agent: ChorusAgent): Delta[] {
-  const result = evalTerm(parseTerm({ op: "mask", policy: "drop", in: "input" }), agent.snapshot());
-  if (result.sort !== "dset") throw new Error("mask must yield a DSet");
-  return [...result.set];
 }
 
 // Topic matching honors prefix families on either side: a message to "synchronicity:" reaches

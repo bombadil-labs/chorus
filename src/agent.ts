@@ -445,3 +445,12 @@ function receiptOf(delta: Delta, negated: boolean): BeliefReceipt {
     ...(source === undefined ? {} : { source }),
   };
 }
+
+// The surviving world: every delta the drop-mask keeps — negated claims removed, everything
+// else intact. The shared floor under every instrument and read surface; nine modules once
+// carried private copies of this exact function (the N.2 contraction folded them here).
+export function surviving(agent: ChorusAgent): Delta[] {
+  const result = evalTerm(parseTerm({ op: "mask", policy: "drop", in: "input" }), agent.snapshot());
+  if (result.sort !== "dset") throw new Error("mask must yield a DSet");
+  return [...result.set];
+}

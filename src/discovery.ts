@@ -2,8 +2,8 @@
 // answer the first; sameAs claims answer the second — canonical identity as JUDGMENT, not as
 // a registry. A "DNS" here is just an author whose sameAs/naming claims you rank highly.
 
-import { evalTerm, parseTerm, type Delta, type Pointer, type View } from "@rhizomes/rhizomatic";
-import type { ChorusAgent, RecallOptions } from "./agent.js";
+import { type Pointer, type View } from "@rhizomes/rhizomatic";
+import { surviving, type ChorusAgent, type RecallOptions } from "./agent.js";
 import { CHORUS_PREFIX, ROLE_ABOUT, ROLE_VALUE } from "./vocab.js";
 
 export const ROLE_SAME = `${CHORUS_PREFIX}.same.entity`;
@@ -15,11 +15,6 @@ const isInternalContext = (ctx: string): boolean =>
   ctx.startsWith("chorus.") || ctx.startsWith("rhizomatic.");
 
 // The surviving set: negations applied once, then scanned (discovery never counts the dead).
-function surviving(agent: ChorusAgent): Delta[] {
-  const result = evalTerm(parseTerm({ op: "mask", policy: "drop", in: "input" }), agent.snapshot());
-  if (result.sort !== "dset") throw new Error("mask must yield a DSet");
-  return [...result.set];
-}
 
 export interface Topic {
   readonly entity: string;

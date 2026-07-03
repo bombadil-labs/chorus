@@ -109,9 +109,15 @@ context to be dismissed in one read, and ack-rates are its future report card, p
       diaries, named policy presets, the provenance poster, the mirror test, chorus as a git
       citizen. Deliberately unranked; N.3/N.4 decide what gets mined. The through-line: the
       store already knows more than any surface shows — most of these are windows, not rooms.
-- [ ] **N.2 Contraction** — given the expansive run: prune. Dead exports, accumulated
-      scaffolding, doc coherence, dependency audit, suite runtime. Delete what the 28-PR
-      sprint left behind.
+- [x] **N.2 Contraction** — _Done 2026-07-03 (journal: Deletion as craft):_ the CLI's stub-era
+      scaffolding cut (slice/optional-run/not-implemented branch — every command ships);
+      tools/check-console-page.ts folded into the console test as a standing gate; nine
+      private copies of surviving() consolidated to one agent.ts export; decisionBasisIds
+      two copies → decisions.ts; unused imports pruned across ten files. Dead-export audit:
+      43 candidates examined, all dispositioned as protocol vocabulary or public result types
+      — kept deliberately, flagged for N.4 barrel coherence. Deps already lean (2 + 1
+      optional). Root clean. The suite-runtime question noted and deferred: the CLI tests
+      spawn tsx per invocation, honest but slow; batching is rework, not pruning.
 - [ ] **N.3 Expansion again** — now are there some next things that would be cool?
       (contraction changes what is visible)
 - [ ] **N.4 Consolidation** — the API/MCP surface area: 25 tools, the CLI, the library

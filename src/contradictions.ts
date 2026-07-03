@@ -10,8 +10,8 @@
 // real embedding model is wired (that choice is Myk's; the seam is ready).
 
 import { createHash } from "node:crypto";
-import { authorForSeed, evalTerm, parseTerm, type Delta, type Pointer } from "@rhizomes/rhizomatic";
-import type { ChorusAgent } from "./agent.js";
+import { authorForSeed, type Delta, type Pointer } from "@rhizomes/rhizomatic";
+import { surviving, type ChorusAgent } from "./agent.js";
 import { examinerSeed, introduceExaminer } from "./examiner.js";
 import { cosine, type EmbeddingModel } from "./librarian.js";
 import { messagePointers } from "./messages.js";
@@ -77,12 +77,6 @@ export interface ContradictionReport {
   readonly pairs: readonly ContradictionPair[];
   readonly mailed: number;
 }
-
-const surviving = (agent: ChorusAgent): Delta[] => {
-  const result = evalTerm(parseTerm({ op: "mask", policy: "drop", in: "input" }), agent.snapshot());
-  if (result.sort !== "dset") throw new Error("mask must yield a DSet");
-  return [...result.set];
-};
 
 interface SlotValues {
   readonly values: Set<string>; // canonical value keys, for comparison
