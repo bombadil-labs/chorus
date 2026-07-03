@@ -183,3 +183,33 @@ export function storeCommand(
       );
   }
 }
+
+// `chorus migrate` (task 9): re-container a registry store between backends — lossless,
+// digest-verified, old file left untouched (data never deletes). Within the sqlite family the
+// two drivers share one file, so that flip is manifest-only.
+export function migrateCommand(
+  positionals: readonly string[],
+  flags: ReadonlyMap<string, string>,
+  io: StoreIo,
+): number {
+  const [name] = positionals;
+  const backend = kindOf(flagValue(flags, "backend"));
+  if (name === undefined || backend === undefined) {
+    throw new Error("usage: chorus migrate <store> --backend <jsonl|sqlite|node-sqlite>");
+  }
+  const { registry } = openRegistry(io);
+  if (!registry.list().some((m) => m.name === name)) {
+    throw new Error(`no store named "${name}" — see \`chorus store ls\``);
+  }
+  const result = registry.migrate(name, backend);
+  if (!result.migrated) {
+    io.out(`"${name}" is already on ${backend} — nothing to do (${result.deltas} delta(s)).`);
+  } else if (result.driverOnly) {
+    io.out(`"${name}" → ${backend}: same file format, driver choice recorded. Zero bytes copied.`);
+  } else {
+    io.out(`"${name}" → ${backend}: ${result.deltas} delta(s) re-containered.`);
+    io.out(`digest verified identical: ${result.digest}`);
+    io.out(`the previous backend file was left in place — data never deletes.`);
+  }
+  return 0;
+}

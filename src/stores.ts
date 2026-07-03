@@ -175,6 +175,52 @@ export class StoreRegistry {
     return new Store({ manifest, seedHex, backend, backendPath });
   }
 
+  // Re-container a store onto a different backend, LOSSLESSLY and NON-DESTRUCTIVELY: the new
+  // backend file is written beside the old one (data never deletes — the old file stays as it
+  // was), the digest is verified identical, and only then does the manifest record the new
+  // kind. Within the sqlite family the two drivers share one file, so a "migration" between
+  // them is a manifest-only driver choice — zero bytes copied.
+  migrate(
+    name: string,
+    backend: BackendKind,
+  ): { migrated: boolean; deltas: number; digest: string; driverOnly: boolean } {
+    const store = this.open(name);
+    try {
+      const fromKind = store.backendKind;
+      const manifestPath = join(this.dirOf(name), MANIFEST);
+      const manifest = JSON.parse(readFileSync(manifestPath, "utf8")) as StoreManifest;
+      if (fromKind === backend) {
+        const all = store.backend.deltasSince(new Set());
+        return {
+          migrated: false,
+          deltas: all.length,
+          digest: DeltaSet.from(all).digest(),
+          driverOnly: false,
+        };
+      }
+      const all = store.backend.deltasSince(new Set());
+      const before = DeltaSet.from(all).digest();
+      const driverOnly = BACKEND_FILE[fromKind] === BACKEND_FILE[backend];
+      if (!driverOnly) {
+        const destPath = join(this.dirOf(name), BACKEND_FILE[backend]);
+        const dest = createBackend(destPath, availableDriver(backend));
+        try {
+          dest.appendDeltas(all);
+          const after = DeltaSet.from(dest.deltasSince(new Set())).digest();
+          if (after !== before) {
+            throw new Error(`migrating "${name}" changed the delta set: ${before} -> ${after}`);
+          }
+        } finally {
+          dest.close?.();
+        }
+      }
+      writeFileSync(manifestPath, `${JSON.stringify({ ...manifest, backend }, null, 2)}\n`);
+      return { migrated: true, deltas: all.length, digest: before, driverOnly };
+    } finally {
+      store.close();
+    }
+  }
+
   // Adopt an existing store's deltas into a named registry store, NON-DESTRUCTIVELY and LOSSLESSLY.
   // The source backend is only READ; nothing about it changes. Because every delta is
   // content-addressed, "lossless" is an exact claim, not a hope: the adopted store's canonical
