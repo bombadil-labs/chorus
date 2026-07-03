@@ -75,10 +75,14 @@ context to be dismissed in one read, and ack-rates are its future report card, p
       store's own staleness p90. The cure is the substrate's kindest property — re-assertion
       IS re-verification — and the test proves a fresh assertion clears the challenge. Same
       anti-nag fingerprints as review; measurements never challenged (the gauge again)._
-- [ ] **VI.3 Contradiction mining** — the librarian's similarity seam proposes near-synonym
-      attributes carrying conflicting values across dialects (latent contradictions the
-      contested scan can't see because the words differ). Proximity proposes; mail asks a judge
-      (Myk or the librarian) to dispose via sameAs/recast — never auto-merge.
+- [x] **VI.3 Contradiction mining** — _Done 2026-07-03 (journal: One question, two dialects):_
+      `chorus contradictions [--threshold]` + `mineContradictions()`: near-synonym attributes
+      on one entity holding rival values are proposed by letter to the human judge; same
+      values in two dialects is agreement, not flagged; nothing auto-merges. Similarity is a
+      seam — lexical comparator by default (token overlap + abbreviation-aware prefixes, zero
+      deps), `embeddingSimilarity(model)` ready for the Myk-gated real model. Same anti-nag
+      fingerprints. Also: the literal-NUL slot-separator idiom (vitals, librarian, belief-diff,
+      challenges) escaped to `\u0000` everywhere — sources read as text again._
 - [ ] **VI.4 The resident skeptic** — opt-in adversarial derived author that appends
       doubt-claims where corroboration is thin (single-author slots cited by decisions first).
       Doubt is a claim with an author: tune it, rank it, or fire it. The loop's review culture,

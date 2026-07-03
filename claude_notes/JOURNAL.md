@@ -558,3 +558,32 @@ one track record, one entity you can distrust. Same anti-nag contract too: finge
 shared machinery (verdictsOnFile grew a role parameter instead of a copy). Measurements are
 never challenged; the gauge describes the world, never the describing — the rule from V.4
 holds without exception three instruments later.
+
+## 2026-07-03 — One question, two dialects (VI.3)
+
+**What landed.** `chorus contradictions --store <n> [--threshold]` and
+`mineContradictions()`: the contested scan sees rival values in ONE slot, but a store that
+speaks two vocabularies can contradict itself across slots the scan will never compare —
+`deploy-env = "prod"` and `deployment_environment = "staging"` are the same question wearing
+different words. The miner proposes those pairs by letter to the human judge (the console
+inbox): _"svc:api may be answering one question in two dialects... If these are the same
+question, the store contradicts itself and the contested scan cannot see it. If they are
+genuinely different questions, no action: this is a proposal, not a verdict, and proximity is
+not identity."_ Nothing auto-merges. Same value in two dialects is agreement wearing two coats
+— deliberately not flagged.
+
+**Similarity is a seam, not a dependency.** The real embedding model is Myk-gated, so the
+default comparator is lexical — token overlap with abbreviation-aware prefixes (env ~
+environment, repo ~ repository), deterministic, zero deps — which catches the dialect cases
+that actually arise from tooling habits. `embeddingSimilarity(model)` upgrades the same call
+to semantic neighbors (owner ~ maintainer) the moment a model is wired, with out-of-vocabulary
+terms falling back to the lexical view rather than pretending to know. The test proves both
+eyes work and that they see different things.
+
+**The invisible ink, found and fixed.** `file` calling librarian.ts "data" unraveled a small
+mystery: the slot-key separator idiom used LITERAL NUL BYTES in source — invisible in every
+editor and tool render, which is exactly how one crossed into challenges.ts when I matched
+what I thought was a space-separator idiom by eye. Four files (vitals, librarian, belief-diff,
+challenges) now spell it \u0000 — same bytes at runtime, visible to every reader. The lesson
+files under the retro's rule: the difference between a space and a NUL is a wrong-silence, and
+honest source shows its separators.

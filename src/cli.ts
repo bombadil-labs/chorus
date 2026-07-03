@@ -189,6 +189,11 @@ const COMMANDS: Record<string, CommandSpec> = {
     booleans: ["json"],
     allowed: ["store", "home", "half-life", "json"],
   }),
+  contradictions: dataOp(
+    "contradictions",
+    "propose near-synonym slots holding rival values — one question, two dialects",
+    { booleans: ["json"], allowed: ["store", "home", "threshold", "json"] },
+  ),
   vitals: dataOp("vitals", "epistemic vitals: contested, concentration, staleness, churn", {
     booleans: ["json"],
     allowed: ["store", "home", "json"],
