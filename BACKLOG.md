@@ -63,8 +63,9 @@ _(task 17 moved to Done)_
 
 _(task 18 moved to Done)_
 
-- [ ] ♻ **19. Retro #3** — after 16-18; includes a fresh look at what the real cutover
-      taught (if Myk has run it by then).
+- [ ] ♻ **19. Retro #3 - PARKED until a decision gate moves** (the retro wants the real
+      cutover lessons; running it now would be a stock-take of a stock-take). The loop resumes
+      here when Myk acts on any gate below or reseeds the queue.
 
 ### Waiting on Myk (not loop-executable — decision gates)
 
