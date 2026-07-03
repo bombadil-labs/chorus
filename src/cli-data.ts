@@ -15,6 +15,7 @@ import { computeVitals } from "./vitals.js";
 import { agentAsOf, diffBeliefs } from "./belief-diff.js";
 import { bisectBelief } from "./bisect.js";
 import { testifyVitals } from "./examiner.js";
+import { reviewDecisions } from "./review.js";
 import { resolveMasterSeed } from "./config.js";
 import { chorusHome } from "./config.js";
 import type { ChorusAgent } from "./agent.js";
@@ -249,7 +250,7 @@ export function dataCommand(
         ["good", good],
         ["bad", bad],
       ] as const) {
-        if (v !== undefined && !/^d+$/.test(v)) {
+        if (v !== undefined && !/^\d+$/.test(v)) {
           throw new Error(`--${name} is an instant in epoch milliseconds`);
         }
       }
@@ -307,6 +308,39 @@ export function dataCommand(
             `is the health history, and the examiner can be distrusted like anyone.`,
         );
         return 0;
+      });
+    }
+
+    case "review": {
+      // Retrospective replay (EPISTEME VI.1): the examiner acts. Exit 1 when any standing
+      // decision's ground has moved — scripts chain on it, same as diff.
+      const storeName = storeOf(flags);
+      const home = io.home ?? chorusHome();
+      const master = resolveMasterSeed(process.env, home);
+      if (master === undefined) throw new Error("no master seed — run `chorus init` first");
+      return withStore(storeName, io, (_call, ctx, persist) => {
+        const r = reviewDecisions(ctx.agent, master, storeName);
+        persist();
+        if (flags.has("json")) {
+          emit(r);
+          return r.findings.length > 0 ? 1 : 0;
+        }
+        io.out(
+          `reviewed ${r.examined} decision(s): ${r.standing} stand, ${r.findings.length} need revisiting.`,
+        );
+        for (const f of r.findings) {
+          io.out(`  "${f.intent}" (${f.about}, ${new Date(f.asOf).toISOString()})`);
+          io.out(`    ${f.reasons.join("; ")}`);
+          io.out(
+            f.mailed
+              ? `    mail filed to its author — the letter cites \`chorus replay ${f.decision.slice(0, 16)}…\``
+              : `    already on file (unchanged since the last review — the examiner does not nag)`,
+          );
+        }
+        if (r.findings.length === 0 && r.examined > 0) {
+          io.out(`every decision still rests on the ground it was made on.`);
+        }
+        return r.findings.length > 0 ? 1 : 0;
       });
     }
 

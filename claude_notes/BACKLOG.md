@@ -61,12 +61,13 @@ Everything the examiner does is **mail and claims, never mutation**; alert fatig
 failure mode, so every examiner surface must earn its interruptions (its mail carries enough
 context to be dismissed in one read, and ack-rates are its future report card, per Phase VII).
 
-- [ ] **VI.1 Retrospective replay** — `chorus review --store <n>` + library seam: replay every
-      standing decision against the present; where a decision's basis has since been retracted,
-      contested, or superseded, the examiner files MAIL to the decision's author ("You acted on
-      X on Tuesday. X is now known false. The action may need revisiting."), citing the exact
-      basis deltas that moved. Consequence-tracking for agent decisions, closed at the personal
-      scale. Idempotence matters: re-running review must not re-mail unchanged verdicts.
+- [x] **VI.1 Retrospective replay** — _Done 2026-07-03 (journal: The examiner starts knocking):_
+      `chorus review` + `reviewDecisions()` replay every standing decision; retracted /
+      superseded / contested / basis-unverified grounds draw examiner author-mail with the
+      exact reasons and a replay pointer; verdict fingerprints make re-review idempotent (the
+      examiner does not nag); exit 1 on findings so scripts chain. Also fixed in passing: the
+      bisect CLI's `--good/--bad` validator regex (`/^d+$/`) rejected every valid instant —
+      plus the accept-side test the junk-only assertion could never provide.
 - [ ] **VI.2 Staleness challenges** — load-bearing beliefs past their half-life generate
       re-verification mail; the store asks to be checked instead of silently rotting.
       Load-bearing, first cut: beliefs cited as decision basis, plus beliefs older than the
