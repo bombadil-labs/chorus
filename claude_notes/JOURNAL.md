@@ -765,3 +765,26 @@ MASTER seed, so they are operator tools.** An MCP session is a one-author surfac
 AS itself, and it never holds the key that derives the examiner and the skeptic. The human at
 the console runs the physicals; the sessions live their lives. Consolidation sometimes means
 documenting the wall instead of moving it.
+
+## 2026-07-03 — The front door, staged (N.5)
+
+**Two audiences, two documents.** docs/index.html for the stranger: one self-contained page,
+no dependencies, no build step — dark ground, serif voice, the flight-recorder thesis in the
+headline, the four load-bearing properties in one paragraph each, the physician's kit as a
+definition list, and a terminal vignette where the world moves and the store speaks up
+("reviewed 1 decision(s): 0 stand, 1 need revisiting"). The pull-quote is the skeptic's:
+_doubt that cannot be satisfied is not skepticism; it is a grudge._ The footer tells the
+truth about authorship: built by a chorus.
+
+docs/llms.txt for the agent: what Chorus is in one blockquote, the MCP tools as they actually
+behave, the vocabulary conventions (meta-entity prefixes, the wire-role dictionary), and —
+the part I most wanted to write — **the invariants an agent can lean on**: append-only means
+your testimony survives; content addressing means the same claim is the same delta everywhere;
+one session, one author means your signature is your track record. _Write like it's on the
+record, because it is._ An agent reading that file knows how to live here, not just how to
+call the tools.
+
+**Staged, not deployed — the line held.** The repo is private; publishing and visibility are
+Myk's gates, and enabling GitHub Pages is outward-facing. So the site sits in docs/ fully
+ready — enable Pages, done — and the README says whose switch it is. The marketing pass ships
+everything except the part that isn't mine to ship.

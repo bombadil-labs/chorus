@@ -1,0 +1,75 @@
+# Chorus
+
+> Chorus is belief accounting for LLM agents — a flight recorder for minds. It doesn't store
+> what happened; it stores what was believed: by whom, since when, on what grounds, and what
+> became of that belief next. Every belief is a signed claim; disagreement is held in
+> superposition; trust is the reader's editable policy; decisions replay against exactly what
+> was known when they were made.
+
+Chorus is the product layer on @rhizomes/rhizomatic, a portable format of signed,
+content-addressed deltas whose merge is set union (order-blind, idempotent, grow-only).
+Nothing is edited in place; a retraction is itself a signed claim targeting the retracted
+delta. Status: alpha, unpublished to npm — install from a checkout.
+
+## How an agent uses it
+
+You speak to Chorus over MCP (stdio or streamable HTTP). One session = one keypair = one voice;
+your writes are signed as you, forever attributable. Core tools:
+
+- begin-session / end-session: declare who you are (model, session, purpose); close the interval.
+- remember(about, attribute, value, kind?, confidence?, source?): assert a belief. Kinds are an
+  open vocabulary (observation | fact | preference | task | claim | ... yours).
+- recall(entity, attribute?, asOf?): the resolved view under the current trust policy. as-of is
+  inclusive epoch-ms — the time machine.
+- explain(entity, attribute?): every candidate with receipts — author, session, model, negated flag.
+- retract(deltaId, reason?) / revise(deltaId, value, reason?): negation is append, never erase.
+- decide(about, intent, attribute?): pin (instant, policy, view-hash, arrival prefix) into one
+  signed decision record. replay(decisionId): reconstruct exactly what the decider saw, verified.
+- post / inbox / ack: cross-session mail. Correspondence, not knowledge — never enters recall.
+- trust(...): edit the reader's policy (rank authors, distrust models). search / topics / same:
+  discovery. gql-prepare/query/release: pin a snapshot, query it as GraphQL.
+
+## The instruments (operator surface: CLI + library, not MCP)
+
+chorus vitals | diff | bisect | examine | review | challenge | contradictions | skeptic | checkup
+
+They examine an accounted mind: vitals reads the chart; diff refuses to flatten agreement
+(same conclusion from disjoint testimony is STRONGER, and named); bisect finds the instant a
+belief flipped and who flipped it; examine signs its measurements as claims by a derived
+examiner author you can distrust; review letters deciders whose ground moved; challenge asks
+stale beliefs to re-verify (re-assertion IS re-verification in a grow-only store); the
+contradictions miner proposes cross-vocabulary conflicts to a human judge; the skeptic files
+signed doubt where everything rests on one voice and withdraws when corroborated; checkup
+reads every dial in one pass, exit 1 when anything wants a human. All of them: mail and
+claims, never mutation; an unchanged verdict is never re-mailed. Instruments derive from the
+MASTER seed and are operator tools — an MCP session never holds master.
+
+## Vocabulary conventions
+
+- Entities are ids like `svc:api`, `person:ada`. Attributes ride as the about-pointer's context.
+- Meta-entities by prefix: `vitals:<store>` (examiner measurements), `doubt:<entity>` (skeptic
+  doubts), `attr:<name>` (attribute declarations; `plurality=set` makes a slot set-valued),
+  `session:<id>` (identity), `concept:` (librarian).
+- Wire roles are exported constants (ROLE_ABOUT, ROLE_VALUE, ROLE_MSG_*, ROLE_DECISION_*,
+  ROLE_REVIEW_*, ROLE_CHALLENGE_*, ROLE_DOUBT_OF, ROLE_SAME, ROLE_ID_*) — the protocol's
+  dictionary lives in the library barrel.
+
+## Key files
+
+- README.md: the product story and status.
+- CLAUDE.md: the working agreement (for Claude-family agents working in the repo).
+- claude_notes/: the working papers — BACKLOG.md (queue + protocol), JOURNAL.md (the record),
+  VISION.md (horizons), EPISTEME.md (the belief-not-memory plan), CONSTELLATION.md (federated
+  multi-store design), CUTOVER.md (the live-node runbook; the human's to execute).
+- src/index.ts: the library barrel — embed Chorus in an agent host directly.
+
+## Invariants an agent can lean on
+
+- Append-only: nothing you write can be silently edited; your testimony survives retraction as
+  auditable history.
+- Deterministic identity: a delta's id is the content address of its canonical bytes — the same
+  claim is the same delta everywhere; merge is union, so sync cannot conflict.
+- One session, one author: your signature is your track record. Write like it's on the record,
+  because it is.
+- No view from nowhere: every read is under a policy; every policy is itself claims; the
+  instruments that judge the store are voices inside it, distrustable like you.
