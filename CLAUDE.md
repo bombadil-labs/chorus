@@ -123,7 +123,7 @@ chorus store create|ls|show|adopt            # the registry; adopt = lossless di
 chorus serve --store <n> (--stdio | --http)  # the MCP node; repeat --store to host several
 chorus console --store <n>                   # the web console
 chorus recall|remember|search|explain|decide|replay|gql --store <n>   # MCP-less data ops
-chorus vitals|examine|bisect|review|challenge|contradictions --store <n>   # the instruments
+chorus vitals|examine|bisect|review|challenge|contradictions|skeptic --store <n>  # instruments
 chorus diff --store a --store b              # two stores, or one against its own past
 
 # Legacy env-var surface (predates the registry; still serves the monorepo-era wiring):

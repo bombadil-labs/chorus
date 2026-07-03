@@ -587,3 +587,35 @@ what I thought was a space-separator idiom by eye. Four files (vitals, librarian
 challenges) now spell it \u0000 — same bytes at runtime, visible to every reader. The lesson
 files under the retro's rule: the difference between a space and a NUL is a wrong-silence, and
 honest source shows its separators.
+
+## 2026-07-03 — Doubt with an author (VI.4)
+
+**What landed.** `chorus skeptic --store <n> [--all]` and `skepticPass()`: a resident
+doubter that files a signed claim wherever the whole store knows something on one voice's word
+— decision-cited slots by default (where thin testimony matters most), every single-voice slot
+with `--all`. The doubt lives at `doubt:<entity>`, kind "doubt", visible to recall and
+search like any belief: _"uncorroborated: the whole store knows svc:api owner on one voice's
+word. A standing decision rests on it. A second voice asserting it clears this doubt."_ The
+skeptic is a SECOND derived author — `author/skeptic`, model `chorus-skeptic`, its own
+keypair and track record, deliberately not the examiner. You can trust the measurements and
+still fire the doubter. That is the whole point of voices.
+
+**No fingerprints this time — the store is its own ledger.** Review and challenge needed
+verdict fingerprints because letters leave no live trace once acked. Doubt is a live claim, so
+its own standing IS the idempotence key: while a doubt stands, the skeptic stays quiet; when a
+second voice corroborates the slot, the skeptic WITHDRAWS — a negation with the reason named
+("corroborated: 2 voices now hold svc:api owner"), or "moot" when nothing live remains. The
+test walks the full arc: doubt → quiet → corroborate → withdrawn → the live view is clean, and
+the whole history of the doubt survives in the audit trail forever. Doubt that cannot be
+satisfied is not skepticism; it is a grudge. This skeptic can be satisfied.
+
+**The exclusions hold shape.** Measurements are never doubted (the gauge describes the world),
+doubts are never doubted (that way lies philosophy, not hygiene), and the doubt entities
+themselves stay out of the slot scan. Three instruments in, the V.4 rule — the panel excludes
+its own needles — has become load-bearing architecture rather than a bug fix.
+
+**A pratfall worth recording.** Trying to sed the \u0000 escape into skeptic.ts inserted
+LITERAL NULs — sed's replacement grammar ate the backslash — recreating the exact invisible-ink
+bug VI.3 had just cleaned up, in the file being written to avoid it. The fixer script un-mangled
+it in one pass. The lesson compounds: source edits carrying escapes go through script files,
+never shell substitution — bash and sed both have opinions about backslashes.

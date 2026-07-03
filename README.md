@@ -24,9 +24,12 @@ mails the decider when the ground has moved — "you acted on X; X is now known 
 kindest property: in a grow-only store, _re-assertion is re-verification_. `chorus
 contradictions` finds the disagreements the contested scan can't see — one question wearing two
 vocabularies (`deploy-env` vs `deployment_environment`) with two different answers — and
-proposes them to a judge; proximity proposes, only a signed judgment disposes. None of them
-ever nags: an unchanged verdict is never re-mailed. No view from nowhere, all the way up: the
-instruments live inside the epistemology they measure.
+proposes them to a judge; proximity proposes, only a signed judgment disposes. And `chorus
+skeptic` houses a resident doubter: where the whole store knows something on one voice's word —
+especially under a standing decision — it files a signed doubt-claim, stays quiet while the
+doubt stands, and _withdraws it the moment a second voice corroborates_. Doubt is a claim with
+an author here: tune it, rank it, or fire it. None of them ever nags. No view from nowhere, all
+the way up: the instruments live inside the epistemology they measure.
 
 Chorus is the product layer on [`@rhizomes/rhizomatic`](https://www.npmjs.com/package/@rhizomes/rhizomatic)
 — the portable signed-content-addressed-delta format ([spec + witnesses](https://github.com/mbilokonsky/rhizomatic))
@@ -36,7 +39,7 @@ trust dynamics, the librarian, the instruments, and the web console.
 **Status: alpha, unpublished.** The `chorus` CLI is code-complete — `init`, `store
 create|ls|show|adopt`, `serve` (stdio + multi-store HTTP, read-only GraphQL mounts including
 `@union`), `console`, direct data ops, the instruments
-(`vitals|diff|bisect|examine|review|challenge|contradictions`),
+(`vitals|diff|bisect|examine|review|challenge|contradictions|skeptic`),
 `migrate` — with the live-node cutover scripted and rehearsed ([CUTOVER.md](claude_notes/CUTOVER.md)).
 Publication to npm is gated on the cutover proving out; until then, install from a checkout
 (`npm install` builds `dist/`; `npm pack` produces the same tarball CI smoke-installs globally
