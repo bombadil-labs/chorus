@@ -61,13 +61,7 @@ describe("chorus CLI: the packaging skeleton", () => {
     expect(r.err).toContain('"frobnicate"');
   });
 
-  it("a planned-but-unshipped command says which slice ships it, exit 1", () => {
-    // `migrate` ships last (task 9) — when it lands, every stub is gone: delete this test then.
-    const r = run("migrate");
-    expect(r.code).toBe(1);
-    expect(r.err).toMatch(/not implemented yet/);
-    expect(r.err).toMatch(/task \d/);
-  });
+  // (The planned-but-unshipped stub test retired with task 9 — every command is real now.)
 
   it.skipIf(!shimReady)("the npm bin shim shape (a symlink named `chorus`) runs main", () => {
     const r = spawnSync(process.execPath, [shimPath, "--version"], { encoding: "utf8" });

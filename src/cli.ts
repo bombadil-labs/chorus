@@ -8,7 +8,7 @@ import { realpathSync } from "node:fs";
 import { createRequire } from "node:module";
 import { flagValue, parseFlags, portValue, redactSecrets, rejectUnknownFlags } from "./cli-args.js";
 import { chorusHome, configPath, initChorusHome } from "./config.js";
-import { storeCommand } from "./cli-store.js";
+import { migrateCommand, storeCommand } from "./cli-store.js";
 import { consoleCommand, serveCommand } from "./cli-serve.js";
 import { dataCommand } from "./cli-data.js";
 
@@ -162,7 +162,30 @@ const COMMANDS: Record<string, CommandSpec> = {
   gql: dataOp("gql", "pin a snapshot, run one GraphQL query, release it", {
     allowed: ["store", "home"],
   }),
-  migrate: { summary: "re-container a store between backends, digest-verified", slice: "task 9" },
+  migrate: {
+    summary: "re-container a store between backends, digest-verified",
+    run(args): number {
+      const { flags, rest } = parseFlags(args);
+      rejectUnknownFlags(flags, new Set(["backend", "home"]), "migrate");
+      const home = flagValue(flags, "home");
+      return migrateCommand(rest, flags, {
+        out: console.log,
+        ...(home === undefined ? {} : { home }),
+      });
+    },
+  },
+  upgrade: {
+    summary: "self-update the chorus CLI (available once published - ROADMAP Phase 4)",
+    run(): number {
+      // Honest stub until @rhizomes/chorus is on npm: a self-update against an unpublished
+      // package can only lie.
+      console.error(
+        "chorus upgrade: not available yet - @rhizomes/chorus is not published (ROADMAP Phase " +
+          "4). Once it is: npm i -g @rhizomes/chorus@latest.",
+      );
+      return 1;
+    },
+  },
 };
 
 function version(): string {
