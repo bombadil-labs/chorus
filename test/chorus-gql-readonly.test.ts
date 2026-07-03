@@ -144,4 +144,56 @@ describe("the read-only GraphQL endpoint", () => {
     expect((await fetch(gqlUrl)).status).toBe(400);
     expect((await fetch(gqlUrl, { method: "PUT" })).status).toBe(405);
   });
+
+  it("@union reads across every mount; individual mounts stay isolated", async () => {
+    // A second store with its own world, served by a fresh union-capable node.
+    expect(runCli("store", "create", "notes").code).toBe(0);
+    expect(runCli("remember", "note:one", "title", "First note", "--store", "notes").code).toBe(0);
+
+    const server = spawn(
+      process.execPath,
+      [
+        tsxCli,
+        cliPath,
+        "serve",
+        "--store",
+        "blog",
+        "--store",
+        "notes",
+        "--http",
+        "--port",
+        "0",
+        "--gql-readonly",
+      ],
+      { env, stdio: ["ignore", "pipe", "inherit"] },
+    );
+    procs.push(server);
+    const blogGql = await new Promise<string>((resolvePromise, reject) => {
+      let out = "";
+      const t = setTimeout(() => reject(new Error(`union node never came up:\n${out}`)), 30_000);
+      server.stdout!.on("data", (c: Buffer) => {
+        out += c.toString();
+        const m = /gql\(ro\) blog {2}(http\S+)\s/.exec(out);
+        if (m) {
+          clearTimeout(t);
+          resolvePromise(m[1]!);
+        }
+      });
+      server.on("exit", (code) => reject(new Error(`union node exited ${code}:\n${out}`)));
+    });
+    const unionUrl = blogGql.replace(/\/blog$/, "/@union");
+
+    // The union sees BOTH worlds in one schema…
+    const both = (await (
+      await fetch(`${unionUrl}?query=${encodeURIComponent("{ posts { title } notes { title } }")}`)
+    ).json()) as { data?: { posts?: Array<{ title: string }>; notes?: Array<{ title: string }> } };
+    expect(both.data?.posts?.[0]?.title).toBe("Hello world");
+    expect(both.data?.notes?.[0]?.title).toBe("First note");
+
+    // …while the single-store mount still has no idea notes exist.
+    const only = (await (
+      await fetch(`${blogGql}?query=${encodeURIComponent("{ notes { title } }")}`)
+    ).json()) as { errors?: unknown[] };
+    expect(only.errors?.length).toBeGreaterThan(0);
+  }, 60_000);
 });

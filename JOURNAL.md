@@ -295,3 +295,14 @@ targets and values would write the store structure in the clear. The leak model 
 the file header and PROVEN by the test that greps the raw bytes: what leaks is how much you
 know and when it arrived, never what. The conformance suite runs the encrypted backend as a
 full witness, so private stores converge, dedup, and resume exactly like every other tier.
+
+---
+
+## 2026-07-03 - The union (Phase C first slice)
+
+**Task 17 done (PR #22).** /gql/<token>/@union answers over the union of every store the
+node serves - and the implementation is nine lines of difference, because the substrate did
+the work: merge is union, so aggregation is a fold of refreshes into one ephemeral reader.
+The aggregator the constellation promised now exists in its read-only form: mount personal +
+media + commons on one node and one GraphQL query walks all three worlds, while each
+single-store mount stays exactly as isolated as before.

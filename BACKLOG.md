@@ -59,9 +59,8 @@ _(task 11 moved to Done)_
 
 _(task 16 moved to Done)_
 
-- [ ] **17. Aggregator union read (constellation Phase C, first slice)** — a read-only lens
-      over SEVERAL mounts: gql over the union snapshot with per-delta origin annotations
-      (relay provenance). The multi-store node already exists; this is the union READ.
+_(task 17 moved to Done)_
+
 - [ ] **18. Publish readiness (Phase 4 minus the button)** — release scripts, npm pack
       dry-run + tarball inspection, install-from-tarball smoke on CI, README install docs.
       The actual `npm publish` (and un-private) stays Myk-gated.
@@ -78,6 +77,12 @@ _(task 16 moved to Done)_
 
 ### Done
 
+- [x] **17. Aggregator union read** (2026-07-03, PR #22 - journal: The union). The @union
+      pseudo-mount on --gql-readonly reads across EVERY store the node serves - one ephemeral
+      reader folds all mounts (the CRDT makes union a fold), one synthesized schema over the
+      combined world; single-store mounts stay isolated. @ sits outside the store-name
+      alphabet, so no real store can be shadowed. Relay-provenance annotations defer to full
+      Phase C with the reactor origin machinery.
 - [x] **16. Encrypted private store** (2026-07-03, PR #21 - journal: Ciphertext at rest).
       EncryptedSqliteStore over the raw driver seam: AES-256-GCM per row, id bound as AAD,
       key a labeled child of the master seed, NO pointer index (structure would leak - a
