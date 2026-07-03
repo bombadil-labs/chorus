@@ -12,8 +12,8 @@
 // Set-valued slots (plurality declarations) compare as sets — divergence there is a real
 // difference of the union, not a contest artifact.
 
-import { evalTerm, parseTerm, DeltaSet, type Delta } from "@rhizomes/rhizomatic";
-import { ChorusAgent } from "./agent.js";
+import { DeltaSet, type Delta } from "@rhizomes/rhizomatic";
+import { surviving, ChorusAgent } from "./agent.js";
 import { ROLE_ABOUT, ROLE_VALUE } from "./vocab.js";
 
 interface Slot {
@@ -36,12 +36,6 @@ export interface BeliefDiff {
   readonly onlyLeft: DiffEntry[];
   readonly onlyRight: DiffEntry[];
 }
-
-const surviving = (agent: ChorusAgent): Delta[] => {
-  const result = evalTerm(parseTerm({ op: "mask", policy: "drop", in: "input" }), agent.snapshot());
-  if (result.sort !== "dset") throw new Error("mask must yield a DSet");
-  return [...result.set];
-};
 
 function slotMap(agent: ChorusAgent): Map<string, Slot> {
   const slots = new Map<string, Slot>();

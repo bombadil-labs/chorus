@@ -167,3 +167,22 @@ export function replayDecision(agent: ChorusAgent, decisionDeltaId: string): Rep
     retractedSince,
   };
 }
+
+// Every claim any standing decision actually saw when it acted — the load-bearing set. Used
+// by the instruments (challenge flags these; the skeptic doubts them first). Malformed
+// decision records are skipped: whether they deserve a letter is review's beat, not this one's.
+export function decisionBasisIds(agent: ChorusAgent, alive: readonly Delta[]): Set<string> {
+  const cited = new Set<string>();
+  for (const d of alive) {
+    if (
+      !d.claims.pointers.some((p) => p.role === ROLE_DECISION_ABOUT && p.target.kind === "entity")
+    )
+      continue;
+    try {
+      for (const r of replayDecision(agent, d.id).receipts) cited.add(r.deltaId);
+    } catch {
+      continue;
+    }
+  }
+  return cited;
+}

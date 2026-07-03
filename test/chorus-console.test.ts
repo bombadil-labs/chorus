@@ -52,9 +52,14 @@ describe("chorus console", () => {
     const h = await startConsole({ storePath: file, masterSeedHex: MASTER, port: 0 });
     handles.push(h);
 
-    // The page itself.
+    // The page itself — and its inline script must PARSE. (The TS source holds the script as
+    // a template literal full of escapes; only the served bytes are the real program. This
+    // check lived in tools/check-console-page.ts, unreferenced; now it's a standing gate.)
     const page = await (await fetch(h.url)).text();
     expect(page).toContain("Chorus console");
+    const script = page.match(/<script>([\s\S]*?)<\/script>/);
+    expect(script).not.toBeNull();
+    expect(() => new Function(script![1]!)).not.toThrow();
 
     // The state: briefing + topics.
     const state = (await (await fetch(`${h.url}api/state`)).json()) as {

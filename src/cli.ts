@@ -1,6 +1,5 @@
 #!/usr/bin/env node
-// The `chorus` command. This file is the packaging skeleton (BACKLOG task 2): argument routing,
-// help, version — each subcommand lands as its own slice (tasks 3–9) and replaces its stub here.
+// The `chorus` command: argument routing, help, version — every subcommand fully shipped.
 // Deliberately a tiny hand-rolled parser: the surface is a handful of subcommands with a few
 // flags each, and a framework would be the heaviest dependency in the package.
 
@@ -14,8 +13,7 @@ import { dataCommand, diffCommand } from "./cli-data.js";
 
 interface CommandSpec {
   readonly summary: string; // one line for `chorus help`
-  readonly slice?: string; // which backlog slice ships it (stub until then)
-  run?(args: readonly string[]): Promise<number> | number;
+  run(args: readonly string[]): Promise<number> | number;
 }
 
 // The direct data ops share one shape: positionals + flags → dataCommand, which routes through
@@ -269,13 +267,6 @@ export async function main(argv: readonly string[]): Promise<number> {
   const spec = COMMANDS[cmd];
   if (spec === undefined) {
     console.error(redactSecrets(`chorus: unknown command "${cmd}" — try \`chorus help\``));
-    return 1;
-  }
-  if (spec.run === undefined) {
-    console.error(
-      `chorus ${cmd}: not implemented yet — it ships as ${spec.slice} of the alpha burndown ` +
-        `(see claude_notes/ROADMAP.md). The library surface already does this; the CLI wrapper is coming.`,
-    );
     return 1;
   }
   return spec.run(rest);

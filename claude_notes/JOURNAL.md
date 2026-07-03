@@ -681,3 +681,35 @@ rooms, not windows. Both wait their turn.
 
 Next: N.2, contraction. Given the ~35-PR sprint: dead exports, scaffolding, doc drift,
 dependency audit, suite runtime. Deletion as craft.
+
+## 2026-07-03 — Deletion as craft (N.2)
+
+**Net: 57 insertions, 121 deletions.** Contraction after a ~39-PR sprint, and the best cuts
+were the ones that made something else stronger:
+
+- **The stub era is over, and the code now says so.** CommandSpec carried `slice?` (which
+  backlog task ships this) and an optional `run?` with a "not implemented yet" branch — the
+  skeleton's scaffolding from when the CLI was mostly stubs. Every command ships now. The
+  field is gone, run is required, the branch is deleted, and the file's opening comment
+  stopped apologizing.
+- **An orphan became a gate.** tools/check-console-page.ts held a real safety check (the
+  console's served inline script must PARSE — it lives as a template literal full of escapes,
+  and only the served bytes are the real program) that nothing referenced. Folded into the
+  console test; now it runs on every push forever. The best deletion is a promotion.
+- **Nine copies of surviving().** Every instrument and read surface had privately copy-pasted
+  the same four-line drop-mask evaluation — vitals, belief-diff, messages, briefing,
+  discovery, review, challenges, contradictions, skeptic. One export on agent.ts now; nine
+  import lines; the sprint's most-duplicated idiom is a named concept. decisionBasisIds (two
+  copies) similarly went home to decisions.ts.
+- **The dead-export audit found no dead exports — and that is a finding.** 43 candidates,
+  every one either wire-format vocabulary (the ROLE_* constants ARE the protocol's dictionary)
+  or the result type of a public function. Un-exporting those isn't contraction, it's
+  vandalism. Dispositioned: kept, with a note to N.4 that the index.ts barrel should decide
+  coherently what the LIBRARY exports. (The first scanner, written inline in bash, flagged
+  ChorusAgent itself as dead — never trust a broken grep's noise either. The careful one is a
+  script file, and its verdicts were checked by hand.)
+
+Deps were already lean (rhizomatic + graphql, better-sqlite3 optional). Root already clean
+(Myk's tidy-root request did that pass). Suite runtime noted and deferred: the CLI tests spawn
+tsx per invocation — honest, slow, and batching them is rework, not pruning. Contraction
+resisted the temptation to become a second expansion.

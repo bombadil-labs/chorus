@@ -10,14 +10,14 @@
 // the slot moves (or the threshold does), the fingerprint moves, one new letter.
 
 import { createHash } from "node:crypto";
-import { authorForSeed, evalTerm, parseTerm, type Delta, type Pointer } from "@rhizomes/rhizomatic";
-import type { ChorusAgent } from "./agent.js";
+import { authorForSeed, type Delta, type Pointer } from "@rhizomes/rhizomatic";
+import { surviving, type ChorusAgent } from "./agent.js";
 import { examinerSeed, introduceExaminer } from "./examiner.js";
 import { messagePointers } from "./messages.js";
-import { replayDecision } from "./decisions.js";
+import { decisionBasisIds } from "./decisions.js";
 import { verdictsOnFile } from "./review.js";
 import { computeVitals } from "./vitals.js";
-import { CHORUS_PREFIX, ROLE_ABOUT, ROLE_DECISION_ABOUT, ROLE_KIND, ROLE_VALUE } from "./vocab.js";
+import { CHORUS_PREFIX, ROLE_ABOUT, ROLE_KIND, ROLE_VALUE } from "./vocab.js";
 
 export const ROLE_CHALLENGE_OF = `${CHORUS_PREFIX}.challenge.of`;
 export const ROLE_CHALLENGE_VERDICT = `${CHORUS_PREFIX}.challenge.verdict`;
@@ -44,12 +44,6 @@ export interface ChallengeReport {
   readonly challenges: readonly Challenge[];
   readonly mailed: number;
 }
-
-const surviving = (agent: ChorusAgent): Delta[] => {
-  const result = evalTerm(parseTerm({ op: "mask", policy: "drop", in: "input" }), agent.snapshot());
-  if (result.sort !== "dset") throw new Error("mask must yield a DSet");
-  return [...result.set];
-};
 
 interface Slot {
   entity: string;
@@ -106,23 +100,6 @@ function liveSlots(alive: readonly Delta[]): Map<string, Slot> {
     slots.set(key, slot);
   }
   return slots;
-}
-
-// Every claim a standing decision actually saw when it acted — the load-bearing set.
-function decisionBasisIds(agent: ChorusAgent, alive: readonly Delta[]): Set<string> {
-  const cited = new Set<string>();
-  for (const d of alive) {
-    if (
-      !d.claims.pointers.some((p) => p.role === ROLE_DECISION_ABOUT && p.target.kind === "entity")
-    )
-      continue;
-    try {
-      for (const r of replayDecision(agent, d.id).receipts) cited.add(r.deltaId);
-    } catch {
-      continue; // malformed decision — review's beat, not this one's
-    }
-  }
-  return cited;
 }
 
 const fingerprint = (parts: {

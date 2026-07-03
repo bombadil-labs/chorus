@@ -10,8 +10,8 @@
 //     unchanged verdict is never re-mailed. New movement = new fingerprint = one new letter.
 
 import { createHash } from "node:crypto";
-import { authorForSeed, evalTerm, parseTerm, type Delta, type Pointer } from "@rhizomes/rhizomatic";
-import type { ChorusAgent } from "./agent.js";
+import { authorForSeed, type Delta, type Pointer } from "@rhizomes/rhizomatic";
+import { surviving, type ChorusAgent } from "./agent.js";
 import { replayDecision, viewBasis } from "./decisions.js";
 import { examinerSeed, introduceExaminer } from "./examiner.js";
 import { messagePointers } from "./messages.js";
@@ -45,12 +45,6 @@ export interface ReviewReport {
   readonly findings: readonly ReviewFinding[];
   readonly mailed: number;
 }
-
-const surviving = (agent: ChorusAgent): Delta[] => {
-  const result = evalTerm(parseTerm({ op: "mask", policy: "drop", in: "input" }), agent.snapshot());
-  if (result.sort !== "dset") throw new Error("mask must yield a DSet");
-  return [...result.set];
-};
 
 // A decision delta names its subject with the decision-about role; a retracted decision is no
 // longer standing and draws no review.
