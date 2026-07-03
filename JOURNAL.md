@@ -208,3 +208,18 @@ DELIBERATELY regenerates them. A breaking change is a decision now, never a side
 
 **The alpha burndown pre-rehearsal is complete.** Remaining: the synthetic cutover rehearsal
 (task 11) producing the runbook for Myk, then the horizon spikes.
+
+---
+
+## 2026-07-03 - The rehearsal: Phase 1 is code-complete
+
+**Task 11 done (PR #16).** CUTOVER.md is the runbook and the rehearsal test executes all of
+it against a synthetic live store. The load-bearing insight the runbook leans on: RE-ADOPTION
+IS AN IDEMPOTENT UNION. Myk can trial the new node for days while the old node keeps serving;
+one final re-adopt sweeps up everything written in the meantime; rollback at any moment is
+'keep using the old node', which nothing ever modified. The test proves the source gained
+exactly its own node's interim writes and not one delta from the rehearsal itself.
+
+**ROADMAP Phase 1 is fully ticked.** Every CLI slice is shipped, reviewed, and contract-
+pinned. Phase 2 (the live cutover) is Myk's, by hand, per CUTOVER.md. The horizon spikes
+(12-14) are next for the loop.
