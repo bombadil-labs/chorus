@@ -141,8 +141,10 @@ describe("chorus console: the human's seat, end to end", () => {
     const state = (await (await fetch(`${url}api/state`)).json()) as {
       deltas: number;
       userAuthor: string;
+      vitals: { liveBeliefs: number };
     };
     expect(state.deltas).toBeGreaterThan(0);
+    expect(state.vitals.liveBeliefs).toBeGreaterThan(0); // the instrument panel rides along
     expect(state.userAuthor.startsWith("ed25519:")).toBe(true);
   }, 60_000);
 });

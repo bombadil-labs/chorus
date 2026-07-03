@@ -14,6 +14,9 @@ import { callTool, createSession } from "./mcp-server.js";
 import { computeVitals } from "./vitals.js";
 import { agentAsOf, diffBeliefs } from "./belief-diff.js";
 import { bisectBelief } from "./bisect.js";
+import { testifyVitals } from "./examiner.js";
+import { resolveMasterSeed } from "./config.js";
+import { chorusHome } from "./config.js";
 import type { ChorusAgent } from "./agent.js";
 
 // Open the named store, run tool calls against one short-lived CLI session, persist, close.
@@ -25,6 +28,7 @@ function withStore<T>(
   fn: (
     call: (tool: string, args: Record<string, unknown>) => unknown,
     ctx: ReturnType<typeof createSession>,
+    persist: () => number,
   ) => T,
 ): T {
   const { registry, seed } = openRegistry(io);
@@ -45,6 +49,7 @@ function withStore<T>(
     const result = fn(
       (tool, args) => callTool(ctx, tool, args, () => store.backend.persist(ctx.agent)),
       ctx,
+      () => store.backend.persist(ctx.agent),
     );
     return result;
   } finally {
@@ -276,6 +281,30 @@ export function dataCommand(
         }
         io.out(
           `  found in ${r.probes} probe(s) — as-of was always the time machine; this is just the search.`,
+        );
+        return 0;
+      });
+    }
+
+    case "examine": {
+      // Measure AND testify: the examiner author puts the numbers on the record.
+      const storeName = storeOf(flags);
+      const home = io.home ?? chorusHome();
+      const master = resolveMasterSeed(process.env, home);
+      if (master === undefined) throw new Error("no master seed — run `chorus init` first");
+      return withStore(storeName, io, (_call, ctx, persist) => {
+        const t = testifyVitals(ctx.agent, master, storeName);
+        persist();
+        if (flags.has("json")) return emit(t);
+        io.out(
+          `the examiner (${t.examiner.slice(0, 24)}…) put ${t.recorded} measurement(s) on the record at ${t.subject}:`,
+        );
+        io.out(
+          `  live beliefs ${t.vitals.liveBeliefs} · contested ${t.vitals.contested} · source HHI ${t.vitals.sourceConcentration.toFixed(3)} · retraction rate ${t.vitals.retractionRate.toFixed(3)}`,
+        );
+        io.out(
+          `every number is a signed claim — "chorus explain ${t.subject} --store ${storeName}" ` +
+            `is the health history, and the examiner can be distrusted like anyone.`,
         );
         return 0;
       });
