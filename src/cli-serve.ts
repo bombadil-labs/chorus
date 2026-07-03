@@ -18,6 +18,7 @@ export interface ServeArgs {
   readonly port?: number;
   readonly host?: string;
   readonly token?: string;
+  readonly gqlReadonly?: boolean;
 }
 
 export async function serveCommand(args: ServeArgs, io: StoreIo): Promise<number> {
@@ -83,11 +84,17 @@ export async function serveCommand(args: ServeArgs, io: StoreIo): Promise<number
     masterSeedHex: seed,
     stores: mounts,
     token,
+    ...(args.gqlReadonly === true ? { gqlReadonly: true } : {}),
     port: args.port ?? 4821,
     ...(args.host === undefined ? {} : { host: args.host }),
   });
   io.out(`chorus node up — ${mounts.length} store(s)`);
   for (const m of handle.mounts) io.out(`  ${m.name || args.stores[0]!}  ${m.url}`);
+  if (args.gqlReadonly === true) {
+    for (const m of handle.mounts) {
+      io.out(`  gql(ro) ${m.name || args.stores[0]!}  ${m.url.replace("/mcp/", "/gql/")}`);
+    }
+  }
   if (args.token === undefined) {
     io.out(`(token minted for this run — treat the URLs as credentials)`);
   }

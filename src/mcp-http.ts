@@ -25,7 +25,7 @@ import {
   type BackendKind,
   type StoreBackend,
 } from "./store-tier.js";
-import { createSession, handleRequest, type SessionContext } from "./mcp-server.js";
+import { callTool, createSession, handleRequest, type SessionContext } from "./mcp-server.js";
 import { resolveMasterSeed } from "./config.js";
 
 interface HttpSession {
@@ -53,6 +53,12 @@ export interface HttpServerOptions {
   readonly storeBackend?: BackendKind; // …with its kind (default: resolved from env / path)
   readonly stores?: readonly HttpStoreMount[]; // multi-store form (wins over storePath)
   readonly token: string; // the secret path segment / bearer token
+  // Horizon 1's first primitive: a READ-ONLY GraphQL endpoint per mount at /gql/<token>[/name].
+  // Each request pins a fresh snapshot under the store's policy, answers, and releases — no
+  // session minted, nothing ever persisted; the synthesized schema has no mutations to begin
+  // with, so read-only is by construction. (The closure-audit view — what a published query
+  // EXPOSES — is constellation Phase D; this endpoint is the serving half.)
+  readonly gqlReadonly?: boolean;
   readonly port?: number; // 0 = ephemeral
   readonly host?: string; // default 127.0.0.1 — TLS terminates in front of us
   readonly idleMs?: number; // prune sessions idle longer than this (default 2h)
@@ -131,12 +137,13 @@ export function startHttpServer(opts: HttpServerOptions): Promise<HttpServerHand
   const tokenMatches = (candidate: string): boolean =>
     timingSafeEqual(createHash("sha256").update(candidate).digest(), tokenDigest);
 
-  // Which mount (if any) a request addresses. Token-in-path: /mcp/<token> = the default mount,
-  // /mcp/<token>/<name> = a named one. Bearer-header clients use /mcp and /mcp/<name>.
-  const mountFor = (req: IncomingMessage, url: URL): ResolvedMount | undefined => {
+  // Which mount (if any) a request addresses under a base ("/mcp" or "/gql"). Token-in-path:
+  // <base>/<token> = the default mount, <base>/<token>/<name> = a named one. Bearer-header
+  // clients use <base> and <base>/<name>.
+  const mountUnder = (base: string, req: IncomingMessage, url: URL): ResolvedMount | undefined => {
     const path = url.pathname.endsWith("/") ? url.pathname.slice(0, -1) : url.pathname;
-    if (path.startsWith("/mcp/")) {
-      const segments = path.slice("/mcp/".length).split("/");
+    if (path.startsWith(`${base}/`)) {
+      const segments = path.slice(base.length + 1).split("/");
       if (segments.length <= 2 && tokenMatches(segments[0]!)) {
         return segments.length === 1 ? defaultMount : byName.get(segments[1]!);
       }
@@ -144,13 +151,76 @@ export function startHttpServer(opts: HttpServerOptions): Promise<HttpServerHand
     const auth = req.headers["authorization"];
     const bearer = typeof auth === "string" && auth.startsWith("Bearer ") ? auth.slice(7) : "";
     if (!tokenMatches(bearer)) return undefined;
-    if (path === "/mcp") return defaultMount;
-    if (path.startsWith("/mcp/")) return byName.get(path.slice("/mcp/".length));
+    if (path === base) return defaultMount;
+    if (path.startsWith(`${base}/`)) return byName.get(path.slice(base.length + 1));
     return undefined;
+  };
+  const mountFor = (req: IncomingMessage, url: URL): ResolvedMount | undefined =>
+    mountUnder("/mcp", req, url);
+
+  // The read-only GraphQL answerer: pin → query → release, per request. An EPHEMERAL reader
+  // agent (never persisted, never introduced) refreshes from the mount's backend and answers
+  // under the store's policy.
+  const answerGql = async (
+    mount: ResolvedMount,
+    req: IncomingMessage,
+    url: URL,
+    res: ServerResponse,
+  ): Promise<void> => {
+    let query: string | undefined;
+    if (req.method === "GET") {
+      query = url.searchParams.get("query") ?? undefined;
+    } else if (req.method === "POST") {
+      try {
+        query = (JSON.parse(await readBody(req)) as { query?: string }).query;
+      } catch {
+        /* handled below */
+      }
+    } else {
+      res.writeHead(405, { allow: "GET, POST" }).end();
+      return;
+    }
+    if (query === undefined || query === "") {
+      res.writeHead(400, { "content-type": "application/json" });
+      res.end(JSON.stringify({ errors: [{ message: "a GraphQL query is required" }] }));
+      return;
+    }
+    const ctx = createSession({
+      masterSeedHex: opts.masterSeedHex,
+      sessionId: `${now()}-gqlro`,
+    });
+    const store = createBackend(mount.storePath, mount.kind);
+    try {
+      store.refresh(ctx.agent);
+      const prep = callTool(ctx, "gql-prepare", {}) as { prepId: string };
+      try {
+        const body = callTool(ctx, "gql-query", { prepId: prep.prepId, query });
+        res.writeHead(200, { "content-type": "application/json" });
+        res.end(JSON.stringify(body));
+      } finally {
+        callTool(ctx, "gql-release", { prepId: prep.prepId });
+      }
+    } catch (e) {
+      res.writeHead(400, { "content-type": "application/json" });
+      res.end(
+        JSON.stringify({ errors: [{ message: e instanceof Error ? e.message : String(e) }] }),
+      );
+    } finally {
+      store.close?.();
+    }
   };
 
   const handle = async (req: IncomingMessage, res: ServerResponse): Promise<void> => {
     const url = new URL(req.url ?? "/", "http://localhost");
+    if (opts.gqlReadonly === true && url.pathname.startsWith("/gql")) {
+      const gqlMount = mountUnder("/gql", req, url);
+      if (gqlMount === undefined) {
+        res.writeHead(404).end();
+        return;
+      }
+      await answerGql(gqlMount, req, url, res);
+      return;
+    }
     const mount = mountFor(req, url);
     if (mount === undefined) {
       res.writeHead(404).end(); // not 401: don't advertise that an endpoint (or a store) exists

@@ -97,7 +97,7 @@ const COMMANDS: Record<string, CommandSpec> = {
       );
       rejectUnknownFlags(
         flags,
-        new Set(["stdio", "http", "port", "host", "token", "home", "store"]),
+        new Set(["stdio", "http", "port", "host", "token", "home", "store", "gql-readonly"]),
         "serve",
         lists,
       );
@@ -115,6 +115,7 @@ const COMMANDS: Record<string, CommandSpec> = {
           ...(port === undefined ? {} : { port }),
           ...(host === undefined ? {} : { host }),
           ...(token === undefined ? {} : { token }),
+          ...(flags.has("gql-readonly") ? { gqlReadonly: true } : {}),
         },
         { out: console.log, ...(home === undefined ? {} : { home }) },
       );
