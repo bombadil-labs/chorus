@@ -57,16 +57,12 @@ _(task 11 moved to Done)_
 
 ### Now — EPISTEME Phase V: the Instrument Panel (tranche 3, mined 2026-07-03)
 
-_(task V.1 moved to Done)_
+_(tasks V.1–V.4 moved to Done)_
 
-- [ ] **V.2 ** — superposition-aware belief diff (agree /
-      disagree / only-in-one / same-value-different-provenance); also one store at two as-of
-      instants. The drift-detection primitive.
-- [ ] **V.3 ** — binary-search the as-of history for the instant a resolved
-      view flipped; return the delta, author, session, model. git-bisect for a mind.
-      _(V.4 moved to Done)_
-- [ ] **V.5 Repositioning** — README/pitch rewrite around belief-not-memory (EPISTEME says
-      positioning is a product surface).
+- [x] **V.5 Repositioning** — README/pitch rewrite around belief-not-memory (EPISTEME says
+      positioning is a product surface). _Done 2026-07-03: README opens on "Chorus doesn't store
+      what happened. It stores what was believed" — the flight-recorder pitch, the instruments
+      paragraph, EPISTEME.md linked from status._
 - [ ] ♻ **V.6 Retro** — then mine Phase VI (the Examiner) if the gates still have not moved.
 
 ### The nightcap protocol (Myk, 2026-07-03, verbatim order — run when the V-ladder thins)
@@ -102,17 +98,17 @@ _(task V.1 moved to Done)_
       chart). Console /api/state carries live vitals. Design finding: the panel must exclude
       its own needles - measurement claims describe the world, so vitals skips
       kind:measurement or every examine inflates the next reading.
-- [x] **V.3 ** (2026-07-03, PR #29 - journal: The search). Binary search over
+- [x] **V.3 Belief bisect** (2026-07-03, PR #29 - journal: The search). Binary search over
       as-of instants for the moment a resolved view flipped; culprit named with model/session
       receipts; O(log n) probes asserted by test. Default baseline is the entity BIRTH (first
       mention), so appearance is not noise - and the search proved more honest than its own
       test: a revise is retract-then-assert, and bisect surfaces BOTH instants.
-- [x] **V.2 ** (2026-07-03, PR #28 - journal: Drift, made visible). Two stores
+- [x] **V.2 Belief diff** (2026-07-03, PR #28 - journal: Drift, made visible). Two stores
       side by side or one store against its own past (--from/--to instants rebuild the world
       as it stood). Agreement refuses to flatten: agree / agree-INDEPENDENTLY (same
       conclusion, disjoint testimony - stronger than agreement, and named) / disagree /
       only-*. Drift exits non-zero: scripts chain on it.
-- [x] **V.1 ** (2026-07-03, PR #27 - journal: The first gauge). Epistemic
+- [x] **V.1 Vitals** (2026-07-03, PR #27 - journal: The first gauge). Epistemic
       vitals over one store: contested slots, source concentration (HHI over live-belief
       authorship), retraction rate, staleness percentiles, confidence coverage, kind
       distribution. Read-only by construction (test pins the delta count across measurements);
