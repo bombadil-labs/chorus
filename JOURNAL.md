@@ -264,3 +264,22 @@ hyperschema:commons declares the very attributes the commons is made of, which i
 the modeling suffices. And the public read surface for a hosted commons is the task-12
 endpoint, already shipped. All three horizons have now touched ground in code, each
 composing with the others exactly as VISION.md claimed they would.
+
+---
+
+## 2026-07-03 - Stock-take (retro #2): the day the plan ran out
+
+**Task 15 done (PR #20) - and with it, the seeded backlog.** Nineteen PRs in roughly one
+day of loop time: Phase 0 standup, the skills home, three interchangeable sqlite witnesses
+over one shared core, the whole CLI, contract pins, a proven cutover runbook, and all three
+VISION horizons grounded in composing code. The green gate grew from 104 to 158 tests.
+
+**What the retro sees.** (1) The horizons composed exactly as claimed - the commons needed
+no mechanism, the endpoint serves it, the seam bridges it. That was the thesis and it held.
+(2) The review culture found wrong-SILENCE far more often than wrong answers; honest failure
+is now listed in VISION as a product value beside the CRDT. (3) The binding constraint moved:
+it is no longer code, it is decisions - cutover, publish, hosting, embedding model - all
+Myk's, all listed in BACKLOG under their own heading now.
+
+**Tranche 2 queued:** encrypted private stores (Phase B), the aggregator union read (Phase
+C's first slice), publish readiness minus the button. The loop continues.

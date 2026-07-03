@@ -55,19 +55,35 @@ _(tasks 9-10 moved to Done)_
 
 _(task 11 moved to Done)_
 
-### Next — horizon spikes (from VISION.md, interleaved after the CLI exists)
+### Now — constellation + readiness (tranche 2, mined at retro #2)
 
-_(task 12 moved to Done)_
+- [ ] **16. Encrypted private store (constellation Phase B)** — an encrypted sqlite-family
+      backend: decrypt-in-memory, key derived from the master seed (a labeled child, like
+      store identities); a `private` store's file is ciphertext at rest; conformance suite as
+      the witness. Leak-safety is the claim to prove, not promise.
+- [ ] **17. Aggregator union read (constellation Phase C, first slice)** — a read-only lens
+      over SEVERAL mounts: gql over the union snapshot with per-delta origin annotations
+      (relay provenance). The multi-store node already exists; this is the union READ.
+- [ ] **18. Publish readiness (Phase 4 minus the button)** — release scripts, npm pack
+      dry-run + tarball inspection, install-from-tarball smoke on CI, README install docs.
+      The actual `npm publish` (and un-private) stays Myk-gated.
+- [ ] ♻ **19. Retro #3** — after 16-18; includes a fresh look at what the real cutover
+      taught (if Myk has run it by then).
 
-_(task 13 moved to Done)_
+### Waiting on Myk (not loop-executable — decision gates)
 
-_(task 14 moved to Done)_
-
-- [ ] ♻ **15. Retro/integration pass #2 + VISION.md revision** — full stock-take; revise the
-      horizons against what the spikes taught; mine the next tranche.
+- **The live cutover** (CUTOVER.md — rehearsed, runbook ready).
+- **Publishing @rhizomes/chorus** (un-private + npm token + the button).
+- **A hosted public commons** (which node, which visibility).
+- **A real embedding model** for the librarian (which model, local vs API — cost/privacy
+  trade-offs are his call; the EmbeddingModel seam is ready).
 
 ### Done
 
+- [x] ♻ **15. Retro #2 + VISION revision** (2026-07-03, PR #20 - journal: Stock-take). All
+      three horizons grounded; VISION revised with per-horizon status + what the day taught;
+      tranche 2 mined (Phase B/C constellation + publish readiness); Myk's decision gates
+      listed explicitly.
 - [x] **14. Schema commons: design + seed** (2026-07-03, PR #19 - journal: The commons).
       COMMONS.md is the vocabulary-of-vocabularies design (attr:/scheme:/hyperschema: as
       entities carrying beliefs; registrar-as-author; adoption/analytics deferred with their
