@@ -455,3 +455,45 @@ missing instrument ops in Commands, and a Pointers section that still said "star
 sibling links survive untouched, links up and out gain ../, root links gain the directory prefix
 — and the sweep must include prose mentions in code (cli.ts help text, stores.ts comments, the
 cutover test header) plus a check that no golden pin froze the old paths (none had).
+
+## 2026-07-03 — What Phase V taught (the V.6 retro)
+
+**The arc.** Six tasks, six PRs, one reframe. Phase V set out to build an instrument panel and
+ended up discovering what the instruments are for. Vitals (V.1) gave the store a pulse; diff
+(V.2) refused to flatten agreement — same conclusion from disjoint testimony is STRONGER than
+agreement, and the tool says so; bisect (V.3) turned "when did I start believing this?" into a
+binary search with a culprit and receipts; examine (V.4) put the measurements themselves on the
+record, signed, distrustable; repositioning (V.5) rewrote the front door once the claims behind
+it were true. The ladder held because each rung only used what the substrate already guaranteed
+— as-of reads, signed authorship, grow-only history. Zero substrate changes, as EPISTEME
+promised.
+
+**The organizing lesson, promoted to a design rule.** Every real defect this phase was a
+WRONG-SILENCE, not a wrong answer: the panel silently counting its own needles (V.4's
+self-measurement bug); the bisect baseline silently treating an entity's birth as noise; a
+green-looking grep silently hiding a typecheck failure; a merge chain silently watching the
+wrong branch; a --watch that silently returned before checks registered. None of these lied —
+they all just said nothing when they should have spoken. Phase VI exists to make the STORE
+speak up: retrospective replay, staleness challenges, contradiction mining, the resident
+skeptic. All of it is mail and claims, never mutation; all of it must earn its interruptions.
+
+**Three design principles Phase V leaves behind:**
+
+1. _The gauge describes the world, never the describing_ — instruments exclude their own
+   testimony from what they measure, or every reading inflates the next.
+2. _No view from nowhere, all the way up_ — measurements are claims with authors; the examiner
+   is calibrated by the same machinery as everyone else. There is no privileged observer, and
+   that is a feature you can build on, not a limitation to apologize for.
+3. _Honest tools embarrass their own tests_ — bisect surfaced the retract-instant inside a
+   revise that the test assumed was atomic. When a tool disagrees with its test, check the test
+   first; the tool may be seeing something true.
+
+**Gates check (unmoved, all four).** The live cutover, publishing, the hosted commons, and the
+embedding model remain Myk-gated — none loop-executable. Phase VI mined into tranche 4
+(VI.1–VI.6): the examiner stops describing and starts knocking.
+
+**Process notes for the record.** Merge by PR number, never by current branch. Sleep before
+gh pr checks --watch — checks register late and the watch exits clean on "no checks." Verify
+the gate by reading the counts, never by grepping for absence. Prose edits go through .mjs
+script files, not shell heredocs. And Myk's tidy-root request mid-loop was a reminder worth
+keeping: the working agreement is a living document, and the footprint is part of the product.

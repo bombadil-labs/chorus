@@ -51,19 +51,37 @@ _(task 7 moved to Done)_
 
 _(task 8 moved to Done)_
 
-_(tasks 9-10 moved to Done)_
+_(tranches 1–3 — tasks 1–20, V.1–V.6 — moved to Done)_
 
-_(task 11 moved to Done)_
+### Now — EPISTEME Phase VI: the Examiner acts (tranche 4, mined 2026-07-03 by the V.6 retro)
 
-### Now — EPISTEME Phase V: the Instrument Panel (tranche 3, mined 2026-07-03)
+Phase V measures; Phase VI acts. The organizing lesson, promoted from the journal to a design
+rule: **most defects are wrong-silence, not wrong-answers** — so the store learns to speak up.
+Everything the examiner does is **mail and claims, never mutation**; alert fatigue is the named
+failure mode, so every examiner surface must earn its interruptions (its mail carries enough
+context to be dismissed in one read, and ack-rates are its future report card, per Phase VII).
 
-_(tasks V.1–V.4 moved to Done)_
-
-- [x] **V.5 Repositioning** — README/pitch rewrite around belief-not-memory (EPISTEME says
-      positioning is a product surface). _Done 2026-07-03: README opens on "Chorus doesn't store
-      what happened. It stores what was believed" — the flight-recorder pitch, the instruments
-      paragraph, EPISTEME.md linked from status._
-- [ ] ♻ **V.6 Retro** — then mine Phase VI (the Examiner) if the gates still have not moved.
+- [ ] **VI.1 Retrospective replay** — `chorus review --store <n>` + library seam: replay every
+      standing decision against the present; where a decision's basis has since been retracted,
+      contested, or superseded, the examiner files MAIL to the decision's author ("You acted on
+      X on Tuesday. X is now known false. The action may need revisiting."), citing the exact
+      basis deltas that moved. Consequence-tracking for agent decisions, closed at the personal
+      scale. Idempotence matters: re-running review must not re-mail unchanged verdicts.
+- [ ] **VI.2 Staleness challenges** — load-bearing beliefs past their half-life generate
+      re-verification mail; the store asks to be checked instead of silently rotting.
+      Load-bearing, first cut: beliefs cited as decision basis, plus beliefs older than the
+      vitals p90. `--half-life <days>` tunes it; the examiner signs the ask.
+- [ ] **VI.3 Contradiction mining** — the librarian's similarity seam proposes near-synonym
+      attributes carrying conflicting values across dialects (latent contradictions the
+      contested scan can't see because the words differ). Proximity proposes; mail asks a judge
+      (Myk or the librarian) to dispose via sameAs/recast — never auto-merge.
+- [ ] **VI.4 The resident skeptic** — opt-in adversarial derived author that appends
+      doubt-claims where corroboration is thin (single-author slots cited by decisions first).
+      Doubt is a claim with an author: tune it, rank it, or fire it. The loop's review culture,
+      productized as a store inhabitant.
+- [ ] **VI.5 (stretch) The hypnagogic pass** — idle-time consolidation: recasts, sameAs filing,
+      digest curation. Stores that sleep.
+- [ ] ♻ **VI.6 Retro** — then the gates check, then Phase VII (the Actuary) if still unmoved.
 
 ### The nightcap protocol (Myk, 2026-07-03, verbatim order — run when the V-ladder thins)
 
@@ -91,13 +109,19 @@ _(tasks V.1–V.4 moved to Done)_
 
 ### Done
 
+- [x] **V.6 Retro** (2026-07-03, docs-only — journal: What Phase V taught). Gates checked
+      (all four still Myk-gated, unmoved); Phase VI mined into tranche 4 (VI.1–VI.6 above).
+      The arc's organizing lesson promoted to a design rule: most defects are wrong-silence.
 - [x] **Tidy root** (2026-07-03, Myk's direct request — journal: The papers find their drawer).
       Root is README.md + CLAUDE.md only; the nine notes moved to claude_notes/ via git mv with
       an index (living set / plans / records); every cross-link repaired; standing rule added to
       CLAUDE.md: never accrete top-level markdown, and README+CLAUDE are part of every PR's
       definition of done. CLAUDE.md de-staled in the same pass (file count, instrument ops,
       pointers now lead with BACKLOG).
-
+- [x] **V.5 Repositioning** (2026-07-03, PR #31 - journal: The pitch is the product). README
+      opens on "Chorus doesn't store what happened. It stores what was believed" — the
+      flight-recorder pitch, the instruments as a physician's kit, EPISTEME linked. The pitch
+      had to wait until the instruments existed: now a description, not a promise.
 - [x] **V.4 The examiner testifies** (2026-07-03, PR #30 - journal: The instrument goes on
       the record). chorus examine: vitals emitted as signed claims by a derived examiner
       author (model chorus-examiner in receipts, introduced once, distrustable like anyone);
