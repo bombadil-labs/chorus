@@ -41,7 +41,13 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "check": "npm run format:check && npm run lint && npm run typecheck && npm test"
+    "check": "npm run format:check && npm run lint && npm run typecheck && npm test",
+    "preversion": "npm run check",
+    "version": "npm run build",
+    "postversion": "git push --follow-tags",
+    "release:patch": "npm version patch && npm publish",
+    "release:minor": "npm version minor && npm publish",
+    "release:major": "npm version major && npm publish"
   },
   "dependencies": {
     "@rhizomes/rhizomatic": "^0.1.0",

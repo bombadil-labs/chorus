@@ -8,9 +8,14 @@ signed-content-addressed-delta format, whose spec and witnesses live in the
 [rhizomatic repo](https://github.com/mbilokonsky/rhizomatic) — and provides the agent handle,
 trust dynamics, the librarian, stores, the MCP server, and the web console.
 
-**Status: pre-alpha.** The immediate goal is a `chorus` CLI installable via
-`npm i -g @rhizomes/chorus` — see [ROADMAP.md](ROADMAP.md) for the burndown and
-[CONSTELLATION.md](CONSTELLATION.md) for where it's headed. Until then, run it from a checkout:
+**Status: alpha, unpublished.** The `chorus` CLI is code-complete — `init`, `store
+create|ls|show|adopt`, `serve` (stdio + multi-store HTTP, read-only GraphQL mounts including
+`@union`), `console`, direct data ops, `migrate` — with the live-node cutover scripted and
+rehearsed ([CUTOVER.md](CUTOVER.md)). Publication to npm is gated on the cutover proving out;
+until then, install from a checkout (`npm install` builds `dist/`; `npm pack` produces the same
+tarball CI smoke-installs globally on every push) or run the npm scripts below. See
+[ROADMAP.md](ROADMAP.md) for the burndown and [CONSTELLATION.md](CONSTELLATION.md) +
+[VISION.md](VISION.md) for where it's headed.
 
 ```
 npm install

@@ -61,9 +61,8 @@ _(task 16 moved to Done)_
 
 _(task 17 moved to Done)_
 
-- [ ] **18. Publish readiness (Phase 4 minus the button)** — release scripts, npm pack
-      dry-run + tarball inspection, install-from-tarball smoke on CI, README install docs.
-      The actual `npm publish` (and un-private) stays Myk-gated.
+_(task 18 moved to Done)_
+
 - [ ] ♻ **19. Retro #3** — after 16-18; includes a fresh look at what the real cutover
       taught (if Myk has run it by then).
 
@@ -77,6 +76,11 @@ _(task 17 moved to Done)_
 
 ### Done
 
+- [x] **18. Publish readiness** (2026-07-03, PR #23 - journal: Minus the button). Release
+      scripts mirroring the format package; CI packs the tarball and installs it globally
+      into a temp prefix on every push, driving the installed bin through init -> store ->
+      write -> read on both OSes - the published artifact proven without publishing. README
+      status updated to alpha-unpublished. npm publish + un-private stay Myk-gated.
 - [x] **17. Aggregator union read** (2026-07-03, PR #22 - journal: The union). The @union
       pseudo-mount on --gql-readonly reads across EVERY store the node serves - one ephemeral
       reader folds all mounts (the CRDT makes union a fold), one synthesized schema over the
