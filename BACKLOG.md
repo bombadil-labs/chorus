@@ -70,6 +70,22 @@ _(task V.1 moved to Done)_
       positioning is a product surface).
 - [ ] ♻ **V.6 Retro** — then mine Phase VI (the Examiner) if the gates still have not moved.
 
+### The nightcap protocol (Myk, 2026-07-03, verbatim order — run when the V-ladder thins)
+
+- [ ] **N.1 Expansion** — are there some next things that would be cool? (a real divergent
+      pass; new ideas, not EPISTEME re-listed)
+- [ ] **N.2 Contraction** — given the expansive run: prune. Dead exports, accumulated
+      scaffolding, doc coherence, dependency audit, suite runtime. Delete what the 28-PR
+      sprint left behind.
+- [ ] **N.3 Expansion again** — now are there some next things that would be cool?
+      (contraction changes what is visible)
+- [ ] **N.4 Consolidation** — the API/MCP surface area: 25 tools, the CLI, the library
+      barrel. Merges, modes, deprecations — never silent breaks; the golden pins make it a
+      decision.
+- [ ] **N.5 The marketing pass** — a GitHub Pages site; an agent-friendly summary (llms.txt + AGENTS-facing docs); the pitch that makes a stranger feel it.
+- [ ] **N.6 The edge** — seriously: next cool things, or the honest end of what Claude
+      Fable, the feeling-is-first creature, can imagine? Answer as one. Reach.
+
 ### Waiting on Myk (not loop-executable — decision gates)
 
 - **The live cutover** (CUTOVER.md — rehearsed, runbook ready).
@@ -80,6 +96,11 @@ _(task V.1 moved to Done)_
 
 ### Done
 
+- [x] **V.3 ** (2026-07-03, PR #29 - journal: The search). Binary search over
+      as-of instants for the moment a resolved view flipped; culprit named with model/session
+      receipts; O(log n) probes asserted by test. Default baseline is the entity BIRTH (first
+      mention), so appearance is not noise - and the search proved more honest than its own
+      test: a revise is retract-then-assert, and bisect surfaces BOTH instants.
 - [x] **V.2 ** (2026-07-03, PR #28 - journal: Drift, made visible). Two stores
       side by side or one store against its own past (--from/--to instants rebuild the world
       as it stood). Agreement refuses to flatten: agree / agree-INDEPENDENTLY (same

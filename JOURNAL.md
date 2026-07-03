@@ -384,3 +384,15 @@ is a signal scripts want to chain on, caught before it costs something.
 
 Myk greenlit full ambition tonight - reach for the stars, poetry as important as engineering.
 The directive is in memory and in the working agreement; the gauge cluster grows next: bisect.
+
+---
+
+## 2026-07-03 - The search (V.3)
+
+**chorus bisect ships (PR #29).** git-bisect for a mind: binary search over the as-of
+instants, culprit named with receipts, logarithmic probes asserted. Two findings worth the
+record. First: the sound instant set is ALL delta timestamps, because a negation targets a
+DELTA, never the entity it silences - filter by entity and you miss the retraction that
+flipped the view. Second: the tool came out more honest than its own test - a revise is
+retract-then-assert across two instants, and bisect correctly surfaces the intermediate {}
+the view passed through. The test was wrong; the mind really did blink.
