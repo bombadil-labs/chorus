@@ -68,10 +68,13 @@ context to be dismissed in one read, and ack-rates are its future report card, p
       examiner does not nag); exit 1 on findings so scripts chain. Also fixed in passing: the
       bisect CLI's `--good/--bad` validator regex (`/^d+$/`) rejected every valid instant —
       plus the accept-side test the junk-only assertion could never provide.
-- [ ] **VI.2 Staleness challenges** — load-bearing beliefs past their half-life generate
-      re-verification mail; the store asks to be checked instead of silently rotting.
-      Load-bearing, first cut: beliefs cited as decision basis, plus beliefs older than the
-      vitals p90. `--half-life <days>` tunes it; the examiner signs the ask.
+- [x] **VI.2 Staleness challenges** — _Done 2026-07-03 (journal: The store asks to be
+      checked):_ `chorus challenge [--half-life <days>]` + `challengeStale()`: every live slot
+      past the half-life draws one examiner letter to the voice that last spoke it;
+      decision-cited claims are flagged load-bearing; unset half-life self-calibrates to the
+      store's own staleness p90. The cure is the substrate's kindest property — re-assertion
+      IS re-verification — and the test proves a fresh assertion clears the challenge. Same
+      anti-nag fingerprints as review; measurements never challenged (the gauge again)._
 - [ ] **VI.3 Contradiction mining** — the librarian's similarity seam proposes near-synonym
       attributes carrying conflicting values across dialects (latent contradictions the
       contested scan can't see because the words differ). Proximity proposes; mail asks a judge

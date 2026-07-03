@@ -16,6 +16,7 @@ import { agentAsOf, diffBeliefs } from "./belief-diff.js";
 import { bisectBelief } from "./bisect.js";
 import { testifyVitals } from "./examiner.js";
 import { reviewDecisions } from "./review.js";
+import { challengeStale } from "./challenges.js";
 import { resolveMasterSeed } from "./config.js";
 import { chorusHome } from "./config.js";
 import type { ChorusAgent } from "./agent.js";
@@ -341,6 +342,50 @@ export function dataCommand(
           io.out(`every decision still rests on the ground it was made on.`);
         }
         return r.findings.length > 0 ? 1 : 0;
+      });
+    }
+
+    case "challenge": {
+      // Staleness challenges (EPISTEME VI.2): the store asks to be checked instead of silently
+      // rotting. Exit 1 when anything is past its half-life — rot is chainable, same as drift.
+      const storeName = storeOf(flags);
+      const home = io.home ?? chorusHome();
+      const master = resolveMasterSeed(process.env, home);
+      if (master === undefined) throw new Error("no master seed — run `chorus init` first");
+      const halfLifeRaw = flagValue(flags, "half-life");
+      if (halfLifeRaw !== undefined && !/^\d+$/.test(halfLifeRaw)) {
+        throw new Error("--half-life is a whole number of days");
+      }
+      return withStore(storeName, io, (_call, ctx, persist) => {
+        const r = challengeStale(ctx.agent, master, storeName, {
+          ...(halfLifeRaw === undefined ? {} : { halfLifeDays: Number(halfLifeRaw) }),
+        });
+        persist();
+        if (flags.has("json")) {
+          emit(r);
+          return r.challenges.length > 0 ? 1 : 0;
+        }
+        const threshold = Number.isFinite(r.thresholdDays)
+          ? `${r.thresholdDays}d (${r.calibration})`
+          : "∞ (nothing to calibrate against yet)";
+        io.out(
+          `${r.slots} live slot(s) against a half-life of ${threshold}: ${r.challenges.length} past it.`,
+        );
+        for (const c of r.challenges) {
+          io.out(
+            `  ${c.entity} ${c.attribute} — ${c.ageDays}d old` +
+              (c.loadBearing ? " (a standing decision rests on it)" : ""),
+          );
+          io.out(
+            c.mailed
+              ? `    asked its author to re-verify — a fresh assertion IS re-verification`
+              : `    already asked (unchanged since — the examiner does not nag)`,
+          );
+        }
+        if (r.challenges.length === 0 && r.slots > 0) {
+          io.out(`nothing is past its half-life; the store is keeping itself current.`);
+        }
+        return r.challenges.length > 0 ? 1 : 0;
       });
     }
 

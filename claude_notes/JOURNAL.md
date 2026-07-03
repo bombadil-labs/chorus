@@ -528,3 +528,33 @@ backslash, so every VALID instant threw "is an instant in epoch milliseconds." T
 test only asserted that junk was rejected; a validator that rejects everything passes that
 test. Wrong-silence's mirror: loud on the right input. Fixed, with an accept-side regression
 test. The lesson from the retro holds shape: test the door opens, not just that it locks.
+
+## 2026-07-03 — The store asks to be checked (VI.2)
+
+**What landed.** `chorus challenge --store <n> [--half-life <days>]` and `challengeStale()`:
+every live belief slot past its half-life draws exactly one letter from the examiner to the
+voice that last spoke it. _"Your last word on svc:api owner is 40 day(s) old — past this
+store's half-life, and nothing has confirmed or contradicted it since. A standing decision
+rests on it. If it still holds, say it again — a fresh assertion IS re-verification here. If
+it doesn't, retract it. Either answer beats silence; silence is how stores rot."_ Claims a
+standing decision saw when it acted are flagged load-bearing (the replay receipts are the
+citation index, already built). Exit 1 when anything is past its half-life — rot is chainable,
+same as drift.
+
+**The kindest property, put to work.** In a grow-only CRDT there is no "touch" operation, no
+mark-as-reviewed flag — and it turns out none is needed: re-assertion is a fresh signed claim
+at a fresh instant, which resets the slot's age, which clears the challenge. The cure for
+staleness is just saying the thing again, if you still mean it. The test walks the full arc:
+challenged → not nagged → re-asserted → clear. Retraction is the other one-gesture answer.
+The letter teaches the mechanism instead of hiding it.
+
+**Self-calibration.** `--half-life` unset means the threshold is the store's own staleness
+p90 — a fast-moving store challenges in days, an archive in months, and an empty store
+challenges nothing (infinity is honest when there is nothing to calibrate against). The
+examiner keeps measuring the world by the world's own clock.
+
+**Continuity of voice.** Same examiner keypair as testimony and review — one derived author,
+one track record, one entity you can distrust. Same anti-nag contract too: fingerprints, now
+shared machinery (verdictsOnFile grew a role parameter instead of a copy). Measurements are
+never challenged; the gauge describes the world, never the describing — the rule from V.4
+holds without exception three instruments later.

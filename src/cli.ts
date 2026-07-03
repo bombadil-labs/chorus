@@ -185,6 +185,10 @@ const COMMANDS: Record<string, CommandSpec> = {
     booleans: ["json"],
     allowed: ["store", "home", "json"],
   }),
+  challenge: dataOp("challenge", "ask stale beliefs to re-verify — the store refuses to rot", {
+    booleans: ["json"],
+    allowed: ["store", "home", "half-life", "json"],
+  }),
   vitals: dataOp("vitals", "epistemic vitals: contested, concentration, staleness, churn", {
     booleans: ["json"],
     allowed: ["store", "home", "json"],
