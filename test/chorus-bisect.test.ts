@@ -66,7 +66,7 @@ describe("chorus bisect: find the instant a mind changed", () => {
     expect(r1.after).toEqual({});
     expect(r1.flippedAt).toBeLessThanOrEqual(flipTime);
 
-    const r2 = bisectBelief(s.agent, "svc:api", { attribute: "owner", good: r1.flippedAt });
+    const r2 = bisectBelief(s.agent, "svc:api", { attribute: "owner", good: r1.flippedAt! });
     expect(r2.flipped).toBe(true);
     expect(r2.after).toEqual({ owner: "team-b" });
     expect(r2.culprits!.some((c) => c.deltaId === flip.deltaId)).toBe(true);
