@@ -18,7 +18,7 @@ node skills/build-skills.mjs        # writes skills/dist/<name>.skill
 ## Deploy standalone
 
 `app/index.html` is self-contained. To run it outside Claude against a Chorus HTTP node
-([src/mcp-http.ts](../../src/mcp-http.ts)), set before load:
+([src/mcp-http.ts](../../../src/mcp-http.ts)), set before load:
 
 ```html
 <script>

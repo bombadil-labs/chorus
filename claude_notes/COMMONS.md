@@ -42,8 +42,8 @@ differently. `same` repairs accidental splits, as everywhere.
 
 ## What ships now vs. later
 
-**Now (this slice):** [tools/seed-commons.ts](tools/seed-commons.ts) publishes the four migrated
-skills' conventions ([skills/*/chorus.md](skills)) into a registry store as hyperschema claims —
+**Now (this slice):** [tools/seed-commons.ts](../tools/seed-commons.ts) publishes the four migrated
+skills' conventions ([skills/*/chorus.md](../skills)) into a registry store as hyperschema claims —
 the worked example, locally reproducible (`npx tsx tools/seed-commons.ts` after `chorus init`).
 The `chorus-skill-designer` skill now instructs consulting a commons store before minting new
 vocabulary. Everything is queryable through the standard surface: `chorus recall

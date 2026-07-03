@@ -95,7 +95,7 @@ slices, each green:
 ## Notes for whoever picks this up
 
 - The **live demo is still the monorepo copy** — do not assume this repo is serving Myk yet, and do
-  not touch `~/.chorus/memory.sqlite`. See [CLAUDE.md](CLAUDE.md).
+  not touch `~/.chorus/memory.sqlite`. See [CLAUDE.md](../CLAUDE.md).
 - Substrate changes belong in the **`rhizomatic` repo** (`@rhizomes/rhizomatic`), not here.
 - The strategic north star (why any of this matters — agent accountability / behavioral provenance) is
   captured in the rhizomatic repo's private strategy notes; Myk has them.
