@@ -34,6 +34,37 @@ describe("the compatibility contract", () => {
     expect(JSON.parse(JSON.stringify(TOOLS))).toEqual(golden("mcp-tools.json"));
   });
 
+  it("kind is an OPEN vocabulary: a minted kind round-trips with receipts", () => {
+    // Myk's dogfooding request (inbox, 2026-06): the closed enum had no slot for an
+    // interpretation/claim. The vocabulary is open now — the same posture as every id.
+    const reg2 = new StoreRegistry(join(dir, "r-kind"), MASTER, clockFrom(1000));
+    const store = reg2.open("kinds");
+    try {
+      const s = createSession({ masterSeedHex: MASTER, sessionId: "k", clock: clockFrom(2000) });
+      callTool(s, "remember", {
+        about: "film:last-jedi",
+        attribute: "reading",
+        value: "a thesis about failure and legacy",
+        kind: "claim",
+      });
+      callTool(s, "remember", {
+        about: "film:last-jedi",
+        attribute: "vibe",
+        value: "elegiac",
+        kind: "hot-take", // minted on the fly — open vocabulary means OPEN
+      });
+      store.backend.persist(s.agent);
+      const receipts = callTool(s, "explain", { entity: "film:last-jedi" }) as Array<{
+        kind?: string;
+      }>;
+      const kinds = new Set(receipts.map((r) => r.kind));
+      expect(kinds.has("claim")).toBe(true);
+      expect(kinds.has("hot-take")).toBe(true);
+    } finally {
+      store.close();
+    }
+  });
+
   it("the CLI command surface matches the golden", () => {
     expect([...commandNames()].sort()).toEqual(golden("cli-commands.json"));
   });

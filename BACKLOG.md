@@ -77,6 +77,13 @@ _(task 18 moved to Done)_
 
 ### Done
 
+- [x] **20. Open kind vocabulary** (2026-07-03, PR #25 - journal: The mail answered).
+      Adopted from the inbox: Myk's dogfooding request (speaker: user, 2026-06) - the
+      closed kind enum had no slot for an interpretation/claim. kind is now an open
+      vocabulary with a documented core five (+ claim), same posture as every id; briefing
+      surfaces still lean on preference/task by exact match. Golden pins caught the surface
+      change; regeneration recorded the decision. Cardinality-as-policy stays a design flag
+      (his note says the declaration approach works; moving it read-time is a real redesign - parked with the gates).
 - [x] **18. Publish readiness** (2026-07-03, PR #23 - journal: Minus the button). Release
       scripts mirroring the format package; CI packs the tarball and installs it globally
       into a temp prefix on every push, driving the installed bin through init -> store ->

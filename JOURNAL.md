@@ -336,3 +336,17 @@ artifact smoke-installed by CI on every push. The gate grew 104 -> 176 tests.
 the queue and the gates; VISION.md the horizons; this file the narrative. The protocol in
 BACKLOG.md is the contract - re-evaluate, build, review adversarially, merge on green,
 record. The live store remains untouchable until Myk runs CUTOVER.md by hand.
+
+---
+
+## 2026-07-03 - The mail answered (watch mode catches a real signal)
+
+**Task 20, adopted from the inbox.** Watch mode checked the chorus inbox and found unacked
+mail from the monorepo-era dogfooding: an opus-4-8 design review whose build order is
+mostly SHIPPED in this repo already (backlinks, pinned-snapshot gql - convergent evolution
+across sessions that never met), and a direct request from Myk: the kind enum had no slot
+for an interpretation being ADVANCED. Ruled and shipped: kind is an open vocabulary now,
+core five documented (observation/fact/preference/task/claim), minted kinds round-trip with
+receipts. The golden pin fired on the schema change and was deliberately regenerated - the
+contract machinery working exactly as built. The messages are acked through the product,
+with notes pointing here.
