@@ -17,6 +17,11 @@ the design memos — lives here, so the footprint stays small and the papers sta
 - [CONSTELLATION.md](CONSTELLATION.md) — many named keyed stores, private + federating; the design.
 - [COMMONS.md](COMMONS.md) — the schema/hyperschema commons ("GitHub for shapes"); gated on Myk.
 
+## The field notes
+
+- [SUBSTRATE-VS-CHORUS.md](SUBSTRATE-VS-CHORUS.md) — a comparison with a friend's convergent
+  project: same substrate instinct, different organ grown on it. Written to be shared.
+
 ## The records
 
 - [PERSISTENCE.md](PERSISTENCE.md) — how the pluggable store tier came to be (settled; history).
