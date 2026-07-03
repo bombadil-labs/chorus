@@ -18,6 +18,7 @@ import { testifyVitals } from "./examiner.js";
 import { reviewDecisions } from "./review.js";
 import { challengeStale } from "./challenges.js";
 import { mineContradictions } from "./contradictions.js";
+import { skepticPass } from "./skeptic.js";
 import { resolveMasterSeed } from "./config.js";
 import { chorusHome } from "./config.js";
 import type { ChorusAgent } from "./agent.js";
@@ -429,6 +430,47 @@ export function dataCommand(
           io.out(`no two dialects disagree; the store speaks with one vocabulary.`);
         }
         return r.pairs.length > 0 ? 1 : 0;
+      });
+    }
+
+    case "skeptic": {
+      // The resident skeptic (EPISTEME VI.4): doubt what rests on one voice; withdraw when
+      // the world answers. Exit 1 while doubts stand — corroboration is chainable too.
+      const storeName = storeOf(flags);
+      const home = io.home ?? chorusHome();
+      const master = resolveMasterSeed(process.env, home);
+      if (master === undefined) throw new Error("no master seed — run `chorus init` first");
+      return withStore(storeName, io, (_call, ctx, persist) => {
+        const r = skepticPass(ctx.agent, master, storeName, {
+          ...(flags.has("all") ? { all: true } : {}),
+        });
+        persist();
+        if (flags.has("json")) {
+          emit(r);
+          return r.doubts.length > 0 ? 1 : 0;
+        }
+        io.out(
+          `${r.considered} slot(s) considered: ${r.doubts.length} under doubt, ` +
+            `${r.withdrawals.length} doubt(s) withdrawn.`,
+        );
+        for (const d of r.doubts) {
+          io.out(
+            `  ${d.entity} ${d.attribute} — one voice` +
+              (d.decisionCited ? "; a standing decision rests on it" : "") +
+              (d.appended ? " (doubt filed)" : " (doubt already standing)"),
+          );
+        }
+        for (const w of r.withdrawals) {
+          io.out(`  ✓ ${w.entity} ${w.attribute} — ${w.reason}`);
+        }
+        if (r.doubts.length === 0 && r.withdrawals.length === 0) {
+          io.out(
+            flags.has("all")
+              ? `nothing rests on a single voice; the store corroborates itself.`
+              : `no decision rests on a single voice (--all widens the skeptic's beat).`,
+          );
+        }
+        return r.doubts.length > 0 ? 1 : 0;
       });
     }
 

@@ -25,32 +25,46 @@ export interface Testimony {
   readonly vitals: Vitals;
 }
 
-// Introduce the examiner once — receipts should say WHO measures, not "unknown". The
+// Introduce a derived voice once — receipts should say WHO speaks, not "unknown". The
 // introduction is interval-bound like every identity claim; re-introducing every run would be
 // noise, so it happens only when the store has never heard this voice. Returns 1 if a claim
-// was written, 0 if the examiner was already on record. Shared by every examiner surface
-// (testimony, review) so they stay one identity.
+// was written, 0 if the voice was already on record.
+export function introduceVoice(
+  agent: ChorusAgent,
+  seed: string,
+  intro: { model: string; sessionId: string; purpose: string },
+  clock: () => number,
+): number {
+  const voice = authorForSeed(seed);
+  const alreadyIntroduced = [...identityIntroductions(agent.snapshot(), "").values()].some(
+    (intros) => intros.some((i) => i.author === voice),
+  );
+  if (alreadyIntroduced) return 0;
+  agent.recordAs(seed, {
+    timestamp: clock(),
+    pointers: identityPointers({ ...intro, startedAt: clock() }),
+  });
+  return 1;
+}
+
+// The examiner's introduction — shared by every examiner surface (testimony, review,
+// challenge, mining) so they stay one identity with one track record.
 export function introduceExaminer(
   agent: ChorusAgent,
   seed: string,
   storeName: string,
   clock: () => number,
 ): number {
-  const examiner = authorForSeed(seed);
-  const alreadyIntroduced = [...identityIntroductions(agent.snapshot(), "").values()].some(
-    (intros) => intros.some((i) => i.author === examiner),
-  );
-  if (alreadyIntroduced) return 0;
-  agent.recordAs(seed, {
-    timestamp: clock(),
-    pointers: identityPointers({
+  return introduceVoice(
+    agent,
+    seed,
+    {
       model: "chorus-examiner",
       sessionId: `examiner-${storeName}`,
-      startedAt: clock(),
       purpose: "measure the store's epistemic vitals and put them on the record",
-    }),
-  });
-  return 1;
+    },
+    clock,
+  );
 }
 
 // Measure the agent's world and put the numbers ON THE RECORD, signed by the examiner.

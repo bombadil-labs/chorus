@@ -83,10 +83,13 @@ context to be dismissed in one read, and ack-rates are its future report card, p
       deps), `embeddingSimilarity(model)` ready for the Myk-gated real model. Same anti-nag
       fingerprints. Also: the literal-NUL slot-separator idiom (vitals, librarian, belief-diff,
       challenges) escaped to `\u0000` everywhere — sources read as text again._
-- [ ] **VI.4 The resident skeptic** — opt-in adversarial derived author that appends
-      doubt-claims where corroboration is thin (single-author slots cited by decisions first).
-      Doubt is a claim with an author: tune it, rank it, or fire it. The loop's review culture,
-      productized as a store inhabitant.
+- [x] **VI.4 The resident skeptic** — _Done 2026-07-03 (journal: Doubt with an author):_
+      `chorus skeptic [--all]` + `skepticPass()`: a SECOND derived voice (author/skeptic,
+      distinct from the examiner — fire the doubter, keep the measurer) files doubt-claims at
+      `doubt:<entity>` where a slot rests on one voice; decision-cited only by default, --all
+      widens. No fingerprints: the live doubt IS the idempotence key, and the skeptic WITHDRAWS
+      its doubt (a named-reason negation) the moment a second voice corroborates — doubt that
+      cannot be satisfied is a grudge, not skepticism. Measurements and doubts never doubted._
 - [ ] **VI.5 (stretch) The hypnagogic pass** — idle-time consolidation: recasts, sameAs filing,
       digest curation. Stores that sleep.
 - [ ] ♻ **VI.6 Retro** — then the gates check, then Phase VII (the Actuary) if still unmoved.

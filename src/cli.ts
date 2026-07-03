@@ -194,6 +194,10 @@ const COMMANDS: Record<string, CommandSpec> = {
     "propose near-synonym slots holding rival values — one question, two dialects",
     { booleans: ["json"], allowed: ["store", "home", "threshold", "json"] },
   ),
+  skeptic: dataOp("skeptic", "doubt what rests on one voice; withdraw when the world answers", {
+    booleans: ["all", "json"],
+    allowed: ["store", "home", "all", "json"],
+  }),
   vitals: dataOp("vitals", "epistemic vitals: contested, concentration, staleness, churn", {
     booleans: ["json"],
     allowed: ["store", "home", "json"],
