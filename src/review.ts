@@ -106,12 +106,17 @@ const fingerprint = (parts: {
     .digest("hex");
 
 // Verdicts already delivered, keyed by fingerprint — only the examiner's own letters count.
-function verdictsOnFile(alive: readonly Delta[], examiner: string): Set<string> {
+// Shared by every examiner surface that promises not to nag (review, challenge).
+export function verdictsOnFile(
+  alive: readonly Delta[],
+  examiner: string,
+  role: string = ROLE_REVIEW_VERDICT,
+): Set<string> {
   const seen = new Set<string>();
   for (const d of alive) {
     if (d.claims.author !== examiner) continue;
     for (const p of d.claims.pointers) {
-      if (p.role === ROLE_REVIEW_VERDICT && p.target.kind === "primitive") {
+      if (p.role === role && p.target.kind === "primitive") {
         seen.add(String(p.target.value));
       }
     }
