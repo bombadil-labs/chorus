@@ -3,7 +3,7 @@
 **Who runs this: Myk, by hand.** Nothing in this repo touches `~/.chorus/memory.sqlite` or the
 monorepo node — that is a standing hard limit. This runbook is the manual procedure, and every
 step below is exercised end-to-end (against a synthetic live store) by
-[test/chorus-cutover-rehearsal.test.ts](test/chorus-cutover-rehearsal.test.ts), so the mechanics
+[test/chorus-cutover-rehearsal.test.ts](../test/chorus-cutover-rehearsal.test.ts), so the mechanics
 are proven before you start.
 
 **The safety model, in one paragraph:** `adopt` only ever READS the source and proves it

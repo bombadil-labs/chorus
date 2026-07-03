@@ -17,7 +17,7 @@ Standing instruction from Myk (2026-07-02), formalized:
    diff — findings get fixed or explicitly dispositioned, and breaking changes to store formats or
    tool surfaces are show-stoppers); merge without waiting for approval; delete the branch.
 3. **Record it.** Journal entry (what/why/learned). Tick the task. If the work changed how future
-   work should happen, update [CLAUDE.md](CLAUDE.md); if it changed where things are going, update
+   work should happen, update [CLAUDE.md](../CLAUDE.md); if it changed where things are going, update
    [VISION.md](VISION.md).
 4. **Repeat.** When the backlog runs dry: take stock of everything achieved, re-read VISION.md,
    revise it against actual progress, and mine it for the next tranche of tasks. This is a
@@ -90,6 +90,13 @@ _(tasks V.1–V.4 moved to Done)_
   trade-offs are his call; the EmbeddingModel seam is ready).
 
 ### Done
+
+- [x] **Tidy root** (2026-07-03, Myk's direct request — journal: The papers find their drawer).
+      Root is README.md + CLAUDE.md only; the nine notes moved to claude_notes/ via git mv with
+      an index (living set / plans / records); every cross-link repaired; standing rule added to
+      CLAUDE.md: never accrete top-level markdown, and README+CLAUDE are part of every PR's
+      definition of done. CLAUDE.md de-staled in the same pass (file count, instrument ops,
+      pointers now lead with BACKLOG).
 
 - [x] **V.4 The examiner testifies** (2026-07-03, PR #30 - journal: The instrument goes on
       the record). chorus examine: vitals emitted as signed claims by a derived examiner

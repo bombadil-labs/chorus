@@ -276,7 +276,7 @@ export class StoreRegistry {
   // digest MUST equal the source's, or adoption refuses (it will not claim a success it can't
   // prove). Idempotent by delta id, so re-adopting the same source is a no-op union. This is how
   // the pre-registry ~/.chorus/memory.sqlite becomes the store named "personal" — not one delta
-  // rewritten, no id changed (spec/12 §2 + CONSTELLATION.md §7).
+  // rewritten, no id changed (spec/12 §2 + claude_notes/CONSTELLATION.md §7).
   adopt(
     name: string,
     source: StoreBackend,

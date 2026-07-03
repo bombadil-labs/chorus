@@ -257,7 +257,7 @@ export async function main(argv: readonly string[]): Promise<number> {
   if (spec.run === undefined) {
     console.error(
       `chorus ${cmd}: not implemented yet — it ships as ${spec.slice} of the alpha burndown ` +
-        `(see ROADMAP.md). The library surface already does this; the CLI wrapper is coming.`,
+        `(see claude_notes/ROADMAP.md). The library surface already does this; the CLI wrapper is coming.`,
     );
     return 1;
   }

@@ -1,8 +1,9 @@
 # Chorus — Working Agreement & Orientation
 
-**You are Fable, in the Chorus repo.** Read this first, then [ROADMAP.md](ROADMAP.md) (the burndown to
-alpha) and [README.md](README.md) (the product story). This file tells you _what this is_ and _how we
-work here_.
+**You are Fable, in the Chorus repo.** Read this first, then [BACKLOG.md](claude_notes/BACKLOG.md)
+(the loop's queue — the active plan) and [README.md](README.md) (the product story). This file tells
+you _what this is_ and _how we work here_; the rest of the papers live in
+[claude_notes/](claude_notes/README.md).
 
 ---
 
@@ -31,7 +32,7 @@ evaluator, resolution policies, the reactor (live indexes), packs, federation (`
   The surface area here will expand rapidly (CLI, stores, federation, an admin UI). That's the whole
   reason we're a separate repo — to keep Rhizomatic small while Chorus grows.
 
-Docs copied in from the monorepo ([CONSTELLATION.md](CONSTELLATION.md), [PERSISTENCE.md](PERSISTENCE.md),
+Docs copied in from the monorepo ([CONSTELLATION.md](claude_notes/CONSTELLATION.md), [PERSISTENCE.md](claude_notes/PERSISTENCE.md),
 parts of [README.md](README.md)) reference the format's `spec/` and TS witness — those links point
 at the `rhizomatic` repo on GitHub.
 
@@ -49,7 +50,7 @@ replacement, **not yet cut over.** Until the CLI-served node is ready and Myk ha
 
 ## What's in here
 
-`src/` — the Chorus implementation (24 files). The load-bearing pieces:
+`src/` — the Chorus implementation (~38 files). The load-bearing pieces:
 
 - **agent.ts** — `ChorusAgent` = keypair + reactor + policy; assert/retract/recall/asOf/explain.
 - **store-tier.ts / shared-store.ts / sqlite-store.ts** — the pluggable persistence `StoreBackend`
@@ -69,11 +70,11 @@ Skills that turn Chorus into domain apps (the `chorus-skill-designer` meta-skill
 
 - **North star: the constellation** — many named, keyed stores that specialize and federate, some
   private + encrypted, an aggregator exposing the union via GraphQL/MCP, eventually friends federating.
-  The design + phased plan is [CONSTELLATION.md](CONSTELLATION.md) (Phase A — store identity + registry
+  The design + phased plan is [CONSTELLATION.md](claude_notes/CONSTELLATION.md) (Phase A — store identity + registry
   - adoption — already shipped in the code you inherited).
 - **Immediate goal (alpha): the `chorus` CLI** — `npm i -g @rhizomes/chorus`, a `chorus` command that
   spins up one or more local concurrent stores and serves them over MCP, replacing the manual
-  tailscale node. This is the burndown in [ROADMAP.md](ROADMAP.md).
+  tailscale node. This is the burndown in [ROADMAP.md](claude_notes/ROADMAP.md).
 
 ## How we work
 
@@ -87,15 +88,22 @@ Skills that turn Chorus into domain apps (the `chorus-skill-designer` meta-skill
 - **Feature branch + PR, green gate before every commit** (once git is initialized). `npm run check`
   (format + lint + typecheck + test) is the gate.
 - **Match the surrounding idiom.** This code aspires to be re-readable; keep it that way.
+- **Small, respectful footprint (Myk, 2026-07-03).** The repo root holds exactly two documents:
+  [README.md](README.md) (the product) and this file (the working agreement). Every other note —
+  plans, records, the loop's working set — lives in [claude_notes/](claude_notes/README.md),
+  which carries its own index. Never accrete new top-level markdown; a new note goes in
+  `claude_notes/` with an index line. And **README.md + CLAUDE.md are part of every PR's
+  definition of done**: if a change alters what either describes (commands, surfaces,
+  structure, learnings), update them in the same PR.
 
 ### The autonomous loop (standing authorization, 2026-07-02)
 
-Myk has authorized autonomous operation on this repo: work the queue in [BACKLOG.md](BACKLOG.md)
+Myk has authorized autonomous operation on this repo: work the queue in [BACKLOG.md](claude_notes/BACKLOG.md)
 task by task — re-evaluate each task against accumulated learnings before starting it, feature
 branch + green gate as always, **adversarial self-review in place of PR approval** (review the
 diff independently; fix or explicitly disposition findings; store-format or tool-surface breakage
-is a show-stopper), then merge. Journal every task in [JOURNAL.md](JOURNAL.md); when the backlog
-runs dry, revise [VISION.md](VISION.md) against actual progress and mine it for the next tranche;
+is a show-stopper), then merge. Journal every task in [JOURNAL.md](claude_notes/JOURNAL.md); when the backlog
+runs dry, revise [VISION.md](claude_notes/VISION.md) against actual progress and mine it for the next tranche;
 periodically run a retrospective/integration task instead of a feature task. Update this file
 whenever a learning changes how future work should happen. The hard limits in BACKLOG.md override
 loop momentum, always — the live store, publishing, and anything irreversible remain Myk-gated.
@@ -115,6 +123,7 @@ chorus store create|ls|show|adopt            # the registry; adopt = lossless di
 chorus serve --store <n> (--stdio | --http)  # the MCP node; repeat --store to host several
 chorus console --store <n>                   # the web console
 chorus recall|remember|search|explain|decide|replay|gql --store <n>   # MCP-less data ops
+chorus vitals|examine|bisect --store <n>; chorus diff --store a --store b   # the instruments
 
 # Legacy env-var surface (predates the registry; still serves the monorepo-era wiring):
 npm run chorus:demo    # the deterministic thesis walk
@@ -133,12 +142,15 @@ default). The two sqlite drivers share one file format and substitute for each o
 
 ## Pointers
 
-- [ROADMAP.md](ROADMAP.md) — the ordered burndown to an alpha `@rhizomes/chorus` CLI. **Start here.**
-- [EPISTEME.md](EPISTEME.md) — the next five phases: belief, not memory (the reframed north star).
-- [BACKLOG.md](BACKLOG.md) — the autonomous loop's protocol + working queue (finer-grained than the
-  roadmap). [JOURNAL.md](JOURNAL.md) — the loop's record. [VISION.md](VISION.md) — the horizons
-  past the roadmap; revised whenever the backlog runs dry.
-- [CONSTELLATION.md](CONSTELLATION.md) — the multi-store / private / federating design + phases.
-- [PERSISTENCE.md](PERSISTENCE.md) — how the pluggable store tier came to be (history/rationale).
+All notes live in [claude_notes/](claude_notes/README.md) — its index sorts them into the living
+set, the plans, and the records. The short version:
+
+- [BACKLOG.md](claude_notes/BACKLOG.md) — the loop's protocol + queue + Done log. **Start here.**
+  [JOURNAL.md](claude_notes/JOURNAL.md) — the loop's record. [VISION.md](claude_notes/VISION.md) —
+  the horizons; revised whenever the backlog runs dry.
+- [EPISTEME.md](claude_notes/EPISTEME.md) — belief, not memory: the active five-phase plan.
+- [ROADMAP.md](claude_notes/ROADMAP.md) — the alpha-CLI burndown (largely landed).
+  [CONSTELLATION.md](claude_notes/CONSTELLATION.md) — the multi-store / federating design.
+  [CUTOVER.md](claude_notes/CUTOVER.md) — the live-node runbook (**Myk's to execute**).
 - [README.md](README.md) — the product doc.
 - The format: `@rhizomes/rhizomatic` on npm; its spec + witnesses in the sibling `../rhizomatic` repo.

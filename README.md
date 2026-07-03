@@ -28,12 +28,12 @@ trust dynamics, the librarian, the instruments, and the web console.
 **Status: alpha, unpublished.** The `chorus` CLI is code-complete — `init`, `store
 create|ls|show|adopt`, `serve` (stdio + multi-store HTTP, read-only GraphQL mounts including
 `@union`), `console`, direct data ops, the instruments (`vitals|diff|bisect|examine`),
-`migrate` — with the live-node cutover scripted and rehearsed ([CUTOVER.md](CUTOVER.md)).
+`migrate` — with the live-node cutover scripted and rehearsed ([CUTOVER.md](claude_notes/CUTOVER.md)).
 Publication to npm is gated on the cutover proving out; until then, install from a checkout
 (`npm install` builds `dist/`; `npm pack` produces the same tarball CI smoke-installs globally
-on every push) or run the npm scripts below. See [EPISTEME.md](EPISTEME.md) for the five phases
-ahead, [ROADMAP.md](ROADMAP.md) for the burndown, and [CONSTELLATION.md](CONSTELLATION.md) +
-[VISION.md](VISION.md) for the federated horizon.
+on every push) or run the npm scripts below. See [EPISTEME.md](claude_notes/EPISTEME.md) for the five phases
+ahead, [ROADMAP.md](claude_notes/ROADMAP.md) for the burndown, and [CONSTELLATION.md](claude_notes/CONSTELLATION.md) +
+[VISION.md](claude_notes/VISION.md) for the federated horizon.
 
 ```
 npm install
@@ -325,8 +325,8 @@ Chorus's position, inherited from the substrate:
 ## Status
 
 The full MX arc is landed — identity (interval introductions), the shared store + pluggable
-persistence ([PERSISTENCE.md](PERSISTENCE.md)), discovery, the briefing, decide/replay, the
+persistence ([PERSISTENCE.md](claude_notes/PERSISTENCE.md)), discovery, the briefing, decide/replay, the
 console, and store identity + the registry (constellation Phase A) — and the system has
 survived first contact with live dogfooding (which produced the reference-over-string
 surface, the unbounded contested scan, and mid-session model rebinding). The path from here
-— the CLI, the cutover of the live node, the constellation — is [ROADMAP.md](ROADMAP.md).
+— the CLI, the cutover of the live node, the constellation — is [ROADMAP.md](claude_notes/ROADMAP.md).

@@ -1,12 +1,12 @@
 # Work order — the pluggable persistence tier
 
 **Status: ✅ SHIPPED** (2026-06-15, branch `feature/persistence-tier`). The `Store` interface
-([src/store-tier.ts](src/store-tier.ts)) is the seam; JSONL ([src/shared-store.ts](src/shared-store.ts))
-and SQLite ([src/sqlite-store.ts](src/sqlite-store.ts)) are the two witnesses to it, both passing
-one shared conformance harness ([test/chorus-store-conformance.test.ts](test/chorus-store-conformance.test.ts)).
+([src/store-tier.ts](../src/store-tier.ts)) is the seam; JSONL ([src/shared-store.ts](../src/shared-store.ts))
+and SQLite ([src/sqlite-store.ts](../src/sqlite-store.ts)) are the two witnesses to it, both passing
+one shared conformance harness ([test/chorus-store-conformance.test.ts](../test/chorus-store-conformance.test.ts)).
 Backend is env-selectable (`CHORUS_STORE_BACKEND`, default `jsonl`); migration is
-[src/migrate.ts](src/migrate.ts) (`npm run chorus:migrate`); the indexed reverse-adjacency read is
-[src/store-reads.ts](src/store-reads.ts). All five Definition-of-done points (§6) hold; the prose
+[src/migrate.ts](../src/migrate.ts) (`npm run chorus:migrate`); the indexed reverse-adjacency read is
+[src/store-reads.ts](../src/store-reads.ts). All five Definition-of-done points (§6) hold; the prose
 below is the original work order, kept as the rationale of record.
 
 **Layer:** app (Chorus) — TS-only, no vectors, no two-witness requirement (per the format repo's
@@ -19,7 +19,7 @@ it top to bottom, then build.
 ## 1. Intention
 
 Chorus persists to a **single append-only JSONL file** today
-([`src/shared-store.ts`](src/shared-store.ts)). That was the right v0 — legible, zero-dependency,
+([`src/shared-store.ts`](../src/shared-store.ts)). That was the right v0 — legible, zero-dependency,
 git-diffable, and correct because the data model carries its own correctness (a grow-only set of
 content-addressed, signed deltas; merge is union; any interleaving converges). It is also the
 weak point:
@@ -56,7 +56,7 @@ later — so building them now does double duty.
 
 ## 3. Current shape (what you're refactoring)
 
-[`src/shared-store.ts`](src/shared-store.ts) exposes `SharedStore`:
+[`src/shared-store.ts`](../src/shared-store.ts) exposes `SharedStore`:
 
 - `constructor(filePath)`
 - `refresh(agent): number` — read lines appended since last look, ingest into the agent's reactor
@@ -66,9 +66,9 @@ later — so building them now does double duty.
 - `wasteful(agent, slack=64): boolean` — parsed-line count exceeds distinct-delta count.
 - `compact(agent): number` — atomic tmp-then-rename rewrite from the agent's full world.
 
-Callers: [`src/mcp-server.ts`](src/mcp-server.ts) (the default path) and
-[`src/mcp-http.ts`](src/mcp-http.ts) (one `SharedStore` per HTTP session — note this, it matters).
-Tests: [`test/chorus-shared-store.test.ts`](test/chorus-shared-store.test.ts) (two-session
+Callers: [`src/mcp-server.ts`](../src/mcp-server.ts) (the default path) and
+[`src/mcp-http.ts`](../src/mcp-http.ts) (one `SharedStore` per HTTP session — note this, it matters).
+Tests: [`test/chorus-shared-store.test.ts`](../test/chorus-shared-store.test.ts) (two-session
 convergence, no duplicate lines, torn-line recovery, fresh-boot, the loud-lock-timeout test).
 
 ## 4. The interface to extract
@@ -161,11 +161,11 @@ deltasSince(knownIds: ReadonlySet<string>): Delta[]; // stored deltas whose id �
 
 ## 8. Pointers
 
-- Current store: [`src/shared-store.ts`](src/shared-store.ts) · its tests:
-  [`test/chorus-shared-store.test.ts`](test/chorus-shared-store.test.ts)
-- Callers: [`src/mcp-server.ts`](src/mcp-server.ts) · [`src/mcp-http.ts`](src/mcp-http.ts)
+- Current store: [`src/shared-store.ts`](../src/shared-store.ts) · its tests:
+  [`test/chorus-shared-store.test.ts`](../test/chorus-shared-store.test.ts)
+- Callers: [`src/mcp-server.ts`](../src/mcp-server.ts) · [`src/mcp-http.ts`](../src/mcp-http.ts)
 - The federation north star: [`spec/11-federation-as-query.NOTE.md`](https://github.com/mbilokonsky/rhizomatic/blob/main/spec/11-federation-as-query.NOTE.md)
 - Storage spec (packs as the at-rest interchange form, complementary to a live store):
   [`spec/08-storage.md`](https://github.com/mbilokonsky/rhizomatic/blob/main/spec/08-storage.md)
-- Working agreement: [CLAUDE.md](CLAUDE.md) · the format repo's
+- Working agreement: [CLAUDE.md](../CLAUDE.md) · the format repo's
   [ts CLAUDE.md](https://github.com/mbilokonsky/rhizomatic/blob/main/implementations/ts/CLAUDE.md)

@@ -1,4 +1,4 @@
-// The cutover dress rehearsal (task 11): every step of CUTOVER.md, executed end to end against
+// The cutover dress rehearsal (task 11): every step of claude_notes/CUTOVER.md, executed end to end against
 // a SYNTHETIC stand-in for the live pre-registry store. The real ~/.chorus/memory.sqlite is
 // never touched by anything in this repo — this test is how we know the runbook works before
 // Myk runs it against the real thing.
@@ -101,7 +101,7 @@ const liveDigest = (): string => {
   }
 };
 
-describe("the cutover rehearsal: CUTOVER.md end to end, synthetically", () => {
+describe("the cutover rehearsal: claude_notes/CUTOVER.md end to end, synthetically", () => {
   it("adopt → verify → trial-serve → interim writes → re-adopt union — the whole runbook", async () => {
     const live = seedLiveStore();
 

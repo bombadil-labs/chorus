@@ -49,15 +49,15 @@ Almost every mechanism is already in the repo; the work is composition and ergon
   over HTTP
   ([`http.ts`](https://github.com/mbilokonsky/rhizomatic/blob/main/implementations/ts/src/http.ts):
   `POST /rhz/v0/sync`, ids recomputed on the wire) or in-process.
-- **Persistence is already a seam.** [`src/store-tier.ts`](src/store-tier.ts) `Store` interface
+- **Persistence is already a seam.** [`src/store-tier.ts`](../src/store-tier.ts) `Store` interface
   (`appendDeltas` / `deltasSince` / `refresh` / `persist` + optional `deltasByTarget` /
   `deltasByValue`) — _this is the federation-sync primitive too_ (spec/11 §4). JSONL + SQLite
   backends pass one shared conformance harness.
-- **The read surface is already gql-on-demand.** [`src/gql.ts`](src/gql.ts) pins a `(snapshot,
+- **The read surface is already gql-on-demand.** [`src/gql.ts`](../src/gql.ts) pins a `(snapshot,
 policy)` and synthesizes a schema; the aggregator's query surface is this, over the union.
-- **Keys already derive from one seed.** [`src/identity.ts`](src/identity.ts):
+- **Keys already derive from one seed.** [`src/identity.ts`](../src/identity.ts):
   `deriveSeed(master, label)`. A store's identity keypair is just another labeled derivation.
-- **There is already a console.** [`src/console.ts`](src/console.ts): a zero-dep web UI over the
+- **There is already a console.** [`src/console.ts`](../src/console.ts): a zero-dep web UI over the
   store. The admin interface is its evolution, not a greenfield app.
 
 **The one true gap** (spec/12 §2): a delta is associated with its **author**, never with a **store**.
@@ -68,7 +68,7 @@ SPEC-8 §2.1) or leans on the fact that origin is not needed for correctness, on
 
 There is a vocabulary collision: the code's `Store` interface is the **persistence backend**, but the
 user's "store" is the **federating instance**. Recommendation — **rename the interface `Store` →
-`StoreBackend`** (its enum is already `StoreBackend` in [store-tier.ts](src/store-tier.ts), so this
+`StoreBackend`** (its enum is already `StoreBackend` in [store-tier.ts](../src/store-tier.ts), so this
 _aligns_ the names) and let **`Store`** name the product-level unit: `{ id, name, backend, keypair,
 tier, lenses }`. One mechanical rename on freshly-shipped code, and the domain word matches the
 user's mental model. (Alternative if the rename is unwanted: call the product unit an `Instance`. Flag
@@ -109,7 +109,7 @@ interface Origin {
 
 **Phase A — Store identity + registry + the rename.** ✅ **Landing** (this PR). Give a store a keypair
 (`StoreId`) and a name; add `StoreRegistry` over `~/.chorus/stores/<name>/`
-([src/stores.ts](src/stores.ts)); rename `Store` interface → `StoreBackend` (§3). The existing single
+([src/stores.ts](../src/stores.ts)); rename `Store` interface → `StoreBackend` (§3). The existing single
 store is adopted as one named store (`personal`) by `StoreRegistry.adopt` — non-destructive
 (source read-only) and digest-verified, so **no delta id changes** (§7). No behavior change for the
 existing single-store path (callers untouched this slice). **Refined during implementation:** two
@@ -140,7 +140,7 @@ the node / `console.ts` to boot from the registry (opt-in env first, keeping the
 **Unlocks:** "a store that ingests from both and exposes all of it via GQL through an MCP" — the
 concrete §1.2 picture, on one machine.
 
-**Phase D — The constellation admin console.** Evolve [`src/console.ts`](src/console.ts) from
+**Phase D — The constellation admin console.** Evolve [`src/console.ts`](../src/console.ts) from
 single-store into the constellation's cockpit: a store list (name, tier, delta count, StoreId); a
 per-store inspector (its briefing/topics/entities — the existing panels, scoped); a **publish
 manager** with the **closure audit view** front and center ("this published query currently exposes
@@ -242,11 +242,11 @@ the _same_ facts between containers. The digest is the receipt; every migration 
   · [spec/11-federation-as-query.NOTE.md](https://github.com/mbilokonsky/rhizomatic/blob/main/spec/11-federation-as-query.NOTE.md) ·
   [spec/06-federation.md](https://github.com/mbilokonsky/rhizomatic/blob/main/spec/06-federation.md) ·
   [spec/08-storage.md](https://github.com/mbilokonsky/rhizomatic/blob/main/spec/08-storage.md)
-- Persistence seam: [src/store-tier.ts](src/store-tier.ts) · [src/sqlite-store.ts](src/sqlite-store.ts)
-  · [src/shared-store.ts](src/shared-store.ts) · migration pattern: [src/migrate.ts](src/migrate.ts)
+- Persistence seam: [src/store-tier.ts](../src/store-tier.ts) · [src/sqlite-store.ts](../src/sqlite-store.ts)
+  · [src/shared-store.ts](../src/shared-store.ts) · migration pattern: [src/migrate.ts](../src/migrate.ts)
 - Federation as built: [peer.ts](https://github.com/mbilokonsky/rhizomatic/blob/main/implementations/ts/src/peer.ts) ·
   [http.ts](https://github.com/mbilokonsky/rhizomatic/blob/main/implementations/ts/src/http.ts)
   (both shipped in `@rhizomes/rhizomatic`)
-- Read/admin surfaces: [src/gql.ts](src/gql.ts) · [src/console.ts](src/console.ts) ·
-  [src/mcp-server.ts](src/mcp-server.ts) · [src/mcp-http.ts](src/mcp-http.ts)
-- Keys/identity: [src/identity.ts](src/identity.ts) · Working agreement: [CLAUDE.md](CLAUDE.md)
+- Read/admin surfaces: [src/gql.ts](../src/gql.ts) · [src/console.ts](../src/console.ts) ·
+  [src/mcp-server.ts](../src/mcp-server.ts) · [src/mcp-http.ts](../src/mcp-http.ts)
+- Keys/identity: [src/identity.ts](../src/identity.ts) · Working agreement: [CLAUDE.md](../CLAUDE.md)

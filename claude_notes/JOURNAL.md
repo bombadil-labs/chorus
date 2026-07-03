@@ -434,3 +434,24 @@ would have been a promise; now it is a description.
 **Housekeeping.** The backlog's V.2/V.3 entries had gone stale-open with mangled titles from an
 earlier edit; moved to Done properly (Belief diff, Belief bisect) and the open ladder now reads
 clean: V.6 retro, then the nightcap.
+
+## 2026-07-03 — The papers find their drawer (tidy root, Myk's request)
+
+**What landed.** Myk, mid-loop: "there are SO many claude notes in the root dir... let's keep our
+footprint small and respectful." He is right — eleven markdown files at the front door is a desk
+covered in papers. Now the root holds exactly two: README.md (the product) and CLAUDE.md (the
+working agreement). The other nine moved — via git mv, history intact — into claude_notes/, which
+carries an index sorting them honestly: the living set (BACKLOG, JOURNAL, VISION — the loop writes
+here), the plans (ROADMAP, EPISTEME, CONSTELLATION, COMMONS), the records (PERSISTENCE settled,
+CUTOVER waiting on Myk's hand).
+
+**The standing rule, now in CLAUDE.md.** Never accrete new top-level markdown. And README.md +
+CLAUDE.md are part of every PR's definition of done — if a change alters what either describes,
+the same PR updates them. Practicing it immediately: CLAUDE.md's stale file count (24 → ~38), the
+missing instrument ops in Commands, and a Pointers section that still said "start at ROADMAP"
+(largely landed) instead of BACKLOG (the active plan) were all corrected in this pass.
+
+**Mechanics worth remembering.** Moving markdown is a linking problem, not a moving problem:
+sibling links survive untouched, links up and out gain ../, root links gain the directory prefix
+— and the sweep must include prose mentions in code (cli.ts help text, stores.ts comments, the
+cutover test header) plus a check that no golden pin froze the old paths (none had).
