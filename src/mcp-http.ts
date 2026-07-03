@@ -159,10 +159,14 @@ export function startHttpServer(opts: HttpServerOptions): Promise<HttpServerHand
     mountUnder("/mcp", req, url);
 
   // The read-only GraphQL answerer: pin → query → release, per request. An EPHEMERAL reader
-  // agent (never persisted, never introduced) refreshes from the mount's backend and answers
-  // under the store's policy.
+  // agent (never persisted, never introduced) refreshes from one mount's backend — or, for the
+  // @union pseudo-mount, from EVERY mount: the CRDT makes the union a fold (merge is union, any
+  // interleaving converges), which is why this Phase-C slice is small. `@` sits outside the
+  // store-name alphabet, so the pseudo-mount can never shadow a real store. (Per-delta relay-
+  // provenance annotations are the rest of Phase C — they belong with the reactor's origin
+  // machinery, not bolted on here.)
   const answerGql = async (
-    mount: ResolvedMount,
+    sources: readonly ResolvedMount[],
     req: IncomingMessage,
     url: URL,
     res: ServerResponse,
@@ -189,9 +193,9 @@ export function startHttpServer(opts: HttpServerOptions): Promise<HttpServerHand
       masterSeedHex: opts.masterSeedHex,
       sessionId: `${now()}-gqlro`,
     });
-    const store = createBackend(mount.storePath, mount.kind);
+    const stores = sources.map((m) => createBackend(m.storePath, m.kind));
     try {
-      store.refresh(ctx.agent);
+      for (const store of stores) store.refresh(ctx.agent);
       const prep = callTool(ctx, "gql-prepare", {}) as { prepId: string };
       try {
         const body = callTool(ctx, "gql-query", { prepId: prep.prepId, query });
@@ -206,19 +210,26 @@ export function startHttpServer(opts: HttpServerOptions): Promise<HttpServerHand
         JSON.stringify({ errors: [{ message: e instanceof Error ? e.message : String(e) }] }),
       );
     } finally {
-      store.close?.();
+      for (const store of stores) store.close?.();
     }
   };
 
   const handle = async (req: IncomingMessage, res: ServerResponse): Promise<void> => {
     const url = new URL(req.url ?? "/", "http://localhost");
     if (opts.gqlReadonly === true && url.pathname.startsWith("/gql")) {
+      // The @union pseudo-mount reads across EVERY store this node serves.
+      const path = url.pathname.endsWith("/") ? url.pathname.slice(0, -1) : url.pathname;
+      const segments = path.slice("/gql/".length).split("/");
+      if (segments.length === 2 && segments[1] === "@union" && tokenMatches(segments[0]!)) {
+        await answerGql(mounts, req, url, res);
+        return;
+      }
       const gqlMount = mountUnder("/gql", req, url);
       if (gqlMount === undefined) {
         res.writeHead(404).end();
         return;
       }
-      await answerGql(gqlMount, req, url, res);
+      await answerGql([gqlMount], req, url, res);
       return;
     }
     const mount = mountFor(req, url);
