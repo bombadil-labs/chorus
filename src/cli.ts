@@ -10,11 +10,33 @@ import { flagValue, parseFlags, portValue, redactSecrets, rejectUnknownFlags } f
 import { chorusHome, configPath, initChorusHome } from "./config.js";
 import { storeCommand } from "./cli-store.js";
 import { consoleCommand, serveCommand } from "./cli-serve.js";
+import { dataCommand } from "./cli-data.js";
 
 interface CommandSpec {
   readonly summary: string; // one line for `chorus help`
   readonly slice?: string; // which backlog slice ships it (stub until then)
   run?(args: readonly string[]): Promise<number> | number;
+}
+
+// The direct data ops share one shape: positionals + flags → dataCommand, which routes through
+// the same protocol brain the MCP servers use.
+function dataOp(
+  name: string,
+  summary: string,
+  opts: { booleans?: readonly string[]; allowed: readonly string[] },
+): CommandSpec {
+  return {
+    summary,
+    run(args): number {
+      const { flags, rest } = parseFlags(args, new Set(opts.booleans ?? []));
+      rejectUnknownFlags(flags, new Set(opts.allowed), name);
+      const home = flagValue(flags, "home");
+      return dataCommand(name, rest, flags, {
+        out: console.log,
+        ...(home === undefined ? {} : { home }),
+      });
+    },
+  };
 }
 
 const COMMANDS: Record<string, CommandSpec> = {
@@ -117,13 +139,29 @@ const COMMANDS: Record<string, CommandSpec> = {
       );
     },
   },
-  recall: { summary: "resolve an entity under the current trust policy", slice: "task 7" },
-  remember: { summary: "assert a belief from the command line", slice: "task 7" },
-  search: { summary: "substring search over surviving beliefs", slice: "task 7" },
-  explain: { summary: "every candidate with receipts (author, session, model)", slice: "task 7" },
-  decide: { summary: "record a decision pinned to exactly what was known", slice: "task 7" },
-  replay: { summary: "replay a decision against the world it was made in", slice: "task 7" },
-  gql: { summary: "pin a snapshot and query it as GraphQL", slice: "task 7" },
+  recall: dataOp("recall", "resolve an entity under the current trust policy", {
+    booleans: ["all", "unified"],
+    allowed: ["store", "home", "attribute", "all", "unified"],
+  }),
+  remember: dataOp("remember", "assert a belief from the command line (speaker: user)", {
+    booleans: ["ref"],
+    allowed: ["store", "home", "kind", "source", "confidence", "speaker", "ref"],
+  }),
+  search: dataOp("search", "substring search over surviving beliefs", {
+    allowed: ["store", "home", "limit"],
+  }),
+  explain: dataOp("explain", "every candidate with receipts (author, session, model)", {
+    allowed: ["store", "home", "attribute"],
+  }),
+  decide: dataOp("decide", "record a decision pinned to exactly what was known", {
+    allowed: ["store", "home", "intent", "attribute"],
+  }),
+  replay: dataOp("replay", "replay a decision against the world it was made in", {
+    allowed: ["store", "home"],
+  }),
+  gql: dataOp("gql", "pin a snapshot, run one GraphQL query, release it", {
+    allowed: ["store", "home"],
+  }),
   migrate: { summary: "re-container a store between backends, digest-verified", slice: "task 9" },
 };
 
