@@ -11,5 +11,6 @@
   "search",
   "serve",
   "store",
-  "upgrade"
+  "upgrade",
+  "vitals"
 ]

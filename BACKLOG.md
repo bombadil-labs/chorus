@@ -55,17 +55,20 @@ _(tasks 9-10 moved to Done)_
 
 _(task 11 moved to Done)_
 
-### Now — constellation + readiness (tranche 2, mined at retro #2)
+### Now — EPISTEME Phase V: the Instrument Panel (tranche 3, mined 2026-07-03)
 
-_(task 16 moved to Done)_
+_(task V.1 moved to Done)_
 
-_(task 17 moved to Done)_
-
-_(task 18 moved to Done)_
-
-- [ ] ♻ **19. Retro #3 - PARKED until a decision gate moves** (the retro wants the real
-      cutover lessons; running it now would be a stock-take of a stock-take). The loop resumes
-      here when Myk acts on any gate below or reseeds the queue.
+- [ ] **V.2 ** — superposition-aware belief diff (agree /
+      disagree / only-in-one / same-value-different-provenance); also one store at two as-of
+      instants. The drift-detection primitive.
+- [ ] **V.3 ** — binary-search the as-of history for the instant a resolved
+      view flipped; return the delta, author, session, model. git-bisect for a mind.
+- [ ] **V.4 The examiner testifies** — vitals emitted as claims by a derived examiner author
+      (telemetry IN the medium, distrustable); console instrument-panel view.
+- [ ] **V.5 Repositioning** — README/pitch rewrite around belief-not-memory (EPISTEME says
+      positioning is a product surface).
+- [ ] ♻ **V.6 Retro** — then mine Phase VI (the Examiner) if the gates still have not moved.
 
 ### Waiting on Myk (not loop-executable — decision gates)
 
@@ -77,6 +80,12 @@ _(task 18 moved to Done)_
 
 ### Done
 
+- [x] **V.1 ** (2026-07-03, PR #27 - journal: The first gauge). Epistemic
+      vitals over one store: contested slots, source concentration (HHI over live-belief
+      authorship), retraction rate, staleness percentiles, confidence coverage, kind
+      distribution. Read-only by construction (test pins the delta count across measurements);
+      every gauge traces to a decision someone would make differently. Golden regenerated for
+      the new command.
 - [x] **20. Open kind vocabulary** (2026-07-03, PR #25 - journal: The mail answered).
       Adopted from the inbox: Myk's dogfooding request (speaker: user, 2026-06) - the
       closed kind enum had no slot for an interpretation/claim. kind is now an open

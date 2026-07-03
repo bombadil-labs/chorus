@@ -11,12 +11,18 @@ import { randomBytes } from "node:crypto";
 import { flagValue } from "./cli-args.js";
 import { openRegistry, type StoreIo } from "./cli-store.js";
 import { callTool, createSession } from "./mcp-server.js";
+import { computeVitals } from "./vitals.js";
 
 // Open the named store, run tool calls against one short-lived CLI session, persist, close.
+// The session context rides along for READ-ONLY consumers (vitals) that measure the agent
+// directly instead of calling tools.
 function withStore<T>(
   storeName: string,
   io: StoreIo,
-  fn: (call: (tool: string, args: Record<string, unknown>) => unknown) => T,
+  fn: (
+    call: (tool: string, args: Record<string, unknown>) => unknown,
+    ctx: ReturnType<typeof createSession>,
+  ) => T,
 ): T {
   const { registry, seed } = openRegistry(io);
   if (!registry.list().some((m) => m.name === storeName)) {
@@ -33,8 +39,9 @@ function withStore<T>(
     // and would be swept up by `trust --distrustModel unknown`).
     ctx.model = "cli";
     store.backend.refresh(ctx.agent);
-    const result = fn((tool, args) =>
-      callTool(ctx, tool, args, () => store.backend.persist(ctx.agent)),
+    const result = fn(
+      (tool, args) => callTool(ctx, tool, args, () => store.backend.persist(ctx.agent)),
+      ctx,
     );
     return result;
   } finally {
@@ -184,6 +191,40 @@ export function dataCommand(
         throw new Error("usage: chorus replay <decisionId> --store <name>");
       }
       return withStore(storeOf(flags), io, (call) => emit(call("replay", { decisionId })));
+    }
+
+    case "vitals": {
+      // Pure measurement (EPISTEME Phase V.1): an ephemeral reader, zero tool calls, nothing
+      // persisted. The examiner-as-author — measurements emitted as claims — is the next slice.
+      return withStore(storeOf(flags), io, (_call, ctx) => {
+        const v = computeVitals(ctx.agent);
+        if (flags.has("json")) return emit(v);
+        io.out(
+          `deltas       ${v.deltas} (${v.retractions} retraction(s), rate ${v.retractionRate.toFixed(3)})`,
+        );
+        io.out(
+          `live beliefs ${v.liveBeliefs} across ${v.entities} entities, ${v.authors} author(s)`,
+        );
+        io.out(`contested    ${v.contested} slot(s) held differently by different authors`);
+        io.out(
+          `source HHI   ${v.sourceConcentration.toFixed(3)} (1/n = n equal voices; 1.0 = a monologue)`,
+        );
+        if (v.staleness !== undefined) {
+          io.out(`staleness    median ${v.staleness.medianDays}d, p90 ${v.staleness.p90Days}d`);
+        }
+        io.out(
+          `confidence   carried on ${v.confidence.carried} belief(s)` +
+            (v.confidence.mean === undefined ? "" : `, mean ${v.confidence.mean.toFixed(2)}`),
+        );
+        io.out(
+          `kinds        ${
+            Object.entries(v.kinds)
+              .map(([k, n]) => `${k}:${n}`)
+              .join("  ") || "none"
+          }`,
+        );
+        return 0;
+      });
     }
 
     case "gql": {

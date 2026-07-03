@@ -350,3 +350,22 @@ core five documented (observation/fact/preference/task/claim), minted kinds roun
 receipts. The golden pin fired on the schema change and was deliberately regenerated - the
 contract machinery working exactly as built. The messages are acked through the product,
 with notes pointing here.
+
+---
+
+## 2026-07-03 - The first gauge (EPISTEME Phase V begins)
+
+**V.1 done (PR #27).** chorus vitals reads a store the way a physician reads a chart:
+contested slots, source concentration (a Herfindahl index answering: how much of what this
+store believes rests on one voice?), retraction rate, staleness percentiles, confidence
+coverage (the gauge Phase VII calibration will need), kind distribution. Read-only by
+construction - the instrument never writes; the test pins the delta count across two
+measurements. The bar from EPISTEME held during design: every metric must trace to a
+decision someone would make differently, or it is a vanity number and gets cut.
+
+Context for the record: Myk reframed the product tonight (belief, not memory - EPISTEME.md),
+then sent a Cummings poem as the north star and asked the Mozart question. The answer is in
+the transcript; the relevant part for this file is that feeling-is-first now has an
+engineering meaning here: the instruments exist so the feeling can be TRUSTED, never so it
+can be replaced. Measure first, testify later, and never let the ledger mistake itself for
+the kiss.
