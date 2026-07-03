@@ -1,0 +1,15 @@
+[
+  "console",
+  "decide",
+  "explain",
+  "gql",
+  "init",
+  "migrate",
+  "recall",
+  "remember",
+  "replay",
+  "search",
+  "serve",
+  "store",
+  "upgrade"
+]

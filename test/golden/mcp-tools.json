@@ -1,0 +1,578 @@
+[
+  {
+    "name": "begin-session",
+    "description": "Introduce this session: bind its author keypair to your model name and declared intent. Call at the start of a conversation so every claim you make is attributable to THIS session — and call it AGAIN if your serving model OR your topic changes mid-conversation (e.g. a refusal failover, a pivot): introductions read as intervals, so each claim attributes to the introduction in effect at its timestamp. Declared topics become your briefing's scope.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "model": {
+          "type": "string",
+          "description": "your model id, e.g. claude-fable-5"
+        },
+        "purpose": {
+          "type": "string",
+          "description": "one line on what this session is doing"
+        },
+        "topics": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Entity ids this session is ABOUT (e.g. 'proj:chorus') — these scope your briefing. A value ending in ':' scopes a whole id-prefix family (e.g. 'synchronicity:'). Reference real ids: try topics/search first rather than inventing new ones."
+        },
+        "surface": {
+          "type": "string",
+          "description": "Where this session lives: 'claude-code' | 'claude-desktop' | 'claude-web' | 'api' | …"
+        },
+        "mode": {
+          "type": "string",
+          "description": "Interaction type: 'work' | 'conversation' | 'research' | 'retrospective' | …"
+        }
+      },
+      "required": ["model"]
+    }
+  },
+  {
+    "name": "whoami",
+    "description": "The identity card: this session's author, the persistent user author, session id, and declared model.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {}
+    }
+  },
+  {
+    "name": "briefing",
+    "description": "What to have top-of-mind, computed fresh THROUGH YOUR DECLARED SCOPE: the user's preferences (always global — they're about the human), in-scope open tasks, recent sessions (shared-topic sessions first), in-scope topics, in-scope CONTESTED facts (out-of-scope contests return as a count in contestedElsewhere — explore them via topics/recall if relevant), and standing distrust edits. Scope defaults to your begin-session topics; pass topics here to override; no topics anywhere = the global view. Call right after begin-session.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "topics": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Override scope: entity ids, or trailing-':' prefix patterns."
+        }
+      }
+    }
+  },
+  {
+    "name": "remember",
+    "description": "Assert a belief as a signed claim: about (entity id), attribute (property name), value (primitive, or {entity} for a typed reference — see the value description), optional kind (observation|fact|preference|task), confidence (0..1), source, speaker.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "about": {
+          "type": "string"
+        },
+        "attribute": {
+          "type": "string"
+        },
+        "value": {
+          "description": "Primitive (string|number|boolean) for genuine content — text, quantities, flags. {entity: <id>} for a typed reference. Reference, don't transcribe: if the value NAMES something the store could hold beliefs about (an event, a person, a work), pass {entity} — a relation is composed of the things it relates, not of their names.",
+          "anyOf": [
+            {
+              "type": ["string", "number", "boolean"]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "entity": {
+                  "type": "string"
+                },
+                "context": {
+                  "type": "string"
+                }
+              },
+              "required": ["entity"],
+              "additionalProperties": false
+            }
+          ]
+        },
+        "kind": {
+          "enum": ["observation", "fact", "preference", "task"]
+        },
+        "confidence": {
+          "type": "number"
+        },
+        "source": {
+          "type": "string"
+        },
+        "speaker": {
+          "enum": ["model", "user"],
+          "description": "Who is asserting: 'model' (this session's own author — default) or 'user' (the persistent human author, when relaying something the user said)."
+        }
+      },
+      "required": ["about", "attribute", "value"]
+    }
+  },
+  {
+    "name": "recall",
+    "description": "Resolve an entity's beliefs to one view under the agent's trust policy. Optional attribute narrows to one property; aliasedVia (a concept id) crosses vocabulary dialects through the alias closure; unified: true reads through sameAs equivalences (co-referring ids merge; conflicts surface as arrays); all: true returns EVERY surviving candidate instead of the policy's pick (multiple values surface as arrays) — the right read for set-valued attributes like composed-of.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "entity": {
+          "type": "string"
+        },
+        "attribute": {
+          "type": "string"
+        },
+        "aliasedVia": {
+          "type": "string"
+        },
+        "unified": {
+          "type": "boolean"
+        },
+        "all": {
+          "type": "boolean"
+        }
+      },
+      "required": ["entity"]
+    }
+  },
+  {
+    "name": "topics",
+    "description": "What does this store know about? Entities with beliefs, most recently touched first: attributes, claim counts, distinct authors. Use prefix to narrow (e.g. 'person:').",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "prefix": {
+          "type": "string"
+        },
+        "limit": {
+          "type": "number"
+        }
+      }
+    }
+  },
+  {
+    "name": "search",
+    "description": "Case-insensitive substring search over belief values, attribute names, and entity ids. Returns hits with delta ids and authors.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string"
+        },
+        "limit": {
+          "type": "number"
+        }
+      },
+      "required": ["query"]
+    }
+  },
+  {
+    "name": "same",
+    "description": "Assert that two entity ids name the same thing (a signed, negatable identity judgment). recall {unified: true} then reads through the equivalence.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "a": {
+          "type": "string"
+        },
+        "b": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "speaker": {
+          "enum": ["model", "user"],
+          "description": "Who is asserting: 'model' (this session's own author — default) or 'user' (the persistent human author, when relaying something the user said)."
+        }
+      },
+      "required": ["a", "b"]
+    }
+  },
+  {
+    "name": "retract",
+    "description": "Retract a belief by delta id. Retraction APPENDS a signed negation — history stays intact and auditable.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "deltaId": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "speaker": {
+          "enum": ["model", "user"],
+          "description": "Who is asserting: 'model' (this session's own author — default) or 'user' (the persistent human author, when relaying something the user said)."
+        }
+      },
+      "required": ["deltaId"]
+    }
+  },
+  {
+    "name": "revise",
+    "description": "Replace a belief in one move: retract the old delta and assert the new value for the same entity/attribute, linked by a revises pointer. Use when a fact CHANGED (not when it was wrong from the start — that's retract + remember).",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "deltaId": {
+          "type": "string"
+        },
+        "value": {
+          "description": "Primitive (string|number|boolean) for genuine content — text, quantities, flags. {entity: <id>} for a typed reference. Reference, don't transcribe: if the value NAMES something the store could hold beliefs about (an event, a person, a work), pass {entity} — a relation is composed of the things it relates, not of their names.",
+          "anyOf": [
+            {
+              "type": ["string", "number", "boolean"]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "entity": {
+                  "type": "string"
+                },
+                "context": {
+                  "type": "string"
+                }
+              },
+              "required": ["entity"],
+              "additionalProperties": false
+            }
+          ]
+        },
+        "reason": {
+          "type": "string"
+        },
+        "speaker": {
+          "enum": ["model", "user"],
+          "description": "Who is asserting: 'model' (this session's own author — default) or 'user' (the persistent human author, when relaying something the user said)."
+        }
+      },
+      "required": ["deltaId", "value"]
+    }
+  },
+  {
+    "name": "recast",
+    "description": "Re-encode a belief WITHOUT re-deciding it: the value's meaning stays identical, only its representation upgrades (e.g. a string that names an entity becomes a typed {entity} reference; one comma-packed string becomes N separate claims). Appends one negation of the original plus the replacement claim(s), each linked by a recasts pointer — the audit trail reads 're-encoded', never 'changed its mind'. Use revise when the fact CHANGED; retract+remember when it was WRONG; recast when only the encoding improves.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "deltaId": {
+          "type": "string"
+        },
+        "values": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "description": "Primitive (string|number|boolean) for genuine content — text, quantities, flags. {entity: <id>} for a typed reference. Reference, don't transcribe: if the value NAMES something the store could hold beliefs about (an event, a person, a work), pass {entity} — a relation is composed of the things it relates, not of their names.",
+            "anyOf": [
+              {
+                "type": ["string", "number", "boolean"]
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "entity": {
+                    "type": "string"
+                  },
+                  "context": {
+                    "type": "string"
+                  }
+                },
+                "required": ["entity"],
+                "additionalProperties": false
+              }
+            ]
+          },
+          "description": "The replacement value(s), meaning-identical to the original. Multiple values unpack a fat claim into separate claims (one per relatum)."
+        },
+        "reason": {
+          "type": "string"
+        },
+        "speaker": {
+          "enum": ["model", "user"],
+          "description": "Who is asserting: 'model' (this session's own author — default) or 'user' (the persistent human author, when relaying something the user said)."
+        }
+      },
+      "required": ["deltaId", "values"]
+    }
+  },
+  {
+    "name": "end-session",
+    "description": "Close out: write this session's one-paragraph summary (and what's left open) so the next session's briefing starts where you stopped. Call before finishing a conversation.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "summary": {
+          "type": "string"
+        }
+      },
+      "required": ["summary"]
+    }
+  },
+  {
+    "name": "post",
+    "description": "Send a message to other sessions (or the human): correspondence, not knowledge — it appears ONLY in the addressed inboxes and never pollutes topics/search/recall. Addressing targets declared identity: one session, every session of a model, every session on a surface, any session scoped to a topic, or the user (their inbox is the console). No 'to' = broadcast. Use for handoffs, questions, and rulings between sessions; use remember for durable facts.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "body": {
+          "type": "string"
+        },
+        "to": {
+          "type": "object",
+          "properties": {
+            "session": {
+              "type": "string",
+              "description": "one session, by id"
+            },
+            "model": {
+              "type": "string",
+              "description": "every session of this model"
+            },
+            "surface": {
+              "type": "string",
+              "description": "every session on this surface"
+            },
+            "topics": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "any session scoped to one of these (':' suffix = prefix family)"
+            },
+            "user": {
+              "type": "boolean",
+              "description": "the human — delivered to the console"
+            },
+            "authorOf": {
+              "type": "string",
+              "description": "a delta id — address whoever SIGNED it (the canonical 'about this thing you wrote' gesture; resolves to that exact keypair at send time)"
+            }
+          },
+          "additionalProperties": false
+        },
+        "about": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "entity ids this message concerns (references, not filing)"
+        },
+        "re": {
+          "type": "string",
+          "description": "a prior message's id — threads a reply"
+        },
+        "speaker": {
+          "enum": ["model", "user"],
+          "description": "Who is asserting: 'model' (this session's own author — default) or 'user' (the persistent human author, when relaying something the user said)."
+        }
+      },
+      "required": ["body"]
+    }
+  },
+  {
+    "name": "inbox",
+    "description": "Messages addressed to THIS session (by id, model, surface, declared topic, or broadcast), unacked first-class: each with sender receipts (which model, which session), thread pointer, and concerned entities. Ack what you handle. includeAcked: true shows handled mail too.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "includeAcked": {
+          "type": "boolean"
+        }
+      }
+    }
+  },
+  {
+    "name": "ack",
+    "description": "Acknowledge a message: it leaves YOUR inbox (other recipients of a broadcast still see it). The ack is a signed claim — handled-ness has provenance. A response is often an EFFECT, not a reply: point `about` at the entities your response touched, and say what you did in `note`. To withdraw a message globally, retract it.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "messageId": {
+          "type": "string"
+        },
+        "note": {
+          "type": "string",
+          "description": "optional: what you did about it"
+        },
+        "about": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "entity ids your response touched (the disposition's artifacts)"
+        },
+        "speaker": {
+          "enum": ["model", "user"],
+          "description": "Who is asserting: 'model' (this session's own author — default) or 'user' (the persistent human author, when relaying something the user said)."
+        }
+      },
+      "required": ["messageId"]
+    }
+  },
+  {
+    "name": "decide",
+    "description": "Record that you are about to ACT on what you currently believe: resolves the entity now and pins (instant, policy, view hash, arrival prefix) into one signed decision record. Returns the decisionId — keep it in your summary if the action matters.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "about": {
+          "type": "string"
+        },
+        "intent": {
+          "type": "string",
+          "description": "what you are about to do, in your own words"
+        },
+        "attribute": {
+          "type": "string"
+        }
+      },
+      "required": ["about", "intent"]
+    }
+  },
+  {
+    "name": "replay",
+    "description": "Replay a recorded decision: the exact belief set and policy it resolved, re-verified byte-for-byte, with claims retracted SINCE the decision marked. Incident review as a query.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "decisionId": {
+          "type": "string"
+        }
+      },
+      "required": ["decisionId"]
+    }
+  },
+  {
+    "name": "explain",
+    "description": "Why does recall say what it says? Every candidate belief with its receipt: author, delta id, timestamp, signature, negated flag, value, kind, confidence, source.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "entity": {
+          "type": "string"
+        },
+        "attribute": {
+          "type": "string"
+        }
+      },
+      "required": ["entity"]
+    }
+  },
+  {
+    "name": "trust",
+    "description": "Retroactive distrust: one signed edit re-resolves every belief downstream of the demoted testimony; history stays queryable. Demote a specific author key (distrust), every session of a model (distrustModel), or one session by id (distrustSession).",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "distrust": {
+          "type": "string",
+          "description": "an author key, e.g. ed25519:…"
+        },
+        "distrustModel": {
+          "type": "string",
+          "description": "demote ALL sessions of this model id"
+        },
+        "distrustSession": {
+          "type": "string",
+          "description": "demote one session by its session id"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "speaker": {
+          "enum": ["model", "user"],
+          "description": "Who is asserting: 'model' (this session's own author — default) or 'user' (the persistent human author, when relaying something the user said)."
+        }
+      }
+    }
+  },
+  {
+    "name": "as-of",
+    "description": "Resolve an entity's beliefs as they stood at a past instant (ms epoch). Claims retracted afterwards are visible again — the replay is honest.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "entity": {
+          "type": "string"
+        },
+        "at": {
+          "type": "number"
+        },
+        "attribute": {
+          "type": "string"
+        }
+      },
+      "required": ["entity", "at"]
+    }
+  },
+  {
+    "name": "gql-prepare",
+    "description": "Pin the store's current world and SYNTHESIZE a GraphQL schema for it on demand. Reflection reads which entity-types exist (by id prefix), which attributes each carries, which are REFERENCES (typed edges, followed not substring-matched) vs primitives, and which are set-valued (declared plurality:set → list fields). Returns a prepId and the schema SDL. The schema is ephemeral — a pure function of (snapshot, policy) — and the snapshot is FROZEN: query it with gql-query until you gql-release or regenerate, and a long retrospective walk reads one consistent world even as the live store moves on. Optional asOf (ms epoch) pins a past world; prefix restricts to one entity family (e.g. 'concept:').",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "asOf": {
+          "type": "number",
+          "description": "pin the world as it stood at this instant (ms epoch)"
+        },
+        "prefix": {
+          "type": "string",
+          "description": "restrict the schema to one entity-id family, e.g. 'idea:'"
+        }
+      }
+    }
+  },
+  {
+    "name": "gql-query",
+    "description": "Run a GraphQL query against a prepared snapshot (from gql-prepare). Forward traversal follows reference fields hop by hop; backlinks(target, attribute?, role?) walks BACKWARD (who points at an entity) with no substring scan and no false positives. Per-type root fields: <type>(id) and <type>s(limit). Returns { data, errors }.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "prepId": {
+          "type": "string",
+          "description": "the id returned by gql-prepare"
+        },
+        "query": {
+          "type": "string",
+          "description": "a GraphQL query string"
+        },
+        "variables": {
+          "type": "object",
+          "description": "optional GraphQL variables"
+        }
+      },
+      "required": ["prepId", "query"]
+    }
+  },
+  {
+    "name": "gql-schema",
+    "description": "Fetch the SDL of a prepared snapshot again without re-preparing, plus its stats (type/field/delta counts, when it was pinned).",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "prepId": {
+          "type": "string"
+        }
+      },
+      "required": ["prepId"]
+    }
+  },
+  {
+    "name": "gql-release",
+    "description": "Retire a prepared snapshot (frees its frozen world). gql-list shows the ones still live.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "prepId": {
+          "type": "string"
+        }
+      },
+      "required": ["prepId"]
+    }
+  },
+  {
+    "name": "gql-list",
+    "description": "The prepared snapshots still live in this session: id, stats, and when each was pinned.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {}
+    }
+  }
+]

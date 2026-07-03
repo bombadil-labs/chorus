@@ -51,10 +51,8 @@ _(task 7 moved to Done)_
 
 _(task 8 moved to Done)_
 
-- [ ] **9. `chorus migrate` + `chorus upgrade`** — jsonl→sqlite command over the existing
-      migrator; self-update + update-notifier.
-- [ ] **10. Compatibility guarantees** — format-version marker in store manifests,
-      auto-migrate-on-open (lossless, digest-checked), contract/golden tests pinning CLI behavior + MCP tool schemas so breaking changes fail CI.
+_(tasks 9-10 moved to Done)_
+
 - [ ] **11. Cutover rehearsal (synthetic)** — full Phase 2 dress rehearsal against a synthetic
       store built for the purpose: adopt → serve --http → real MCP round-trip → digest
       verification. Produces a written runbook for Myk's live cutover. **Does not touch the live
@@ -75,6 +73,14 @@ _(task 8 moved to Done)_
 
 ### Done
 
+- [x] **10. Compatibility guarantees** (2026-07-03, PR #15 - journal: The contract). Manifest
+      formatVersion + the upgrade ladder (legacy manifests stamp on open, lossless and digest-
+      neutral; future manifests refuse loudly naming the way out) + golden pins for the MCP
+      tool schemas and CLI command surface (drift fails CI until tools/gen-goldens.ts is run
+      deliberately). Data safe forever; the surface breaks only on purpose.
+- [x] **9. + upgrade stub** (2026-07-03, PR #14 - journal: The contract).
+      Registry-first rescope: lossless re-containering with the old file left in place; sqlite-
+      family flips are manifest-only. upgrade stubs honestly until Phase 4 publishes.
 - [x] ♻ **8. Retro/integration pass #1** (2026-07-03, PR #13 - journal: The core is one).
       The sqlite SHARED-CORE refactor: schema/SQL/write-discipline live once in
       sqlite-core.ts, both drivers are ~40-line adapters over a 3-method seam - the way to

@@ -73,7 +73,7 @@ const VALUE = {
   },
 } as const;
 
-const TOOLS = [
+export const TOOLS = [
   {
     name: "begin-session",
     description:

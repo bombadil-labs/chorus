@@ -97,6 +97,7 @@ export {
   Store,
   StoreRegistry,
   storeSeed,
+  MANIFEST_FORMAT_VERSION,
   type StoreManifest,
   type StoreTier,
   type AdoptResult,

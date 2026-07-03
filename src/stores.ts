@@ -31,7 +31,14 @@ export type StoreTier = "private" | "federated";
 export const storeSeed = (masterSeedHex: string, name: string): string =>
   deriveSeed(masterSeedHex, `store/${name}`);
 
+// The manifest format version — the compatibility contract's anchor. Any version of Chorus must
+// read any store it ever wrote: older manifests are UPGRADED on open (each ladder step below is
+// lossless and digest-neutral by construction), and a manifest from a NEWER chorus refuses
+// loudly instead of guessing. Bump this only with a new ladder step.
+export const MANIFEST_FORMAT_VERSION = 1;
+
 export interface StoreManifest {
+  readonly formatVersion?: number; // absent = the pre-versioning era (treated as 0)
   readonly name: string;
   readonly id: string; // StoreId = authorForSeed(storeSeed) — "ed25519:<pubkey>"
   readonly tier: StoreTier;
@@ -146,8 +153,24 @@ export class StoreRegistry {
             `master seed (${id}) — wrong CHORUS_MASTER_SEED, or a tampered manifest.`,
         );
       }
+      const version = manifest.formatVersion ?? 0;
+      if (version > MANIFEST_FORMAT_VERSION) {
+        // Never guess at a future format: refuse loudly, name the way out.
+        throw new Error(
+          `store "${name}" was written by a newer chorus (format v${version}; this build reads ` +
+            `up to v${MANIFEST_FORMAT_VERSION}) — upgrade chorus to open it.`,
+        );
+      }
+      if (version < MANIFEST_FORMAT_VERSION) {
+        // AUTO-MIGRATE-ON-OPEN, the upgrade ladder: each step is lossless and digest-neutral.
+        // v0 → v1 stamps the version field itself (the container bytes are identical); future
+        // steps chain here, oldest first, and MUST keep that property.
+        manifest = { ...manifest, formatVersion: MANIFEST_FORMAT_VERSION };
+        writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+      }
     } else {
       manifest = {
+        formatVersion: MANIFEST_FORMAT_VERSION,
         name,
         id,
         tier: opts.tier ?? "federated",
