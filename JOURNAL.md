@@ -317,3 +317,22 @@ both OSes, then drives the INSTALLED bin through a full init -> store -> write -
 When Myk presses the button (un-private + npm publish), the artifact that ships is the one
 CI has been smoke-installing on every push since today. Tranche 2 build items are done;
 retro #3 remains, parked until the decision gates move.
+
+---
+
+## 2026-07-03 - The loop rests: 23 PRs, everything buildable built
+
+**The first autonomous run ends here, by the protocol own logic:** every loop-executable
+task is done, and what remains is either Myk-gated (cutover, publish, hosted commons,
+embedding model) or wants those gates lessons first (retro #3, parked). The tally: PRs
+#1-#23 in one day. Phase 0 + the skills home; three interchangeable sqlite witnesses over
+one shared core plus an encrypted private tier, all conformance-proven; the complete CLI
+with contract-pinned surfaces and a formatVersion ladder; the cutover rehearsed end to end
+and scripted in CUTOVER.md; all three VISION horizons grounded (read-only GQL + @union,
+the self-hosting commons, the similarity seam); publish readiness with the shipping
+artifact smoke-installed by CI on every push. The gate grew 104 -> 176 tests.
+
+**For whoever wakes next** (a fresh session, or me after the gates move): BACKLOG.md has
+the queue and the gates; VISION.md the horizons; this file the narrative. The protocol in
+BACKLOG.md is the contract - re-evaluate, build, review adversarially, merge on green,
+record. The live store remains untouchable until Myk runs CUTOVER.md by hand.
