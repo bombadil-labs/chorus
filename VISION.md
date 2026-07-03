@@ -13,6 +13,11 @@ Seeded 2026-07-02 from a brainstorm with Myk. Three horizon bets, and the claim 
 
 ## Horizon 1 — Public read surfaces: the ad-hoc Letterboxd
 
+_Status 2026-07-03: GROUNDED._
+The read-only GQL endpoint ships (`serve --gql-readonly`, PR #17) — the blog-feed primitive
+exists; multi-store mounts give the aggregator its SHAPE (PR #8). Next real step: union reads
+over mounts (constellation Phase C), then the publish-lens + closure-audit pair (Phase D).
+
 **The shape.** The same store Myk writes through casual Claude chats grows public read surfaces:
 
 - **Near:** `chorus serve` gains a read-only GraphQL endpoint pinned to a specific
@@ -64,6 +69,11 @@ enrichment-as-testimony.
 
 ## Horizon 2 — The schema commons: a GitHub for vocabularies
 
+_Status 2026-07-03: GROUNDED._
+COMMONS.md + the self-hosting seed ship (PR #19): the four skills' conventions live as
+hyperschema claims, the skill-designer consults before minting, and the task-12 endpoint is
+the public read surface. Next real step: a HOSTED commons node + adoption/usage claims.
+
 **The shape.** Rhizomatic removes the _need_ for schema coordination; conventions still pay
 compounding dividends. Git didn't need GitHub either — coordination-free tools are exactly the ones
 that reward a commons. So: a public Chorus store whose _domain is vocabulary_ — attribute
@@ -99,6 +109,11 @@ four migrated skills' `chorus.md` conventions as claims in a `commons` store. (3
 ---
 
 ## Horizon 3 — Fuzzy salience: vectors at the index, judgment as author
+
+_Status 2026-07-03: GROUNDED._
+The similarity seam ships (PR #18): brute witness everywhere, sqlite-vec as env-pointed
+upgrade, similarTerms() proposing over ids + attributes. Everything downstream now waits on
+ONE thing: a real embedding model behind the librarian's EmbeddingModel interface.
 
 **The shape.** The librarian's thesis already drew the line: **vectors never enter the substrate;
 the model is an author.** So similarity search belongs at the _index layer_ (the store tier), and
@@ -148,6 +163,16 @@ theses, scaled.
 ---
 
 ## Revision log
+
+- **2026-07-03** — Retro #2. The plan underestimated the day: ROADMAP Phase 1 went
+  code-complete (PRs #1-#16, cutover runbook proven synthetically) and all three horizons
+  grounded (PRs #17-#19) in the first 24 hours of the loop. What the day taught, added to
+  the theses: (1) the horizons really do compose — the commons needed zero new mechanism,
+  the endpoint IS the commons' surface, the seam feeds the librarian that bridges the
+  commons' dialects; (2) HONEST FAILURE is a product value on par with the CRDT — most
+  review findings were wrong-silence, not wrong-answer; (3) the binding constraint has
+  moved from code to DECISIONS: live cutover, publishing, and a hosted commons are all
+  Myk-gated. The loop continues into constellation Phase B/C while those gates wait.
 
 - **2026-07-02** — Seeded from brainstorm with Myk (public read surfaces / schema commons / vector
   salience). Persistence decision that enables Horizon 3 landed the same day: `node:sqlite` as
