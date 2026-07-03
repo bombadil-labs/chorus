@@ -126,3 +126,11 @@ export {
   ROLE_VALUE,
   type BeliefKind,
 } from "./vocab.js";
+export {
+  BruteVectorIndex,
+  SqliteVecIndex,
+  openVectorIndex,
+  similarTerms,
+  type VectorHit,
+  type VectorIndex,
+} from "./similarity.js";
