@@ -19,12 +19,9 @@ This repo is the **product layer** — and that has consequences for how we work
 ## The dependency: Rhizomatic (`@bombadil/rhizomatic`)
 
 Chorus depends on **[`@bombadil/rhizomatic`](https://www.npmjs.com/package/@bombadil/rhizomatic)**, the
-format, as an ordinary npm dependency (`^0.1.0`, in `package.json`). **Org-move bridge (Myk,
-2026-07-03):** we publish under `@bombadil` now, but until the rhizomatic repo migrates its own
-package, the dependency is an npm ALIAS — `"@bombadil/rhizomatic": "npm:@rhizomes/rhizomatic@^0.1.0"`
-— so imports already say `@bombadil/rhizomatic` everywhere while installs resolve to the published
-bits. When `@bombadil/rhizomatic` is real on npm, flip that one line to a plain `^x.y.z` range;
-no import changes. That package gives us: canonical
+format, as an ordinary npm dependency (`^0.1.0`, in `package.json`). (The `@rhizomes` →
+`@bombadil` org move completed 2026-07-03: the interim npm alias is gone; this is the real
+published package.) That package gives us: canonical
 CBOR + content addressing, signed deltas, the delta-set CRDT (merge is union), the eight-operator
 evaluator, resolution policies, the reactor (live indexes), packs, federation (`Peer`), and derivation.
 
