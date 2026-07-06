@@ -6,7 +6,7 @@
 > superposition; trust is the reader's editable policy; decisions replay against exactly what
 > was known when they were made.
 
-Chorus is the product layer on @rhizomes/rhizomatic, a portable format of signed,
+Chorus is the product layer on @bombadil/rhizomatic, a portable format of signed,
 content-addressed deltas whose merge is set union (order-blind, idempotent, grow-only).
 Nothing is edited in place; a retraction is itself a signed claim targeting the retracted
 delta. Status: alpha, unpublished to npm — install from a checkout.

@@ -2,7 +2,7 @@
 // answer the first; sameAs claims answer the second — canonical identity as JUDGMENT, not as
 // a registry. A "DNS" here is just an author whose sameAs/naming claims you rank highly.
 
-import { type Pointer, type View } from "@rhizomes/rhizomatic";
+import { type Pointer, type View } from "@bombadil/rhizomatic";
 import { surviving, type ChorusAgent, type RecallOptions } from "./agent.js";
 import { CHORUS_PREFIX, ROLE_ABOUT, ROLE_VALUE } from "./vocab.js";
 

@@ -108,6 +108,7 @@ describe("the read-only GraphQL endpoint", () => {
       body: JSON.stringify({ query: "{ posts { id } }" }),
     });
     expect(ok.status).toBe(200);
+    await ok.text(); // drain — see the ECONNRESET note below
 
     const bad = await fetch(gqlUrl, {
       method: "POST",
@@ -118,18 +119,36 @@ describe("the read-only GraphQL endpoint", () => {
     expect(badBody.errors?.length).toBeGreaterThan(0);
   });
 
+  // Idempotent GET with one retry: node's HTTP server closes idle keep-alive sockets after
+  // ~5s, and this suite's spawnSync CLI calls can hold the event loop past that between two
+  // fetches to the same origin — undici then reuses the dead pooled socket and the request
+  // dies with ECONNRESET before it is ever sent. Retrying an unsent idempotent GET once is
+  // correct HTTP client behavior, not flake-papering. (Load-dependent: green in isolation,
+  // red under a full suite — the wrong-silence shape, diagnosed rather than waved off.)
+  const getOnceRetried = async (url: string): Promise<Response> => {
+    try {
+      return await fetch(url);
+    } catch {
+      return await fetch(url);
+    }
+  };
+
   it("is READ-ONLY and token-gated: nothing persists, junk tokens 404", async () => {
     // The endpoint answered queries above; the store's delta count must be unchanged.
     const show = JSON.parse(runCli("store", "show", "blog", "--json").out) as { deltas: number };
     const before = show.deltas;
-    await fetch(`${gqlUrl}?query=${encodeURIComponent("{ posts { id } }")}`);
+    // Bodies are always drained: an abandoned body wedges the pooled connection.
+    await (
+      await getOnceRetried(`${gqlUrl}?query=${encodeURIComponent("{ posts { id } }")}`)
+    ).text();
     const after = JSON.parse(runCli("store", "show", "blog", "--json").out) as { deltas: number };
     expect(after.deltas).toBe(before);
 
-    const forged = await fetch(
+    const forged = await getOnceRetried(
       `${gqlUrl.replace(/\/gql\/[0-9a-f]+/, "/gql/deadbeef")}?query=${encodeURIComponent("{ posts { id } }")}`,
     );
     expect(forged.status).toBe(404);
+    await forged.text();
 
     // And the MCP mount still works beside it.
     const mcp = await fetch(mcpUrl, {
@@ -138,11 +157,16 @@ describe("the read-only GraphQL endpoint", () => {
       body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "initialize", params: {} }),
     });
     expect(mcp.status).toBe(200);
+    await mcp.text();
   });
 
   it("missing query is a 400, wrong method a 405", async () => {
-    expect((await fetch(gqlUrl)).status).toBe(400);
-    expect((await fetch(gqlUrl, { method: "PUT" })).status).toBe(405);
+    const missing = await fetch(gqlUrl);
+    expect(missing.status).toBe(400);
+    await missing.text();
+    const wrong = await fetch(gqlUrl, { method: "PUT" });
+    expect(wrong.status).toBe(405);
+    await wrong.text();
   });
 
   it("@union reads across every mount; individual mounts stay isolated", async () => {

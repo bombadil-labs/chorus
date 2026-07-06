@@ -7,7 +7,7 @@
 // as-of reads, not a scan. `as-of` was always the time machine; bisect is just the search
 // pattern that makes it a debugger.
 
-import type { Delta } from "@rhizomes/rhizomatic";
+import type { Delta } from "@bombadil/rhizomatic";
 import type { ChorusAgent } from "./agent.js";
 import { identityAt, identityIntroductions, type AuthorIdentity } from "./identity.js";
 
