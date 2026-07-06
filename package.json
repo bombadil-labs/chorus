@@ -50,7 +50,7 @@
     "release:major": "npm version major && npm publish"
   },
   "dependencies": {
-    "@bombadil/rhizomatic": "npm:@rhizomes/rhizomatic@^0.1.0",
+    "@bombadil/rhizomatic": "^0.1.0",
     "graphql": "^16.14.2"
   },
   "optionalDependencies": {
