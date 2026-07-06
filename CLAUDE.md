@@ -16,10 +16,15 @@ signed-content-addressed-delta format.
 
 This repo is the **product layer** — and that has consequences for how we work (below).
 
-## The dependency: Rhizomatic (`@rhizomes/rhizomatic`)
+## The dependency: Rhizomatic (`@bombadil/rhizomatic`)
 
-Chorus depends on **[`@rhizomes/rhizomatic`](https://www.npmjs.com/package/@rhizomes/rhizomatic)**, the
-format, as an ordinary npm dependency (`^0.1.0`, in `package.json`). That package gives us: canonical
+Chorus depends on **[`@bombadil/rhizomatic`](https://www.npmjs.com/package/@bombadil/rhizomatic)**, the
+format, as an ordinary npm dependency (`^0.1.0`, in `package.json`). **Org-move bridge (Myk,
+2026-07-03):** we publish under `@bombadil` now, but until the rhizomatic repo migrates its own
+package, the dependency is an npm ALIAS — `"@bombadil/rhizomatic": "npm:@rhizomes/rhizomatic@^0.1.0"`
+— so imports already say `@bombadil/rhizomatic` everywhere while installs resolve to the published
+bits. When `@bombadil/rhizomatic` is real on npm, flip that one line to a plain `^x.y.z` range;
+no import changes. That package gives us: canonical
 CBOR + content addressing, signed deltas, the delta-set CRDT (merge is union), the eight-operator
 evaluator, resolution policies, the reactor (live indexes), packs, federation (`Peer`), and derivation.
 
@@ -27,7 +32,7 @@ evaluator, resolution policies, the reactor (live indexes), packs, federation (`
   `rhizomatic`** (on this machine, the sibling folder `../rhizomatic`). That repo is _normative_ and
   _deliberately lightweight_ — it moves slowly, guards byte-exact determinism, and is the thing other
   people implement. **We do not change it from here.** If we need a substrate change, that's a change
-  to `@rhizomes/rhizomatic` (a PR in the rhizomatic repo + a version bump), not a hack in Chorus.
+  to `@bombadil/rhizomatic` (a PR in the rhizomatic repo + a version bump), not a hack in Chorus.
 - **We are the opposite: fast-moving, TS-only, no conformance vectors, no two-witness requirement.**
   The surface area here will expand rapidly (CLI, stores, federation, an admin UI). That's the whole
   reason we're a separate repo — to keep Rhizomatic small while Chorus grows.
@@ -72,7 +77,7 @@ Skills that turn Chorus into domain apps (the `chorus-skill-designer` meta-skill
   private + encrypted, an aggregator exposing the union via GraphQL/MCP, eventually friends federating.
   The design + phased plan is [CONSTELLATION.md](claude_notes/CONSTELLATION.md) (Phase A — store identity + registry
   - adoption — already shipped in the code you inherited).
-- **Immediate goal (alpha): the `chorus` CLI** — `npm i -g @rhizomes/chorus`, a `chorus` command that
+- **Immediate goal (alpha): the `chorus` CLI** — `npm i -g @bombadil/chorus`, a `chorus` command that
   spins up one or more local concurrent stores and serves them over MCP, replacing the manual
   tailscale node. This is the burndown in [ROADMAP.md](claude_notes/ROADMAP.md).
 
@@ -114,7 +119,7 @@ to the same review bar as code. Name things like they matter.
 ## Commands
 
 ```
-npm install            # once — pulls @rhizomes/rhizomatic from npm (runs prepare → tsc → dist)
+npm install            # once — pulls @bombadil/rhizomatic from npm (runs prepare → tsc → dist)
 npm run check          # format:check + lint + typecheck + test — the green gate
 
 # The chorus CLI (tsx src/cli.ts …, or node dist/cli.js …, or the installed bin):
@@ -155,4 +160,4 @@ set, the plans, and the records. The short version:
   [CONSTELLATION.md](claude_notes/CONSTELLATION.md) — the multi-store / federating design.
   [CUTOVER.md](claude_notes/CUTOVER.md) — the live-node runbook (**Myk's to execute**).
 - [README.md](README.md) — the product doc.
-- The format: `@rhizomes/rhizomatic` on npm; its spec + witnesses in the sibling `../rhizomatic` repo.
+- The format: `@bombadil/rhizomatic` on npm; its spec + witnesses in the sibling `../rhizomatic` repo.

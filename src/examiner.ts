@@ -8,7 +8,7 @@
 // latest-wins read gives you current health, while the grow-only log keeps every prior reading
 // — `chorus explain vitals:<store>` is the health history, `as-of` is the chart.
 
-import { authorForSeed } from "@rhizomes/rhizomatic";
+import { authorForSeed } from "@bombadil/rhizomatic";
 import { ChorusAgent, beliefPointers } from "./agent.js";
 import { deriveSeed, identityIntroductions, identityPointers } from "./identity.js";
 import { computeVitals, type Vitals } from "./vitals.js";

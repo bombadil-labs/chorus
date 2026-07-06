@@ -2,7 +2,7 @@
 // is the MEMORY.md of Chorus — except every line has provenance, contested facts surface as
 // contested instead of last-write-wins, and standing trust edits rehydrate into the lens.
 
-import { type Delta } from "@rhizomes/rhizomatic";
+import { type Delta } from "@bombadil/rhizomatic";
 import { surviving, type ChorusAgent } from "./agent.js";
 import { sameAsClass, topics, type Topic } from "./discovery.js";
 import { identityIndex } from "./identity.js";

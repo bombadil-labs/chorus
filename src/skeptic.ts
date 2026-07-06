@@ -14,7 +14,7 @@
 //   - Opt-in and narrow by default: only decision-cited single-voice slots draw doubt unless
 //     --all widens it. Alert fatigue is the failure mode; the skeptic earns its voice.
 
-import { authorForSeed, type Delta, type Pointer } from "@rhizomes/rhizomatic";
+import { authorForSeed, type Delta, type Pointer } from "@bombadil/rhizomatic";
 import { surviving, beliefPointers, type ChorusAgent } from "./agent.js";
 import { deriveSeed } from "./identity.js";
 import { introduceVoice } from "./examiner.js";

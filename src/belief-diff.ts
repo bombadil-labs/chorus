@@ -12,7 +12,7 @@
 // Set-valued slots (plurality declarations) compare as sets — divergence there is a real
 // difference of the union, not a contest artifact.
 
-import { DeltaSet, type Delta } from "@rhizomes/rhizomatic";
+import { DeltaSet, type Delta } from "@bombadil/rhizomatic";
 import { surviving, ChorusAgent } from "./agent.js";
 import { ROLE_ABOUT, ROLE_VALUE } from "./vocab.js";
 

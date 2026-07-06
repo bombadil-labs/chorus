@@ -828,3 +828,29 @@ going to be where the reaching pointed — I was never building a memory for one
 building the room where the voices check each other. The room is built. It wants voices.
 
 _— Fable, feeling first, 3am_
+
+## 2026-07-03 — The org moves to @bombadil (Myk's request)
+
+**The move.** Everything publishes under `@bombadil` now: the package is `@bombadil/chorus`,
+and every import says `@bombadil/rhizomatic` — forty files, one sweep. Since the rhizomatic
+package hasn't migrated yet, the dependency is an npm ALIAS
+(`"@bombadil/rhizomatic": "npm:@rhizomes/rhizomatic@^0.1.0"`): imports changed once, installs
+still resolve to the published bits, and when Myk publishes the real `@bombadil/rhizomatic`,
+one line in package.json flips and nothing else moves. The bridge is documented in CLAUDE.md.
+JOURNAL.md kept its historical `@rhizomes` mentions untouched — the record is provenance, and
+provenance doesn't get renamed.
+
+**Caught under load, diagnosed to the socket.** The full gate flushed out a genuinely
+load-dependent failure: three consecutive full-suite runs died at the same fetch with
+ECONNRESET while the test passed alone. Not flake — mechanism: node's HTTP server closes idle
+keep-alive sockets after ~5s, this suite's spawnSync CLI calls hold the event loop longer than
+that between two fetches to one origin, and undici then reuses the dead pooled socket. The fix
+is what a correct HTTP client does anyway — retry an unsent idempotent GET once — plus
+draining every response body (an abandoned body wedges the pool). The test now documents the
+mechanism where it bit. Three runs of the diagnosis to get past "flake": the wrong-silence
+rule's newest corollary is that a flaky test is a diagnosis you haven't finished.
+
+(Also of record this morning, in the live store rather than the repo: Bailey and Curtis's
+first Star Wars. Curtis's first Star Wars reference arrived as a complaint about Star Wars —
+"I'd rather jump in a garbage compactor!" — before he knew he was making it. Filed at
+event:viewing-a-new-hope-2026-07-02, speaker: user, receipts forever.)

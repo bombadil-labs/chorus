@@ -15,7 +15,7 @@
 // `StoreBackend`. Interface renamed from `Store` → `StoreBackend` so the domain word is free.
 
 import { closeSync, existsSync, openSync, readSync } from "node:fs";
-import type { Delta, Primitive } from "@rhizomes/rhizomatic";
+import type { Delta, Primitive } from "@bombadil/rhizomatic";
 import type { ChorusAgent } from "./agent.js";
 import { JsonlStore } from "./shared-store.js";
 import { SqliteStore, betterSqliteAvailable, openBetterSqliteDriver } from "./sqlite-store.js";

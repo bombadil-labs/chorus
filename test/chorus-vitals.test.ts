@@ -8,7 +8,7 @@ import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterAll, describe, expect, it } from "vitest";
-import { DeltaSet } from "@rhizomes/rhizomatic";
+import { DeltaSet } from "@bombadil/rhizomatic";
 import { computeVitals } from "../src/vitals.js";
 import { callTool, createSession } from "../src/mcp-server.js";
 

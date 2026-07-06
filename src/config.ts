@@ -12,7 +12,7 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { randomBytes } from "node:crypto";
 import { homedir } from "node:os";
 import { join } from "node:path";
-import { authorForSeed } from "@rhizomes/rhizomatic";
+import { authorForSeed } from "@bombadil/rhizomatic";
 import { userSeed } from "./identity.js";
 
 export interface ChorusConfig {

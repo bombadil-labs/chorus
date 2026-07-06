@@ -169,7 +169,7 @@ tranche before it burns tokens:
 ### Waiting on Myk (not loop-executable — decision gates)
 
 - **The live cutover** (CUTOVER.md — rehearsed, runbook ready).
-- **Publishing @rhizomes/chorus** (un-private + npm token + the button).
+- **Publishing @bombadil/chorus** (un-private + npm token + the button).
 - **A hosted public commons** (which node, which visibility).
 - **A real embedding model** for the librarian (which model, local vs API — cost/privacy
   trade-offs are his call; the EmbeddingModel seam is ready).

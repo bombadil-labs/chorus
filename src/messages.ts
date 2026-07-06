@@ -9,7 +9,7 @@
 // session of a model, every session on a surface, any session scoped to a topic, or the
 // human (whose inbox is the console). No addressing at all = broadcast.
 
-import { type Pointer } from "@rhizomes/rhizomatic";
+import { type Pointer } from "@bombadil/rhizomatic";
 import { surviving, type ChorusAgent } from "./agent.js";
 import { identityAt, identityIntroductions } from "./identity.js";
 import { CHORUS_PREFIX } from "./vocab.js";

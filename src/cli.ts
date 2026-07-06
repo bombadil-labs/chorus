@@ -222,11 +222,11 @@ const COMMANDS: Record<string, CommandSpec> = {
   upgrade: {
     summary: "self-update the chorus CLI (available once published - ROADMAP Phase 4)",
     run(): number {
-      // Honest stub until @rhizomes/chorus is on npm: a self-update against an unpublished
+      // Honest stub until @bombadil/chorus is on npm: a self-update against an unpublished
       // package can only lie.
       console.error(
-        "chorus upgrade: not available yet - @rhizomes/chorus is not published (ROADMAP Phase " +
-          "4). Once it is: npm i -g @rhizomes/chorus@latest.",
+        "chorus upgrade: not available yet - @bombadil/chorus is not published (ROADMAP Phase " +
+          "4). Once it is: npm i -g @bombadil/chorus@latest.",
       );
       return 1;
     },

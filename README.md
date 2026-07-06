@@ -32,7 +32,7 @@ an author here: tune it, rank it, or fire it. None of them ever nags, and `choru
 every dial in one pass — the store's daily physical, exit 1 when anything wants a human. No view
 from nowhere, all the way up: the instruments live inside the epistemology they measure.
 
-Chorus is the product layer on [`@rhizomes/rhizomatic`](https://www.npmjs.com/package/@rhizomes/rhizomatic)
+Chorus is the product layer on [`@bombadil/rhizomatic`](https://www.npmjs.com/package/@bombadil/rhizomatic)
 — the portable signed-content-addressed-delta format ([spec + witnesses](https://github.com/mbilokonsky/rhizomatic))
 — providing the agent handle, named/keyed/encryptable stores, the MCP server, GraphQL-on-demand,
 trust dynamics, the librarian, the instruments, and the web console.

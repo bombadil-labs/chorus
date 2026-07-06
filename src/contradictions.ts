@@ -10,7 +10,7 @@
 // real embedding model is wired (that choice is Myk's; the seam is ready).
 
 import { createHash } from "node:crypto";
-import { authorForSeed, type Delta, type Pointer } from "@rhizomes/rhizomatic";
+import { authorForSeed, type Delta, type Pointer } from "@bombadil/rhizomatic";
 import { surviving, type ChorusAgent } from "./agent.js";
 import { examinerSeed, introduceExaminer } from "./examiner.js";
 import { cosine, type EmbeddingModel } from "./librarian.js";

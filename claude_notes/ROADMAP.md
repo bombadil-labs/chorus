@@ -1,10 +1,10 @@
 # Chorus — Roadmap to Alpha
 
-**Alpha candidate = a working `@rhizomes/chorus` CLI that replaces the manual tailscale node.**
+**Alpha candidate = a working `@bombadil/chorus` CLI that replaces the manual tailscale node.**
 Concretely, the day this is true:
 
 ```
-npm i -g @rhizomes/chorus
+npm i -g @bombadil/chorus
 chorus init
 chorus store adopt personal ~/.chorus/memory.sqlite     # lossless, digest-verified
 chorus serve --http                                      # an MCP node Claude connects to
@@ -23,7 +23,7 @@ monorepo. The work below is **standalone-ization + the CLI + cutover**, not a re
 
 - [x] **`git init`** + first commit; bind to a new GitHub repo. _(Myk does the `git init`; you take it from there.)_
 - [x] `npm install` and confirm **`npm run check` is green** consuming the **published**
-      `@rhizomes/rhizomatic@^0.1.0` (not a file: link). This is the proof the extraction worked.
+      `@bombadil/rhizomatic@^0.1.0` (not a file: link). This is the proof the extraction worked.
 - [x] Add a **LICENSE** (dual MIT/Apache-2.0, matching the format) — copy both `LICENSE-*` files.
 - [x] Add **CI** (`.github/workflows/ci.yml`) running the green gate on push. (Native `better-sqlite3`
       builds on the runner.)
@@ -42,7 +42,7 @@ Build `src/cli.ts` (a small arg parser — no need for a heavy framework) and wi
 slices, each green:
 
 - [x] **Packaging:** `"bin": { "chorus": "./dist/cli.js" }`, `build` (tsc → `dist`) + `prepare`,
-      `files`/`exports` mirroring `@rhizomes/rhizomatic`. _(Superseded plan note: the original
+      `files`/`exports` mirroring `@bombadil/rhizomatic`. _(Superseded plan note: the original
       "default jsonl so `npm i -g` is painless" dissolved — the default backend is now Node's
       built-in `node:sqlite`, with `better-sqlite3` demoted to an **optional** dependency and
       JSONL as the dev tier / last-resort fallback. Zero native deps in the default install.)_
@@ -88,7 +88,7 @@ slices, each green:
 
 - [ ] Un-`private`, add release scripts (`release:patch|minor|major`, like the format package), an
       **npm granular automation token** for hands-off publishing (2FA-free), and publish
-      `@rhizomes/chorus` so `npm i -g @rhizomes/chorus` works for anyone.
+      `@bombadil/chorus` so `npm i -g @bombadil/chorus` works for anyone.
 
 ---
 
@@ -96,7 +96,7 @@ slices, each green:
 
 - The **live demo is still the monorepo copy** — do not assume this repo is serving Myk yet, and do
   not touch `~/.chorus/memory.sqlite`. See [CLAUDE.md](../CLAUDE.md).
-- Substrate changes belong in the **`rhizomatic` repo** (`@rhizomes/rhizomatic`), not here.
+- Substrate changes belong in the **`rhizomatic` repo** (`@bombadil/rhizomatic`), not here.
 - The strategic north star (why any of this matters — agent accountability / behavioral provenance) is
   captured in the rhizomatic repo's private strategy notes; Myk has them.
 - When in doubt, keep Chorus growing and Rhizomatic small.

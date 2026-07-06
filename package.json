@@ -1,5 +1,5 @@
 {
-  "name": "@rhizomes/chorus",
+  "name": "@bombadil/chorus",
   "version": "0.1.0",
   "private": true,
   "description": "Memory for agents, built on Rhizomatic — every belief a signed claim.",
@@ -50,7 +50,7 @@
     "release:major": "npm version major && npm publish"
   },
   "dependencies": {
-    "@rhizomes/rhizomatic": "^0.1.0",
+    "@bombadil/rhizomatic": "npm:@rhizomes/rhizomatic@^0.1.0",
     "graphql": "^16.14.2"
   },
   "optionalDependencies": {

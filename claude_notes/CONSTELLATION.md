@@ -43,7 +43,7 @@ Almost every mechanism is already in the repo; the work is composition and ergon
 
 - **A store is a peer.** The format's
   [`peer.ts`](https://github.com/mbilokonsky/rhizomatic/blob/main/implementations/ts/src/peer.ts)
-  (shipped in `@rhizomes/rhizomatic`) already implements `Peer` = keypair + reactor + **offered
+  (shipped in `@bombadil/rhizomatic`) already implements `Peer` = keypair + reactor + **offered
   lens** + **admission** predicate, with `pullFrom(other)` doing signature-boundary partitioning
   (bundles / loose / withheld) and admission. Federation between two stores is `Peer.pullFrom`,
   over HTTP
@@ -246,7 +246,7 @@ the _same_ facts between containers. The digest is the receipt; every migration 
   · [src/shared-store.ts](../src/shared-store.ts) · migration pattern: [src/migrate.ts](../src/migrate.ts)
 - Federation as built: [peer.ts](https://github.com/mbilokonsky/rhizomatic/blob/main/implementations/ts/src/peer.ts) ·
   [http.ts](https://github.com/mbilokonsky/rhizomatic/blob/main/implementations/ts/src/http.ts)
-  (both shipped in `@rhizomes/rhizomatic`)
+  (both shipped in `@bombadil/rhizomatic`)
 - Read/admin surfaces: [src/gql.ts](../src/gql.ts) · [src/console.ts](../src/console.ts) ·
   [src/mcp-server.ts](../src/mcp-server.ts) · [src/mcp-http.ts](../src/mcp-http.ts)
 - Keys/identity: [src/identity.ts](../src/identity.ts) · Working agreement: [CLAUDE.md](../CLAUDE.md)

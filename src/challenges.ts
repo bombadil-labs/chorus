@@ -10,7 +10,7 @@
 // the slot moves (or the threshold does), the fingerprint moves, one new letter.
 
 import { createHash } from "node:crypto";
-import { authorForSeed, type Delta, type Pointer } from "@rhizomes/rhizomatic";
+import { authorForSeed, type Delta, type Pointer } from "@bombadil/rhizomatic";
 import { surviving, type ChorusAgent } from "./agent.js";
 import { examinerSeed, introduceExaminer } from "./examiner.js";
 import { messagePointers } from "./messages.js";

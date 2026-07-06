@@ -10,7 +10,7 @@
 //     unchanged verdict is never re-mailed. New movement = new fingerprint = one new letter.
 
 import { createHash } from "node:crypto";
-import { authorForSeed, type Delta, type Pointer } from "@rhizomes/rhizomatic";
+import { authorForSeed, type Delta, type Pointer } from "@bombadil/rhizomatic";
 import { surviving, type ChorusAgent } from "./agent.js";
 import { replayDecision, viewBasis } from "./decisions.js";
 import { examinerSeed, introduceExaminer } from "./examiner.js";

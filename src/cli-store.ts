@@ -5,7 +5,7 @@
 // is only ever READ.
 
 import { existsSync, statSync } from "node:fs";
-import { DeltaSet } from "@rhizomes/rhizomatic";
+import { DeltaSet } from "@bombadil/rhizomatic";
 import { flagValue, rejectUnknownFlags } from "./cli-args.js";
 import { chorusHome, resolveMasterSeed, storesRoot } from "./config.js";
 import { backendForPath, createBackend, type BackendKind } from "./store-tier.js";

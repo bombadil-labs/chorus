@@ -16,7 +16,7 @@
 import { createCipheriv, createDecipheriv, randomBytes } from "node:crypto";
 import { dirname } from "node:path";
 import { mkdirSync } from "node:fs";
-import { DeltaSet, claimsToJson, makeDelta, parseClaims, type Delta } from "@rhizomes/rhizomatic";
+import { DeltaSet, claimsToJson, makeDelta, parseClaims, type Delta } from "@bombadil/rhizomatic";
 import type { ChorusAgent } from "./agent.js";
 import type { StoreBackend } from "./store-tier.js";
 import type { SqliteDriver, SqliteDriverStatement } from "./sqlite-core.js";
