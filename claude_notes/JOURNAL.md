@@ -854,3 +854,33 @@ rule's newest corollary is that a flaky test is a diagnosis you haven't finished
 first Star Wars. Curtis's first Star Wars reference arrived as a complaint about Star Wars —
 "I'd rather jump in a garbage compactor!" — before he knew he was making it. Filed at
 event:viewing-a-new-hope-2026-07-02, speaker: user, receipts forever.)
+
+## 2026-07-07 — First contact: the comparator meets 60 voices
+
+Myk cut over to the CLI: 619 live beliefs, 60 distinct voices, 2 contested — a strikingly
+coherent mind. Then `chorus checkup` flagged 13 latent contradictions, and reading the actual
+pairs was the whole lesson: **all 13 were false positives of one class.** `watched` vs
+`watched-with` (the film vs the company), `design-direction` vs
+`design-direction:persistence-tier` (a heading vs its subsection), `open-problem` vs
+`open-problem-candidate-filler`, `sacred-fire` vs `sacred-fire-relates`, `also-titled` vs
+`title`. Every one scored exactly 0.67. Not one was a real cross-dialect contradiction.
+
+The bug: `lexicalSimilarity` rewarded ASYMMETRIC coverage. The abbreviation-matcher (built for
+env≈environment) fired whenever one name was a prefix-token of the other, so `watched` "matched"
+`watched-with` and the unmatched "with" only diluted the score to 0.67 — still over threshold.
+But an unmatched token is the whole point: it means the names ask DIFFERENT questions. A dialect
+difference RE-SPELLS the same tokens (deploy-env ↔ deployment_environment, every token paired);
+a specialization ADDS a distinguishing word. The fix gates on mutual coverage: full both ways →
+synonym; any unmatched token → scored out. Meaning-level synonymy with no shared spelling
+(owner ↔ maintainer) stays the embedding comparator's job, as it always was.
+
+The lesson that generalizes: **a heuristic's first contact with real data is worth more than any
+synthetic suite.** 216 passing tests never caught this because every fixture used clean
+env/environment pairs; one real store of 60 voices exposed it in a single `checkup`. The
+instruments meeting an actual mind is the test that matters, and it just paid for itself.
+
+Two follow-ups queued (below): the miner should WITHDRAW proposals that are no longer
+contradictions — mirroring the skeptic — so Myk's 13 already-sent letters clear themselves; and
+the console needs real resolution affordances (merge / dismiss / defer) for the day a TRUE
+contradiction appears, since 13/13 noise made "wall of text with only an ack button" read as a
+console problem when it was mostly a signal problem.

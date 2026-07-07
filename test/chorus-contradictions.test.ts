@@ -72,6 +72,40 @@ describe("contradiction mining: one question, two dialects", () => {
     expect(r2.mailed).toBe(0);
   });
 
+  it("a specialization is not a contradiction: X vs X-plus-a-word is left alone", () => {
+    // Drawn from real first-contact data (2026-07-07): the miner met a store of 60 voices and
+    // over-fired on attribute pairs where one name extends the other. `watched` (the work) and
+    // `watched-with` (the company) share a token but ask different questions — a verb and its
+    // object, not two spellings of one thing. Coverage-gated lexical similarity leaves them be.
+    for (const [a, b] of [
+      ["watched", "watched-with"],
+      ["watched", "watched-on"],
+      ["design-direction", "design-direction:persistence-tier"],
+      ["open-problem", "open-problem-candidate-filler"],
+      ["also-titled", "title"],
+    ] as const) {
+      expect(lexicalSimilarity(a, b)).toBeLessThan(0.6);
+    }
+    // …while a genuine re-spelling (every token has a partner) still scores full marks.
+    expect(lexicalSimilarity("deploy-env", "deployment_environment")).toBe(1);
+    expect(lexicalSimilarity("user-id", "userId")).toBe(1);
+
+    // End to end: an event carrying both `watched` and `watched-with` with different values
+    // draws NO proposal — the false positive that buried the real ones is gone.
+    let t = 1000;
+    const s = createSession({ masterSeedHex: MASTER, sessionId: "spec", clock: () => (t += 10) });
+    callTool(s, "begin-session", { model: "claude-fable-5" });
+    callTool(s, "remember", { about: "event:movie-night", attribute: "watched", value: "dune" });
+    callTool(s, "remember", {
+      about: "event:movie-night",
+      attribute: "watched-with",
+      value: "bailey",
+    });
+    expect(
+      mineContradictions(s.agent, MASTER, "mind", { clock: () => (t += 10) }).pairs,
+    ).toHaveLength(0);
+  });
+
   it("an embedding model widens the net to true synonyms the lexical eye cannot see", () => {
     let t = 1000;
     const s = createSession({ masterSeedHex: MASTER, sessionId: "wide", clock: () => (t += 10) });
