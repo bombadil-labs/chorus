@@ -71,6 +71,6 @@ Two tiers, deliberately split:
 - **Personal data prefers a private store.** Your `rating`, `status`, `watched-with`, and your
   watch/read `event:` entities are about _you_. Keep them in a **`private` store** — it never
   federates and is encrypted at rest (see
-  [spec/12](https://github.com/mbilokonsky/rhizomatic/blob/main/spec/12-instances-provenance-privacy.NOTE.md)).
+  [spec/12](https://github.com/bombadil-labs/rhizomatic/blob/main/spec/12-instances-provenance-privacy.NOTE.md)).
 
 Don't publish a personal media diary by default. When in doubt, the ratings go private.

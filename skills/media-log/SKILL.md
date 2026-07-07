@@ -61,5 +61,5 @@ Two tiers, deliberately split. **Catalog data** (a film's cast, director, year, 
 the work) is safe to `federate`; it is the same for everyone and gains from sharing. **Personal data**
 (the user's `rating`, `status`, `watched-with`, and their watch/read `event:` entities) is about the
 user and belongs in a **`private` store** — never federates, encrypted at rest (see
-[spec/12](https://github.com/mbilokonsky/rhizomatic/blob/main/spec/12-instances-provenance-privacy.NOTE.md)). Say so; do not publish a personal media
+[spec/12](https://github.com/bombadil-labs/rhizomatic/blob/main/spec/12-instances-provenance-privacy.NOTE.md)). Say so; do not publish a personal media
 diary by default.

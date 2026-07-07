@@ -6,11 +6,11 @@ to carry Chorus from _one shared store_ to a **constellation of named, keyed sto
 aggregate, federate, and — where you want it — stay private and leak-proof. It supersedes the
 standalone "federation v1" line item in PROGRESS.md by situating federation inside the larger shape
 the user asked for. The substrate model
-is [spec/12-instances-provenance-privacy.NOTE.md](https://github.com/mbilokonsky/rhizomatic/blob/main/spec/12-instances-provenance-privacy.NOTE.md)
-(read it first) and its companion [spec/11-federation-as-query.NOTE.md](https://github.com/mbilokonsky/rhizomatic/blob/main/spec/11-federation-as-query.NOTE.md).
+is [spec/12-instances-provenance-privacy.NOTE.md](https://github.com/bombadil-labs/rhizomatic/blob/main/spec/12-instances-provenance-privacy.NOTE.md)
+(read it first) and its companion [spec/11-federation-as-query.NOTE.md](https://github.com/bombadil-labs/rhizomatic/blob/main/spec/11-federation-as-query.NOTE.md).
 
 **Layer:** app (Chorus) — TS-only, no vectors, no two-witness requirement (the format repo's
-[CLAUDE.md](https://github.com/mbilokonsky/rhizomatic/blob/main/CLAUDE.md): nothing in the app layer is normative). **Audience:** a fresh `/loop`
+[CLAUDE.md](https://github.com/bombadil-labs/rhizomatic/blob/main/CLAUDE.md): nothing in the app layer is normative). **Audience:** a fresh `/loop`
 session per phase. Each phase is self-contained and shippable behind its own feature branch + PR,
 green gates before every commit, exactly as PR #1 (gql) and PR #2 (persistence) landed.
 
@@ -42,12 +42,12 @@ verifiable. The migration (§7) is safe by construction.
 Almost every mechanism is already in the repo; the work is composition and ergonomics, not invention:
 
 - **A store is a peer.** The format's
-  [`peer.ts`](https://github.com/mbilokonsky/rhizomatic/blob/main/implementations/ts/src/peer.ts)
+  [`peer.ts`](https://github.com/bombadil-labs/rhizomatic/blob/main/implementations/ts/src/peer.ts)
   (shipped in `@bombadil/rhizomatic`) already implements `Peer` = keypair + reactor + **offered
   lens** + **admission** predicate, with `pullFrom(other)` doing signature-boundary partitioning
   (bundles / loose / withheld) and admission. Federation between two stores is `Peer.pullFrom`,
   over HTTP
-  ([`http.ts`](https://github.com/mbilokonsky/rhizomatic/blob/main/implementations/ts/src/http.ts):
+  ([`http.ts`](https://github.com/bombadil-labs/rhizomatic/blob/main/implementations/ts/src/http.ts):
   `POST /rhz/v0/sync`, ids recomputed on the wire) or in-process.
 - **Persistence is already a seam.** [`src/store-tier.ts`](../src/store-tier.ts) `Store` interface
   (`appendDeltas` / `deltasSince` / `refresh` / `persist` + optional `deltasByTarget` /
@@ -238,14 +238,14 @@ the _same_ facts between containers. The digest is the receipt; every migration 
 
 ## 9. Pointers
 
-- Substrate model: [spec/12-instances-provenance-privacy.NOTE.md](https://github.com/mbilokonsky/rhizomatic/blob/main/spec/12-instances-provenance-privacy.NOTE.md)
-  · [spec/11-federation-as-query.NOTE.md](https://github.com/mbilokonsky/rhizomatic/blob/main/spec/11-federation-as-query.NOTE.md) ·
-  [spec/06-federation.md](https://github.com/mbilokonsky/rhizomatic/blob/main/spec/06-federation.md) ·
-  [spec/08-storage.md](https://github.com/mbilokonsky/rhizomatic/blob/main/spec/08-storage.md)
+- Substrate model: [spec/12-instances-provenance-privacy.NOTE.md](https://github.com/bombadil-labs/rhizomatic/blob/main/spec/12-instances-provenance-privacy.NOTE.md)
+  · [spec/11-federation-as-query.NOTE.md](https://github.com/bombadil-labs/rhizomatic/blob/main/spec/11-federation-as-query.NOTE.md) ·
+  [spec/06-federation.md](https://github.com/bombadil-labs/rhizomatic/blob/main/spec/06-federation.md) ·
+  [spec/08-storage.md](https://github.com/bombadil-labs/rhizomatic/blob/main/spec/08-storage.md)
 - Persistence seam: [src/store-tier.ts](../src/store-tier.ts) · [src/sqlite-store.ts](../src/sqlite-store.ts)
   · [src/shared-store.ts](../src/shared-store.ts) · migration pattern: [src/migrate.ts](../src/migrate.ts)
-- Federation as built: [peer.ts](https://github.com/mbilokonsky/rhizomatic/blob/main/implementations/ts/src/peer.ts) ·
-  [http.ts](https://github.com/mbilokonsky/rhizomatic/blob/main/implementations/ts/src/http.ts)
+- Federation as built: [peer.ts](https://github.com/bombadil-labs/rhizomatic/blob/main/implementations/ts/src/peer.ts) ·
+  [http.ts](https://github.com/bombadil-labs/rhizomatic/blob/main/implementations/ts/src/http.ts)
   (both shipped in `@bombadil/rhizomatic`)
 - Read/admin surfaces: [src/gql.ts](../src/gql.ts) · [src/console.ts](../src/console.ts) ·
   [src/mcp-server.ts](../src/mcp-server.ts) · [src/mcp-http.ts](../src/mcp-http.ts)
