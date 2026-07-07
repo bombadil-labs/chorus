@@ -69,7 +69,7 @@ A synchronicity journal is deeply personal — dreams, omens, private meaning-ma
 way:
 
 - **Keep it in a `private` store.** A private Chorus store **never federates** and is **encrypted at
-  rest** (see [spec/12](https://github.com/mbilokonsky/rhizomatic/blob/main/spec/12-instances-provenance-privacy.NOTE.md)). This is the intended
+  rest** (see [spec/12](https://github.com/bombadil-labs/rhizomatic/blob/main/spec/12-instances-provenance-privacy.NOTE.md)). This is the intended
   home for this domain — do not use a `federated` store.
 - **Do not publish or share by default.** These entries should not appear in briefings scoped to
   shared topics, and should never be pushed to a peer.

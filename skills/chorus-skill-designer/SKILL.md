@@ -75,7 +75,7 @@ look and feel complete the instant Claude serves it, before any live data arrive
 - **Let disagreement stand.** Don't last-write-wins in the UI. Surface contested attributes as multiple
   values (`recall {all: true}`); show provenance (`explain`) — who said it, which session, when.
 - **Honor the privacy tier.** A journal of private material belongs in a `private` store (never
-  federates; encrypted at rest — see [spec/12](https://github.com/mbilokonsky/rhizomatic/blob/main/spec/12-instances-provenance-privacy.NOTE.md)).
+  federates; encrypted at rest — see [spec/12](https://github.com/bombadil-labs/rhizomatic/blob/main/spec/12-instances-provenance-privacy.NOTE.md)).
   Say so in the skill's README; don't publish a personal domain by default.
 - **Idempotent by design.** Writing the same belief twice is a no-op union (content-addressed). Re-runs
   are safe; lean on it.

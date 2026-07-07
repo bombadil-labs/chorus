@@ -10,7 +10,7 @@ Backend is env-selectable (`CHORUS_STORE_BACKEND`, default `jsonl`); migration i
 below is the original work order, kept as the rationale of record.
 
 **Layer:** app (Chorus) — TS-only, no vectors, no two-witness requirement (per the format repo's
-[CLAUDE.md](https://github.com/mbilokonsky/rhizomatic/blob/main/CLAUDE.md): nothing in the app layer is normative). **Audience:** a fresh `/loop`
+[CLAUDE.md](https://github.com/bombadil-labs/rhizomatic/blob/main/CLAUDE.md): nothing in the app layer is normative). **Audience:** a fresh `/loop`
 session. This document is self-contained — you do not have the conversation that produced it. Read
 it top to bottom, then build.
 
@@ -46,7 +46,7 @@ persistence primitive AND the remote sync primitive. So design the `Store` inter
 — the same interface federation v1 will reuse.
 
 The north star (do **not** build it in this unit; just don't foreclose it) is in
-[`spec/11-federation-as-query.NOTE.md`](https://github.com/mbilokonsky/rhizomatic/blob/main/spec/11-federation-as-query.NOTE.md): federation as
+[`spec/11-federation-as-query.NOTE.md`](https://github.com/bombadil-labs/rhizomatic/blob/main/spec/11-federation-as-query.NOTE.md): federation as
 publish/subscribe over arbitrary **queries**, where what flows to a peer is exactly the _relevance
 closure_ of a published query, and privacy is the default-deny property of what you publish. The
 only concession this unit makes to that future: the read seam should be shaped so a later
@@ -164,8 +164,8 @@ deltasSince(knownIds: ReadonlySet<string>): Delta[]; // stored deltas whose id �
 - Current store: [`src/shared-store.ts`](../src/shared-store.ts) · its tests:
   [`test/chorus-shared-store.test.ts`](../test/chorus-shared-store.test.ts)
 - Callers: [`src/mcp-server.ts`](../src/mcp-server.ts) · [`src/mcp-http.ts`](../src/mcp-http.ts)
-- The federation north star: [`spec/11-federation-as-query.NOTE.md`](https://github.com/mbilokonsky/rhizomatic/blob/main/spec/11-federation-as-query.NOTE.md)
+- The federation north star: [`spec/11-federation-as-query.NOTE.md`](https://github.com/bombadil-labs/rhizomatic/blob/main/spec/11-federation-as-query.NOTE.md)
 - Storage spec (packs as the at-rest interchange form, complementary to a live store):
-  [`spec/08-storage.md`](https://github.com/mbilokonsky/rhizomatic/blob/main/spec/08-storage.md)
+  [`spec/08-storage.md`](https://github.com/bombadil-labs/rhizomatic/blob/main/spec/08-storage.md)
 - Working agreement: [CLAUDE.md](../CLAUDE.md) · the format repo's
-  [ts CLAUDE.md](https://github.com/mbilokonsky/rhizomatic/blob/main/implementations/ts/CLAUDE.md)
+  [ts CLAUDE.md](https://github.com/bombadil-labs/rhizomatic/blob/main/implementations/ts/CLAUDE.md)

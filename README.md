@@ -33,7 +33,7 @@ every dial in one pass — the store's daily physical, exit 1 when anything want
 from nowhere, all the way up: the instruments live inside the epistemology they measure.
 
 Chorus is the product layer on [`@bombadil/rhizomatic`](https://www.npmjs.com/package/@bombadil/rhizomatic)
-— the portable signed-content-addressed-delta format ([spec + witnesses](https://github.com/mbilokonsky/rhizomatic))
+— the portable signed-content-addressed-delta format ([spec + witnesses](https://github.com/bombadil-labs/rhizomatic))
 — providing the agent handle, named/keyed/encryptable stores, the MCP server, GraphQL-on-demand,
 trust dynamics, the librarian, the instruments, and the web console.
 

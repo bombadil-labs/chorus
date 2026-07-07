@@ -87,6 +87,6 @@ traversal works. Full example in [chorus.md](chorus.md). In short: mint `synchro
 
 A synchronicity journal is among the most personal things a person keeps. It belongs in a **private**
 store — one that never federates and is encrypted at rest (see
-[spec/12](https://github.com/mbilokonsky/rhizomatic/blob/main/spec/12-instances-provenance-privacy.NOTE.md)). Do not publish, share, or federate
+[spec/12](https://github.com/bombadil-labs/rhizomatic/blob/main/spec/12-instances-provenance-privacy.NOTE.md)). Do not publish, share, or federate
 these entries by default, and don't surface them in a briefing scoped to shared topics. See the
 README's privacy section.

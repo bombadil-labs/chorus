@@ -69,7 +69,7 @@ scaffolded and documented, not turnkey.
 
 **Decisions are frequently sensitive** — hiring, money, strategy, relationships, mistakes you'd rather
 own quietly. Keep this journal in a **`private`** store: one that **never federates** and is **encrypted
-at rest** (see [spec/12](https://github.com/mbilokonsky/rhizomatic/blob/main/spec/12-instances-provenance-privacy.NOTE.md)). Do **not** publish or
+at rest** (see [spec/12](https://github.com/bombadil-labs/rhizomatic/blob/main/spec/12-instances-provenance-privacy.NOTE.md)). Do **not** publish or
 federate a decision journal by default. The append-only ethic keeps your _history_ honest; the private
 tier keeps it _yours_. If you ever want to share a specific decision's track record, export that one
 deliberately — never flip the whole store to federated.
