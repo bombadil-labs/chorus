@@ -31,15 +31,19 @@ jobs:
       - run: node dist/cli.js help
       # The PUBLISHED form, without publishing: pack the tarball, install it globally into a
       # temp prefix, and drive the installed `chorus` through a real init → store → write →
-      # read loop. This is what `npm i -g @rhizomes/chorus` will exercise on day one.
+      # read loop. This is what `npm i -g @bombadil/chorus` exercises on day one.
       - name: install-from-tarball smoke
         shell: bash
         env:
           CHORUS_HOME: ${{ runner.temp }}/chorus-smoke-home
         run: |
-          npm pack
+          # npm pack flattens the scoped name into the filename (@bombadil/chorus →
+          # bombadil-chorus-<v>.tgz) — a shadow spelling a rename sweep for "@org/" will
+          # miss, which is exactly how the org move broke this glob once. Ask npm for the
+          # real filename instead of guessing it.
+          TARBALL=$(npm pack --json | node -pe "JSON.parse(require('fs').readFileSync(0,'utf8'))[0].filename")
           PREFIX="${RUNNER_TEMP}/chorus-prefix"
-          npm install -g ./rhizomes-chorus-*.tgz --prefix "$PREFIX"
+          npm install -g "./$TARBALL" --prefix "$PREFIX"
           BIN="$PREFIX/bin/chorus"; [ -f "$BIN" ] || BIN="$PREFIX/chorus"
           "$BIN" --version
           "$BIN" init
