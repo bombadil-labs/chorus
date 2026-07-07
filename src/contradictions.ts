@@ -36,15 +36,23 @@ const tokens = (name: string): string[] =>
 const tokenMatch = (a: string, b: string): boolean =>
   a === b || (a.length >= 3 && b.startsWith(a)) || (b.length >= 3 && a.startsWith(b));
 
-// Token-level Jaccard with abbreviation-aware matching. "deploy-env" vs
-// "deployment_environment" → both tokens match → 1.0; "owner" vs "region" → 0.
+// Coverage-gated token match. A dialect difference RE-SPELLS the same tokens — every token
+// on each side has a partner ("deploy-env" ↔ "deployment_environment" → 1.0). An UNMATCHED
+// token means the names ask different questions: "watched" vs "watched-with" is a verb and
+// its object, "design-direction" vs "design-direction:persistence-tier" is a heading and a
+// subsection — a SPECIALIZATION, not a synonym. Asymmetric coverage scores out, so the miner
+// stops proposing "X vs X-plus-a-word" as a contradiction. Meaning-level synonymy with no
+// shared spelling ("owner" ↔ "maintainer") is the embedding comparator's job, never this one's.
 export const lexicalSimilarity: Similarity = (a, b) => {
   const ta = tokens(a);
   const tb = tokens(b);
   if (ta.length === 0 || tb.length === 0) return 0;
-  const matchedA = ta.filter((x) => tb.some((y) => tokenMatch(x, y))).length;
-  const matchedB = tb.filter((y) => ta.some((x) => tokenMatch(x, y))).length;
-  return (matchedA + matchedB) / (ta.length + tb.length);
+  const coverage = (xs: readonly string[], ys: readonly string[]): number =>
+    xs.filter((x) => ys.some((y) => tokenMatch(x, y))).length / xs.length;
+  const cA = coverage(ta, tb);
+  const cB = coverage(tb, ta);
+  if (cA === 1 && cB === 1) return 1; // mutual full coverage: the same tokens, re-spelled
+  return Math.min(cA, cB) * 0.5; // an unmatched token on either side: capped below threshold
 };
 
 // The same comparator through a real model's eyes, the moment one is wired. Out-of-vocabulary

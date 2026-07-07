@@ -101,6 +101,28 @@ context to be dismissed in one read, and ack-rates are its future report card, p
       Myk's nightcap protocol (below) is integration work that should precede another feature
       phase; N.1/N.3 expansion may reshape what Phase VII wants to be.
 
+### Now — first-contact fixes (from the live cutover, 2026-07-07)
+
+The instruments met Myk's real store (619 beliefs, 60 voices) and taught us things no synthetic
+suite could. See JOURNAL 2026-07-07.
+
+- [x] **FC.1 Contradiction precision** — _Done 2026-07-07:_ coverage-gated `lexicalSimilarity`.
+      Asymmetric token coverage (X vs X-plus-a-word — `watched`/`watched-with`,
+      `design-direction`/`design-direction:persistence-tier`) is a specialization, not a
+      synonym, and no longer proposed. All 13 of the cutover's false positives were this one
+      class; the fix drops them to ~0 while keeping true re-spellings (deploy-env ↔
+      deployment_environment). Tests pin the real-data patterns.
+- [ ] **FC.2 The miner withdraws** — mirror the skeptic: a contradiction proposal whose pair is
+      no longer generated (retuned comparator, recast values, retraction) should be WITHDRAWN
+      (a named-reason negation of the letter), so already-sent proposals self-clear instead of
+      lingering in the inbox. This is what would clear Myk's existing 13.
+- [ ] **FC.3 Console resolution affordances** — the human inbox shows contradiction letters as
+      wall-of-text with only an `ack` button. Give each a card: the two attributes and their
+      values side by side, a plain-language ask ("same thing, or different?"), and actions —
+      **merge** (recast the stray claims onto one chosen attribute), **dismiss** (a signed
+      "not-a-contradiction" disposition so the miner stops proposing it), **defer**. Resolution
+      writes signed claims by the human's key; nothing auto-merges.
+
 ### The nightcap protocol (Myk, 2026-07-03, verbatim order — run when the V-ladder thins)
 
 - [x] **N.1 Expansion** — _Done 2026-07-03 (journal: Ten new windows):_ a genuinely divergent
